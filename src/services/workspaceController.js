@@ -16,6 +16,7 @@
 
 import { APPLICATIONS } from '../config/applications';
 import { GITHUB_PROFILE_URL, GITHUB_USERNAME } from '../config/projects';
+import { resolveApplication, APPLICATION_REGISTRY } from '../config/applicationRegistry';
 
 // Allowed Action Types Registry
 export const ACTION_REGISTRY = {
@@ -24,6 +25,7 @@ export const ACTION_REGISTRY = {
   CLOSE_APPLICATION: 'CLOSE_APPLICATION',
   MINIMIZE_APPLICATION: 'MINIMIZE_APPLICATION',
   MAXIMIZE_APPLICATION: 'MAXIMIZE_APPLICATION',
+  RESTORE_APPLICATION: 'RESTORE_APPLICATION',
   SWITCH_APPLICATION: 'SWITCH_APPLICATION',
   OPEN_MULTIPLE_APPLICATIONS: 'OPEN_MULTIPLE_APPLICATIONS',
   CLOSE_ALL_WINDOWS: 'CLOSE_ALL_WINDOWS',
@@ -39,42 +41,14 @@ export const ACTION_REGISTRY = {
   NAVIGATE: 'NAVIGATE',
   OPEN_GITHUB: 'OPEN_GITHUB',
   OPEN_LIVE_WEBSITE: 'OPEN_LIVE_WEBSITE',
-  OPEN_PROJECT_DETAILS: 'OPEN_PROJECT_DETAILS'
+  OPEN_PROJECT_DETAILS: 'OPEN_PROJECT_DETAILS',
+  FOCUS_PLANET: 'FOCUS_PLANET',
+  HIGHLIGHT_TECH_PLANETS: 'HIGHLIGHT_TECH_PLANETS',
+  RESET_UNIVERSE: 'RESET_UNIVERSE',
+  SWITCH_VIEW_MODE: 'SWITCH_VIEW_MODE'
 };
 
-/**
- * Find application definition by id, name, or synonym
- */
-export const resolveApplication = (query = '') => {
-  if (!query) return null;
-  const q = query.toLowerCase().trim();
-
-  // Keyword synonyms mapping
-  if (q.includes('import') || q.includes('export') || q.includes('rsk') || q.includes('trade')) {
-    return APPLICATIONS.find(a => a.id === 'rsk-traders');
-  }
-  if (q.includes('photo') || q.includes('camera') || q.includes('studio')) {
-    return APPLICATIONS.find(a => a.id === 'photography');
-  }
-  if (q.includes('jewel') || q.includes('gold') || q.includes('bullion')) {
-    return APPLICATIONS.find(a => a.id === 'jewellery');
-  }
-  if (q.includes('restaurant') || q.includes('food') || q.includes('dining') || q.includes('menu')) {
-    return APPLICATIONS.find(a => a.id === 'restaurant');
-  }
-  if (q.includes('job') || q.includes('career') || q.includes('sphere')) {
-    return APPLICATIONS.find(a => a.id === 'jobsphere');
-  }
-  if (q.includes('erp') || q.includes('college') || q.includes('campus') || q.includes('school')) {
-    return APPLICATIONS.find(a => a.id === 'college-erp');
-  }
-
-  return APPLICATIONS.find(
-    a => a.id === q ||
-         a.shortName.toLowerCase() === q ||
-         a.name.toLowerCase().includes(q)
-  );
-};
+export { resolveApplication };
 
 /**
  * Execute a single validated action through the Workspace Controller
@@ -104,6 +78,8 @@ export const executeSingleAction = (action, wm) => {
     minimizeWindow,
     minimizeAllWindows,
     maximizeWindow,
+    restoreWindow,
+    switchWindow,
     arrangeWindows,
     focusWindow,
     setTheme,
@@ -111,6 +87,12 @@ export const executeSingleAction = (action, wm) => {
     toggleDock,
     openProjectDetails,
     setIsLauncherOpen,
+    viewMode,
+    setViewMode,
+    selectedPlanetId,
+    setSelectedPlanetId,
+    techFilter,
+    setTechFilter,
     gitHubProjects = [],
     windows = {}
   } = wm;
@@ -121,11 +103,19 @@ export const executeSingleAction = (action, wm) => {
       const targetQuery = directValue || payload.applicationId || payload.appId || payload.target || '';
       const app = resolveApplication(targetQuery);
       if (app) {
-        openWindow(app.id);
+        if (windows[app.id] && windows[app.id].isOpen) {
+          if (windows[app.id].isMinimized && restoreWindow) {
+            restoreWindow(app.id);
+          } else {
+            focusWindow(app.id);
+          }
+        } else {
+          openWindow(app.id);
+        }
         return { 
           success: true, 
-          message: `${app.name} is now open. Explore the application!`,
-          target: app.name
+          message: `Opening your ${app.shortName} project.`,
+          target: app.shortName
         };
       }
       return { success: false, message: `Could not find an application matching "${targetQuery}".` };
@@ -135,9 +125,13 @@ export const executeSingleAction = (action, wm) => {
       const targetQuery = directValue || payload.applicationId || payload.appId || payload.target || '';
       const app = resolveApplication(targetQuery);
       const targetId = app ? app.id : targetQuery.toLowerCase();
-      if (windows[targetId]) {
+      if (windows[targetId] && windows[targetId].isOpen) {
         closeWindow(targetId);
-        return { success: true, message: `Closed ${app ? app.name : targetId} window.`, target: targetId };
+        return { 
+          success: true, 
+          message: `${app ? app.shortName : targetId} has been closed successfully.`, 
+          target: app ? app.shortName : targetId 
+        };
       }
       return { success: false, message: `Window "${targetId}" is not currently open.` };
     }
@@ -146,9 +140,13 @@ export const executeSingleAction = (action, wm) => {
       const targetQuery = directValue || payload.applicationId || payload.appId || payload.target || '';
       const app = resolveApplication(targetQuery);
       const targetId = app ? app.id : targetQuery.toLowerCase();
-      if (windows[targetId]) {
+      if (windows[targetId] && windows[targetId].isOpen) {
         minimizeWindow(targetId);
-        return { success: true, message: `Minimized ${app ? app.name : targetId} window.`, target: targetId };
+        return { 
+          success: true, 
+          message: `Minimized ${app ? app.shortName : targetId} window.`, 
+          target: app ? app.shortName : targetId 
+        };
       }
       return { success: false, message: `Window "${targetId}" is not open to minimize.` };
     }
@@ -157,27 +155,77 @@ export const executeSingleAction = (action, wm) => {
       const targetQuery = directValue || payload.applicationId || payload.appId || payload.target || '';
       const app = resolveApplication(targetQuery);
       const targetId = app ? app.id : targetQuery.toLowerCase();
-      if (windows[targetId]) {
+      if (windows[targetId] && windows[targetId].isOpen) {
         maximizeWindow(targetId);
-        return { success: true, message: `Maximized ${app ? app.name : targetId} window.`, target: targetId };
+        return { 
+          success: true, 
+          message: `Maximized ${app ? app.shortName : targetId} window.`, 
+          target: app ? app.shortName : targetId 
+        };
       } else if (app) {
-        // Open and maximize
         openWindow(app.id);
         setTimeout(() => maximizeWindow(app.id), 50);
-        return { success: true, message: `Opened and maximized ${app.name}.`, target: app.name };
+        return { 
+          success: true, 
+          message: `Opened and maximized ${app.shortName}.`, 
+          target: app.shortName 
+        };
       }
       return { success: false, message: `Could not find application "${targetQuery}".` };
+    }
+
+    case 'RESTORE_APPLICATION': {
+      const targetQuery = directValue || payload.applicationId || payload.appId || payload.target || '';
+      const app = resolveApplication(targetQuery);
+      const targetId = app ? app.id : targetQuery.toLowerCase();
+      if (windows[targetId] && windows[targetId].isOpen) {
+        if (restoreWindow) restoreWindow(targetId);
+        else focusWindow(targetId);
+        return { 
+          success: true, 
+          message: `Restored ${app ? app.shortName : targetId} window.`, 
+          target: app ? app.shortName : targetId 
+        };
+      } else if (app) {
+        openWindow(app.id);
+        return { 
+          success: true, 
+          message: `Restored and opened ${app.shortName}.`, 
+          target: app.shortName 
+        };
+      }
+      return { success: false, message: `Window "${targetId}" is not open to restore.` };
     }
 
     case 'SWITCH_APPLICATION': {
       const targetQuery = directValue || payload.applicationId || payload.appId || payload.target || '';
       const app = resolveApplication(targetQuery);
       const targetId = app ? app.id : targetQuery.toLowerCase();
+      if (switchWindow && app) {
+        switchWindow(app.id);
+        return { 
+          success: true, 
+          message: `Switching to your ${app.shortName} window.`, 
+          target: app.shortName 
+        };
+      }
       if (windows[targetId]) {
         focusWindow(targetId);
-        return { success: true, message: `Switched focus to ${app ? app.name : targetId}.`, target: targetId };
+        return { 
+          success: true, 
+          message: `Switching to your ${app ? app.shortName : targetId} window.`, 
+          target: app ? app.shortName : targetId 
+        };
       }
-      return { success: false, message: `Window "${targetId}" is not open.` };
+      if (app) {
+        openWindow(app.id);
+        return { 
+          success: true, 
+          message: `Switching to your ${app.shortName} window.`, 
+          target: app.shortName 
+        };
+      }
+      return { success: false, message: `Could not find application "${targetQuery}".` };
     }
 
     case 'OPEN_MULTIPLE_APPLICATIONS': {
@@ -187,7 +235,7 @@ export const executeSingleAction = (action, wm) => {
         const a = resolveApplication(q);
         if (a) {
           openWindow(a.id);
-          opened.push(a.name);
+          opened.push(a.shortName || a.name);
         }
       });
       return {
@@ -216,11 +264,84 @@ export const executeSingleAction = (action, wm) => {
       let mode = directValue || payload.mode || 'side-by-side';
       if (canonicalType === 'CASCADE_WINDOWS') mode = 'cascade';
       if (canonicalType === 'TILE_WINDOWS') mode = 'tile';
+
+      const requestedApps = payload.applications || payload.targets || [];
+      if (requestedApps.length > 0) {
+        requestedApps.forEach(q => {
+          const a = resolveApplication(q);
+          if (a) openWindow(a.id);
+        });
+        setTimeout(() => arrangeWindows(mode), 120);
+        const appNames = requestedApps.map(q => {
+          const a = resolveApplication(q);
+          return a ? a.shortName : q;
+        });
+        return {
+          success: true,
+          message: `Opened ${appNames.join(' and ')} ${mode}.`,
+          target: appNames.join(' & ')
+        };
+      }
+
       arrangeWindows(mode);
       return { 
         success: true, 
         message: `Arranged windows in ${mode} layout.`, 
         target: `Arrange: ${mode}` 
+      };
+    }
+
+    // 3. 3D UNIVERSE COMMANDS
+    case 'FOCUS_PLANET': {
+      const targetQuery = directValue || payload.planetId || payload.target || '';
+      const app = resolveApplication(targetQuery);
+      if (setViewMode) setViewMode('universe');
+      if (app) {
+        if (setSelectedPlanetId) setSelectedPlanetId(app.id);
+        window.dispatchEvent(new CustomEvent('kamverse:focus-planet', { detail: { planetId: app.id } }));
+        if (payload.openWindow) {
+          openWindow(app.id);
+        }
+        return {
+          success: true,
+          message: `Navigating 3D camera to ${app.shortName} planet.`,
+          target: app.shortName
+        };
+      }
+      return { success: false, message: `Could not find a project planet matching "${targetQuery}".` };
+    }
+
+    case 'HIGHLIGHT_TECH_PLANETS': {
+      const tech = directValue || payload.tech || payload.technology || 'Python';
+      if (setViewMode) setViewMode('universe');
+      if (setTechFilter) setTechFilter(tech);
+      window.dispatchEvent(new CustomEvent('kamverse:highlight-tech', { detail: { tech } }));
+      return {
+        success: true,
+        message: `Highlighting ${tech} project planets in the 3D Universe.`,
+        target: tech
+      };
+    }
+
+    case 'RESET_UNIVERSE': {
+      if (setViewMode) setViewMode('universe');
+      if (setSelectedPlanetId) setSelectedPlanetId(null);
+      if (setTechFilter) setTechFilter(null);
+      window.dispatchEvent(new CustomEvent('kamverse:reset-universe', { detail: {} }));
+      return {
+        success: true,
+        message: 'Reset 3D camera to cosmic orbital view.',
+        target: 'Universe Orbit'
+      };
+    }
+
+    case 'SWITCH_VIEW_MODE': {
+      const mode = (directValue || payload.mode || 'universe').toLowerCase();
+      if (setViewMode) setViewMode(mode === 'universe' ? 'universe' : 'desktop');
+      return {
+        success: true,
+        message: `Switched view mode to ${mode === 'universe' ? '3D Universe' : 'Desktop Canvas'}.`,
+        target: mode
       };
     }
 
@@ -307,8 +428,12 @@ export const executeSingleAction = (action, wm) => {
     case 'NAVIGATE': {
       const view = (directValue || payload.view || payload.target || '').toLowerCase().trim();
       if (view === 'desktop' || view === 'home') {
+        if (setViewMode) setViewMode('desktop');
         minimizeAllWindows();
         return { success: true, message: 'Returned to the KAMVERSE desktop canvas.', target: 'Desktop' };
+      } else if (view === 'universe' || view === '3d' || view === 'space') {
+        if (setViewMode) setViewMode('universe');
+        return { success: true, message: 'Entered 3D Project Universe.', target: '3D Universe' };
       } else if (view === 'projects') {
         openWindow('projects-window', { title: 'Projects Explorer', type: 'projects' });
         return { success: true, message: 'Opened Projects Explorer.', target: 'Projects' };

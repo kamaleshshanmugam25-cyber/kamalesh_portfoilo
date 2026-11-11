@@ -19,6 +19,7 @@
 import { PROFILE } from '../config/profile.js';
 import { APPLICATIONS } from '../config/applications.js';
 import { GITHUB_USERNAME, GITHUB_PROFILE_URL } from '../config/projects.js';
+import { resolveApplication } from '../config/applicationRegistry.js';
 
 export const INTENT_TYPES = {
   GREETING: 'GREETING',
@@ -45,13 +46,17 @@ export const classifyIntent = (rawPrompt = '', history = []) => {
   const p = rawPrompt.trim().toLowerCase().replace(/[?!.,;]/g, '');
 
   // 1. GREETING
-  const greetingExact = ['hi', 'hello', 'hey', 'heya', 'howdy', 'hola', 'yo', 'sup', 'greetings'];
-  const greetingPhrases = ['good morning', 'good afternoon', 'good evening', 'hi there', 'hello there', 'hey kam'];
+  const greetingExact = ['hi', 'hello', 'hey', 'heya', 'howdy', 'hola', 'yo', 'sup', 'greetings', 'hi chat', 'hello chat', 'hey chat'];
+  const greetingPhrases = ['good morning', 'good afternoon', 'good evening', 'hi there', 'hello there', 'hey kam', 'hi chat', 'hello chat', 'hey chat'];
   if (greetingExact.includes(p) || greetingPhrases.some(phrase => p === phrase || p.startsWith(phrase + ' '))) {
     return { intent: INTENT_TYPES.GREETING };
   }
 
   // 2. IDENTITY QUESTION
+  if (p.includes('are you there') || p === 'you there' || p === 'u there') {
+    return { intent: INTENT_TYPES.IDENTITY_QUESTION, subIntent: 'PRESENCE' };
+  }
+
   if (
     p.includes('your name') || 
     p === 'who are you' || 
@@ -159,12 +164,12 @@ export const classifyIntent = (rawPrompt = '', history = []) => {
 
   // 5. WORKSPACE COMMANDS
   // Multi-step commands (open X and Y side by side)
-  if ((p.includes('open') || p.includes('launch')) && (p.includes('side by side') || p.includes('and arrange') || p.includes('together'))) {
+  if ((p.includes('open') || p.includes('launch')) && (p.includes('side by side') || p.includes('side-by-side') || p.includes('and arrange') || p.includes('together') || (p.includes('and') && (p.includes('side') || p.includes('arrange'))))) {
     return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'MULTI_OPEN_ARRANGE' };
   }
 
   // Window arrangement
-  if (p.includes('side by side') || (p.includes('arrange') && p.includes('windows'))) {
+  if (p.includes('side by side') || p.includes('side-by-side') || (p.includes('arrange') && p.includes('windows'))) {
     return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'ARRANGE_SIDE_BY_SIDE' };
   }
   if (p.includes('cascade')) {
@@ -176,62 +181,81 @@ export const classifyIntent = (rawPrompt = '', history = []) => {
   if (p.includes('close all') || p.includes('close everything') || p.includes('shut all')) {
     return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'CLOSE_ALL' };
   }
-  if (p.includes('minimize all') || p.includes('show desktop') || p.includes('go to desktop') || p.includes('clear screen')) {
+  if (p.includes('minimize all') || p.includes('clear screen')) {
     return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'MINIMIZE_ALL' };
   }
-
-  // Theme Commands
-  if (p.includes('dark mode') || p.includes('dark theme') || p.includes('midnight theme')) {
-    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'THEME_DARK' };
-  }
-  if (p.includes('light mode') || p.includes('light theme') || p.includes('bright mode') || p.includes('white theme')) {
-    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'THEME_LIGHT' };
-  }
-  if (p.includes('yellow theme') || p.includes('neo-brutalist theme') || p.includes('reset theme')) {
-    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'THEME_YELLOW' };
+  if (p.includes('go back to desktop') || p.includes('go to desktop') || p.includes('back to desktop') || p.includes('show desktop') || p.includes('return to desktop')) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'NAV_DESKTOP' };
   }
 
-  // Dock Commands
-  if (p.includes('hide dock') || p.includes('remove dock')) {
-    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'DOCK_HIDE' };
+  // 3D Universe
+  if (p.includes('reset the universe') || p.includes('reset universe')) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'RESET_UNIVERSE' };
   }
-  if (p.includes('show dock') || p.includes('unhide dock')) {
-    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'DOCK_SHOW' };
+  if (p.includes('python projects') || p.includes('show python') || p.includes('show my python')) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'HIGHLIGHT_PYTHON' };
   }
-
-  // Show my projects / Projects explorer command
-  if (
-    p === 'show my projects' || 
-    p === 'show projects' || 
-    p === 'show all projects' || 
-    p === 'open projects' || 
-    p === 'open project explorer' ||
-    p.includes('show my projects') ||
-    p.includes('browse projects') ||
-    p.includes('open projects')
-  ) {
-    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'OPEN_PROJECTS' };
+  if (p.includes('react projects') || p.includes('show react') || p.includes('filter by react')) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'FILTER_REACT' };
+  }
+  if (p.includes('featured projects')) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'FILTER_FEATURED' };
   }
 
-  // Application Commands (Open, Close, Minimize, Maximize)
-  const appKeywords = ['rsk', 'traders', 'photography', 'photo', 'jewellery', 'jewelry', 'gold', 'restaurant', 'food', 'jobsphere', 'college', 'erp'];
-  if (p.startsWith('open ') || p.startsWith('launch ') || p.startsWith('start ') || p.startsWith('view ')) {
-    const hasApp = appKeywords.some(k => p.includes(k));
-    if (hasApp) {
-      return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'OPEN_APP' };
+  // App Switch / Tab Commands
+  if (p.endsWith(' tab') || p.startsWith('switch to ') || p.startsWith('bring ') || p.startsWith('focus ') || p.startsWith('go to ')) {
+    const clean = p.replace(' tab', '').replace('switch to ', '').replace('bring ', '').replace('focus ', '').replace('go to ', '').replace(' to front', '').replace(' window', '');
+    if (resolveApplication(clean) || resolveApplication(p)) {
+      return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'SWITCH_APP' };
     }
   }
 
-  if (p.startsWith('close ') && appKeywords.some(k => p.includes(k))) {
-    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'CLOSE_APP' };
+  // Restore Window
+  if (p.startsWith('restore ') || p.startsWith('unminimize ')) {
+    const clean = p.replace('restore ', '').replace('unminimize ', '').replace(' window', '');
+    if (resolveApplication(clean) || resolveApplication(p)) {
+      return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'RESTORE_APP' };
+    }
   }
 
-  if (p.startsWith('minimize ') && appKeywords.some(k => p.includes(k))) {
-    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'MINIMIZE_APP' };
+  // Close Application
+  if (p.startsWith('close ') || p.startsWith('exit ')) {
+    const clean = p.replace('close ', '').replace('exit ', '').replace(' window', '');
+    if (resolveApplication(clean) || resolveApplication(p)) {
+      return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'CLOSE_APP' };
+    }
   }
 
-  if (p.startsWith('maximize ') && appKeywords.some(k => p.includes(k))) {
-    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'MAXIMIZE_APP' };
+  // Minimize Application
+  if (p.startsWith('minimize ')) {
+    const clean = p.replace('minimize ', '').replace(' window', '');
+    if (resolveApplication(clean) || resolveApplication(p)) {
+      return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'MINIMIZE_APP' };
+    }
+  }
+
+  // Maximize Application
+  if (p.startsWith('maximize ') || p.includes('full screen')) {
+    const clean = p.replace('maximize ', '').replace('make ', '').replace(' full screen', '').replace(' window', '');
+    if (resolveApplication(clean) || resolveApplication(p)) {
+      return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'MAXIMIZE_APP' };
+    }
+  }
+
+  // 3D Universe focus planet
+  if (p.startsWith('show ') && !p.startsWith('show my projects') && !p.startsWith('show projects')) {
+    const clean = p.replace('show ', '').replace(' planet', '').replace(' website', '');
+    if (resolveApplication(clean)) {
+      return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'FOCUS_PLANET' };
+    }
+  }
+
+  // Open Application
+  if (p.startsWith('open ') || p.startsWith('launch ') || p.startsWith('start ') || p.startsWith('view ') || p.startsWith('show my ')) {
+    const clean = p.replace('open ', '').replace('launch ', '').replace('start ', '').replace('view ', '').replace('show my ', '').replace(' website', '');
+    if (resolveApplication(clean) || resolveApplication(p)) {
+      return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'OPEN_APP' };
+    }
   }
 
   // Project Filters (e.g. show python projects)
@@ -329,7 +353,10 @@ export const queryKnowledgeEngine = (prompt = '', gitHubProjects = [], history =
     // 2. IDENTITY QUESTIONS
     // ============================================================
     case INTENT_TYPES.IDENTITY_QUESTION: {
-      if (subIntent === 'NAME') {
+      if (subIntent === 'PRESENCE') {
+        message = "Always ready! What would you like me to do?";
+        suggestions = ['What can you do?', 'Open RSK Traders', 'Show my projects'];
+      } else if (subIntent === 'NAME') {
         message = "I'm KAM AI, your personal AI assistant inside KAMVERSE! ⚡";
         suggestions = ['What can you do?', 'Who created you?', 'Show my projects'];
       } else if (subIntent === 'CREATOR') {
@@ -352,11 +379,11 @@ export const queryKnowledgeEngine = (prompt = '', gitHubProjects = [], history =
     // 3. CAPABILITY QUESTIONS
     // ============================================================
     case INTENT_TYPES.CAPABILITY_QUESTION: {
-      message = "I can manage your workspace, open projects, arrange windows, search repositories, switch themes and explore your GitHub activity.";
+      message = "I can open applications, manage windows, search your projects, explore GitHub activity and customize your workspace.";
       suggestions = [
         'Open RSK Traders',
         'Show my projects',
-        'Open RSK Traders and Photography side by side',
+        'Open RSK Traders and JobSphere side-by-side',
         'Enable dark mode'
       ];
       break;
@@ -367,7 +394,7 @@ export const queryKnowledgeEngine = (prompt = '', gitHubProjects = [], history =
     // ============================================================
     case INTENT_TYPES.GENERAL_CONVERSATION: {
       if (subIntent === 'GRATITUDE') {
-        message = "You're welcome! Happy to help. 😊";
+        message = "You're welcome! Happy to help.";
         suggestions = ['Show my projects', 'What can you do?', 'Open RSK Traders'];
       } else if (subIntent === 'STATUS_CHECK') {
         message = "I'm running smoothly at 100% and ready to assist! How are things with you?";
@@ -427,10 +454,10 @@ export const queryKnowledgeEngine = (prompt = '', gitHubProjects = [], history =
       if (subIntent === 'MULTI_OPEN_ARRANGE') {
         const appsToOpen = [];
         if (lower.includes('rsk') || lower.includes('trader')) appsToOpen.push({ id: 'rsk-traders', name: 'RSK Traders' });
+        if (lower.includes('job') || lower.includes('sphere') || lower.includes('jobspeher') || lower.includes('jobspher') || lower.includes('jobshere')) appsToOpen.push({ id: 'jobsphere', name: 'JobSphere' });
         if (lower.includes('photo') || lower.includes('camera')) appsToOpen.push({ id: 'photography', name: 'Photography' });
         if (lower.includes('jewel') || lower.includes('gold')) appsToOpen.push({ id: 'jewellery', name: 'Gold Jewellery' });
         if (lower.includes('restaurant') || lower.includes('food')) appsToOpen.push({ id: 'restaurant', name: 'Restaurant' });
-        if (lower.includes('job') || lower.includes('sphere')) appsToOpen.push({ id: 'jobsphere', name: 'JobSphere' });
         if (lower.includes('erp') || lower.includes('college')) appsToOpen.push({ id: 'college-erp', name: 'College ERP' });
 
         if (appsToOpen.length >= 2) {
@@ -444,30 +471,122 @@ export const queryKnowledgeEngine = (prompt = '', gitHubProjects = [], history =
           actions.push({
             type: 'ARRANGE_WINDOWS',
             value: 'side-by-side',
-            payload: { mode: 'side-by-side' }
+            payload: { mode: 'side-by-side', applications: appsToOpen.map(a => a.id) }
           });
-          message = `Opened ${appsToOpen.map(a => a.name).join(' and ')} and arranged them side by side on your screen!`;
+          message = `Opened ${appsToOpen.map(a => a.name).join(' and ')} side-by-side.`;
           suggestions = ['Tile windows', 'Close all windows', 'Show my projects'];
         } else {
-          message = "Please specify at least two applications to arrange side by side (e.g. RSK Traders and Photography).";
-          suggestions = ['Open RSK Traders and Photography side by side', 'Show my projects'];
+          message = "Please specify at least two applications to arrange side by side (e.g. RSK Traders and JobSphere).";
+          suggestions = ['Open RSK Traders and JobSphere side-by-side', 'Show my projects'];
         }
       } else if (subIntent === 'OPEN_APP') {
-        let targetId = 'rsk-traders';
-        let targetName = 'RSK Traders';
-        if (lower.includes('photo') || lower.includes('camera')) { targetId = 'photography'; targetName = 'Photography'; }
-        else if (lower.includes('jewel') || lower.includes('gold')) { targetId = 'jewellery'; targetName = 'Gold Jewellery'; }
-        else if (lower.includes('restaurant') || lower.includes('food')) { targetId = 'restaurant'; targetName = 'Restaurant'; }
-        else if (lower.includes('job') || lower.includes('sphere')) { targetId = 'jobsphere'; targetName = 'JobSphere'; }
-        else if (lower.includes('erp') || lower.includes('college')) { targetId = 'college-erp'; targetName = 'College ERP'; }
+        const app = resolveApplication(lower);
+        const targetId = app ? app.id : 'rsk-traders';
+        const targetName = app ? app.shortName : 'RSK Traders';
 
         actions.push({
           type: 'OPEN_APPLICATION',
           value: targetId,
           payload: { applicationId: targetId }
         });
-        message = `Opening ${targetName} now!`;
+        message = `Opening your ${targetName} project.`;
         suggestions = ['Tile windows', 'Show my projects', 'Close all windows'];
+      } else if (subIntent === 'CLOSE_APP') {
+        const app = resolveApplication(lower);
+        const targetId = app ? app.id : 'rsk-traders';
+        const targetName = app ? app.shortName : 'RSK Traders';
+
+        actions.push({
+          type: 'CLOSE_APPLICATION',
+          value: targetId,
+          payload: { applicationId: targetId }
+        });
+        message = `${targetName} has been closed successfully.`;
+        suggestions = ['Show my projects', 'Open RSK Traders', 'Close all windows'];
+      } else if (subIntent === 'SWITCH_APP') {
+        const app = resolveApplication(lower);
+        const targetId = app ? app.id : 'rsk-traders';
+        const targetName = app ? app.shortName : 'RSK Traders';
+
+        actions.push({
+          type: 'SWITCH_APPLICATION',
+          value: targetId,
+          payload: { applicationId: targetId }
+        });
+        message = `Switching to your ${targetName} window.`;
+        suggestions = ['Maximize window', 'Minimize window', 'Show my projects'];
+      } else if (subIntent === 'MINIMIZE_APP') {
+        const app = resolveApplication(lower);
+        const targetId = app ? app.id : 'jobsphere';
+        const targetName = app ? app.shortName : 'JobSphere';
+
+        actions.push({
+          type: 'MINIMIZE_APPLICATION',
+          value: targetId,
+          payload: { applicationId: targetId }
+        });
+        message = `Minimized ${targetName} window.`;
+        suggestions = [`Restore ${targetName}`, 'Show desktop', 'Close all windows'];
+      } else if (subIntent === 'RESTORE_APP') {
+        const app = resolveApplication(lower);
+        const targetId = app ? app.id : 'jobsphere';
+        const targetName = app ? app.shortName : 'JobSphere';
+
+        actions.push({
+          type: 'RESTORE_APPLICATION',
+          value: targetId,
+          payload: { applicationId: targetId }
+        });
+        message = `Restored ${targetName} window.`;
+        suggestions = [`Maximize ${targetName}`, `Minimize ${targetName}`];
+      } else if (subIntent === 'MAXIMIZE_APP') {
+        const app = resolveApplication(lower);
+        const targetId = app ? app.id : 'rsk-traders';
+        const targetName = app ? app.shortName : 'RSK Traders';
+
+        actions.push({
+          type: 'MAXIMIZE_APPLICATION',
+          value: targetId,
+          payload: { applicationId: targetId }
+        });
+        message = `Maximized ${targetName} window.`;
+        suggestions = ['Restore window', 'Close window', 'Show desktop'];
+      } else if (subIntent === 'FOCUS_PLANET') {
+        const app = resolveApplication(lower);
+        const targetId = app ? app.id : 'jobsphere';
+        const targetName = app ? app.shortName : 'JobSphere';
+
+        actions.push({
+          type: 'FOCUS_PLANET',
+          value: targetId,
+          payload: { planetId: targetId }
+        });
+        message = `Navigating 3D camera to ${targetName} planet.`;
+        suggestions = ['Reset the universe', `Open ${targetName}`, 'Go back to desktop'];
+      } else if (subIntent === 'HIGHLIGHT_PYTHON') {
+        actions.push({
+          type: 'HIGHLIGHT_TECH_PLANETS',
+          value: 'Python',
+          payload: { tech: 'Python' }
+        });
+        message = 'Highlighting Python project planets in the 3D Universe.';
+        suggestions = ['Show JobSphere', 'Open College ERP', 'Reset the universe'];
+      } else if (subIntent === 'RESET_UNIVERSE') {
+        actions.push({
+          type: 'RESET_UNIVERSE',
+          value: 'reset',
+          payload: {}
+        });
+        message = 'Reset 3D camera to cosmic orbital view.';
+        suggestions = ['Show JobSphere', 'Show RSK Traders', 'Go back to desktop'];
+      } else if (subIntent === 'NAV_DESKTOP') {
+        actions.push({
+          type: 'NAVIGATE',
+          value: 'desktop',
+          payload: { view: 'desktop' }
+        });
+        message = 'Returned to the KAMVERSE desktop canvas.';
+        suggestions = ['Open RSK Traders', 'Show my projects', '3D Universe'];
       } else if (subIntent === 'OPEN_PROJECTS') {
         actions.push({
           type: 'NAVIGATE',

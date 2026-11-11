@@ -2,6 +2,8 @@
 KAM AI - Ecosystem Knowledge Base and Workspace Operator Instructions
 """
 
+import re
+
 KAMALESH_PROFILE = {
     "name": "Kamalesh",
     "title": "Senior UI/UX Designer, Creative Frontend Architect & Full-Stack Developer",
@@ -26,58 +28,142 @@ FLAGSHIP_APPLICATIONS = [
     {
         "id": "rsk-traders",
         "name": "RSK TRADERS",
+        "short_name": "RSK Traders",
         "category": "Import & Export",
         "url": "https://rsktraders.co.in",
         "status": "live",
+        "is_live": True,
         "description": "International global trade, logistics, and bulk commodity import-export platform.",
-        "tech_stack": ["React", "Tailwind CSS", "Node.js", "PostgreSQL", "Cloudflare"]
-    },
-    {
-        "id": "photography",
-        "name": "PHOTOGRAPHY WEBSITE",
-        "category": "Photography & Creative Services",
-        "url": "",
-        "status": "coming-soon",
-        "description": "High-end visual storytelling, editorial photography studio, and client booking suite.",
-        "tech_stack": ["Next.js", "Framer Motion", "Tailwind CSS", "AWS S3", "Stripe"]
-    },
-    {
-        "id": "jewellery",
-        "name": "GOLD JEWELLERY WEBSITE",
-        "category": "Jewellery & E-commerce",
-        "url": "",
-        "status": "coming-soon",
-        "description": "Bespoke fine jewellery e-commerce platform with real-time bullion rate integration.",
-        "tech_stack": ["React", "Django", "PostgreSQL", "Tailwind CSS", "Razorpay"]
-    },
-    {
-        "id": "restaurant",
-        "name": "RESTAURANT WEBSITE",
-        "category": "Restaurant & Food",
-        "url": "",
-        "status": "coming-soon",
-        "description": "Gourmet dining portal featuring interactive digital menus, table reservations, and takeaway.",
-        "tech_stack": ["React", "Tailwind CSS", "Node.js", "MongoDB", "Socket.io"]
+        "tech_stack": ["React", "Tailwind CSS", "Node.js", "PostgreSQL", "Cloudflare"],
+        "aliases": [
+            "rsk traders", "rsk-traders", "rsk", "rsk trader",
+            "import export", "import and export", "import export website",
+            "trade", "trading", "logistics"
+        ]
     },
     {
         "id": "jobsphere",
         "name": "JOBSPHERE",
+        "short_name": "JobSphere",
         "category": "Job Aggregation Platform",
         "url": "",
         "status": "coming-soon",
+        "is_live": False,
         "description": "Next-generation tech job aggregation platform with AI candidate matching and salary insights.",
-        "tech_stack": ["React", "Python", "Django REST", "PostgreSQL", "Tailwind CSS"]
+        "tech_stack": ["React", "Python", "Django REST", "PostgreSQL", "Tailwind CSS"],
+        "aliases": [
+            "jobsphere", "job sphere", "jobspeher", "jobspher", "jobshere",
+            "job seeker", "jobseeker", "job portal", "career", "jobs"
+        ]
+    },
+    {
+        "id": "photography",
+        "name": "PHOTOGRAPHY WEBSITE",
+        "short_name": "Photography",
+        "category": "Photography & Creative Services",
+        "url": "",
+        "status": "coming-soon",
+        "is_live": False,
+        "description": "High-end visual storytelling, editorial photography studio, and client booking suite.",
+        "tech_stack": ["Next.js", "Framer Motion", "Tailwind CSS", "AWS S3", "Stripe"],
+        "aliases": [
+            "photography", "photography website", "photo", "photos", "photo website",
+            "kavin photography", "kavin-fotography", "camera", "creative studio", "photographer"
+        ]
+    },
+    {
+        "id": "jewellery",
+        "name": "GOLD JEWELLERY WEBSITE",
+        "short_name": "Gold Jewellery",
+        "category": "Jewellery & E-commerce",
+        "url": "",
+        "status": "coming-soon",
+        "is_live": False,
+        "description": "Bespoke fine jewellery e-commerce platform with real-time bullion rate integration.",
+        "tech_stack": ["React", "Django", "PostgreSQL", "Tailwind CSS", "Razorpay"],
+        "aliases": [
+            "jewellery", "jewelry", "gold jewellery", "gold jewelry",
+            "jewellery website", "jewelry website", "peru covering", "gold", "jewel"
+        ]
+    },
+    {
+        "id": "restaurant",
+        "name": "RESTAURANT WEBSITE",
+        "short_name": "Restaurant",
+        "category": "Restaurant & Food",
+        "url": "",
+        "status": "coming-soon",
+        "is_live": False,
+        "description": "Gourmet dining portal featuring interactive digital menus, table reservations, and takeaway.",
+        "tech_stack": ["React", "Tailwind CSS", "Node.js", "MongoDB", "Socket.io"],
+        "aliases": [
+            "restaurant", "restaurant website", "food", "food website",
+            "dining", "food billing", "food billing software", "restaurant billing", "menu"
+        ]
     },
     {
         "id": "college-erp",
         "name": "COLLEGE ERP",
+        "short_name": "College ERP",
         "category": "Enterprise Management System",
         "url": "",
         "status": "coming-soon",
+        "is_live": False,
         "description": "Comprehensive campus management suite for academic records, fees, faculty, and examinations.",
-        "tech_stack": ["React", "Python", "Django", "PostgreSQL", "Bootstrap", "Redis"]
+        "tech_stack": ["React", "Python", "Django", "PostgreSQL", "Bootstrap", "Redis"],
+        "aliases": [
+            "college erp", "college-erp", "college", "erp",
+            "school erp", "campus erp", "campus management", "academic erp"
+        ]
     }
 ]
+
+def resolve_application(query: str) -> dict | None:
+    """
+    Fuzzy resolve an application from user input text with typo tolerance.
+    Never invents an application that does not exist in registry.
+    """
+    if not query or not isinstance(query, str):
+        return None
+    
+    clean = re.sub(r'[^\w\s]', '', query.lower()).strip()
+    compact = clean.replace(' ', '')
+    
+    # 1. Exact ID match
+    for app in FLAGSHIP_APPLICATIONS:
+        if app["id"] == clean or app["id"] == query.strip().lower():
+            return app
+            
+    # 2. Exact Name / ShortName match
+    for app in FLAGSHIP_APPLICATIONS:
+        if app["name"].lower() == clean or app["short_name"].lower() == clean:
+            return app
+
+    # 3. Exact Alias match
+    for app in FLAGSHIP_APPLICATIONS:
+        for alias in app["aliases"]:
+            norm_alias = re.sub(r'[^\w\s]', '', alias.lower()).strip()
+            if clean == norm_alias or compact == norm_alias.replace(' ', ''):
+                return app
+
+    # 4. Substring / phrase match
+    sorted_aliases = []
+    for app in FLAGSHIP_APPLICATIONS:
+        for alias in app["aliases"]:
+            sorted_aliases.append((app, alias.lower(), len(alias)))
+    sorted_aliases.sort(key=lambda x: x[2], reverse=True)
+
+    for app, alias, _ in sorted_aliases:
+        if alias in clean or alias.replace(' ', '') in compact:
+            return app
+
+    # 5. Explicit typos for JobSphere
+    if any(typo in clean or typo in compact for typo in ['jobspeher', 'jobspher', 'jobshere', 'jobsphre']):
+        for app in FLAGSHIP_APPLICATIONS:
+            if app["id"] == "jobsphere":
+                return app
+
+    return None
 
 def build_system_prompt(available_repos=None):
     """

@@ -6,7 +6,7 @@ import os
 import json
 import re
 import requests
-from .knowledge import KAMALESH_PROFILE, FLAGSHIP_APPLICATIONS, build_system_prompt
+from .knowledge import KAMALESH_PROFILE, FLAGSHIP_APPLICATIONS, build_system_prompt, resolve_application
 
 INTENT_TYPES = {
     "GREETING": "GREETING",
@@ -89,12 +89,14 @@ def classify_intent(prompt: str) -> tuple[str, str]:
     p = re.sub(r'[?!.,;]', '', prompt.lower().strip())
 
     # 1. GREETING
-    greeting_exact = {'hi', 'hello', 'hey', 'heya', 'howdy', 'hola', 'yo', 'sup', 'greetings'}
-    greeting_phrases = ['good morning', 'good afternoon', 'good evening', 'hi there', 'hello there', 'hey kam']
+    greeting_exact = {'hi', 'hello', 'hey', 'heya', 'howdy', 'hola', 'yo', 'sup', 'greetings', 'hi chat', 'hello chat', 'hey chat'}
+    greeting_phrases = ['good morning', 'good afternoon', 'good evening', 'hi there', 'hello there', 'hey kam', 'hi chat', 'hello chat', 'hey chat']
     if p in greeting_exact or any(p == phrase or p.startswith(phrase + ' ') for phrase in greeting_phrases):
         return INTENT_TYPES["GREETING"], "DEFAULT"
 
     # 2. IDENTITY QUESTION
+    if any(k in p for k in ['are you there', 'you there', 'u there']):
+        return INTENT_TYPES["IDENTITY_QUESTION"], "PRESENCE"
     if any(k in p for k in ['your name', 'who are you', 'what are you called', 'what is your name', 'whats your name']):
         return INTENT_TYPES["IDENTITY_QUESTION"], "NAME"
     if any(k in p for k in ['who created you', 'who made you', 'who built you', 'who developed you', 'your creator']):
@@ -131,9 +133,9 @@ def classify_intent(prompt: str) -> tuple[str, str]:
         return INTENT_TYPES["GENERAL_CONVERSATION"], "EXPLAIN_TAILWIND"
 
     # 5. WORKSPACE COMMANDS
-    if ('open' in p or 'launch' in p) and ('side by side' in p or 'and arrange' in p or 'together' in p):
+    if ('open' in p or 'launch' in p) and ('side by side' in p or 'side-by-side' in p or 'and arrange' in p or 'together' in p or ('and' in p and ('side' in p or 'arrange' in p))):
         return INTENT_TYPES["WORKSPACE_COMMAND"], "MULTI_OPEN_ARRANGE"
-    if 'side by side' in p or ('arrange' in p and 'window' in p):
+    if 'side by side' in p or 'side-by-side' in p or ('arrange' in p and 'window' in p):
         return INTENT_TYPES["WORKSPACE_COMMAND"], "ARRANGE_SIDE_BY_SIDE"
     if 'cascade' in p:
         return INTENT_TYPES["WORKSPACE_COMMAND"], "CASCADE"
@@ -141,8 +143,56 @@ def classify_intent(prompt: str) -> tuple[str, str]:
         return INTENT_TYPES["WORKSPACE_COMMAND"], "TILE"
     if any(k in p for k in ['close all', 'close everything', 'shut all']):
         return INTENT_TYPES["WORKSPACE_COMMAND"], "CLOSE_ALL"
-    if any(k in p for k in ['minimize all', 'show desktop', 'go to desktop', 'clear screen']):
+    if any(k in p for k in ['minimize all', 'clear screen']):
         return INTENT_TYPES["WORKSPACE_COMMAND"], "MINIMIZE_ALL"
+    if any(k in p for k in ['go back to desktop', 'go to desktop', 'show desktop', 'return to desktop', 'back to desktop']):
+        return INTENT_TYPES["WORKSPACE_COMMAND"], "NAV_DESKTOP"
+
+    # 3D Universe
+    if 'reset the universe' in p or 'reset universe' in p:
+        return INTENT_TYPES["WORKSPACE_COMMAND"], "RESET_UNIVERSE"
+    if any(k in p for k in ['python projects', 'show python', 'show my python']):
+        return INTENT_TYPES["WORKSPACE_COMMAND"], "HIGHLIGHT_PYTHON"
+    if any(k in p for k in ['react projects', 'show react', 'filter by react']):
+        return INTENT_TYPES["WORKSPACE_COMMAND"], "FILTER_REACT"
+    if 'featured projects' in p:
+        return INTENT_TYPES["WORKSPACE_COMMAND"], "FILTER_FEATURED"
+
+    # Specific App Window Commands
+    if p.endswith(' tab') or p.startswith(('switch to ', 'bring ', 'focus ', 'go to ')):
+        clean_target = p.replace(' tab', '').replace('switch to ', '').replace('bring ', '').replace('focus ', '').replace('go to ', '').replace(' to front', '').replace(' window', '')
+        if resolve_application(clean_target) or resolve_application(p):
+            return INTENT_TYPES["WORKSPACE_COMMAND"], "SWITCH_APP"
+
+    if p.startswith(('restore ', 'unminimize ')):
+        clean_target = p.replace('restore ', '').replace('unminimize ', '').replace(' window', '')
+        if resolve_application(clean_target) or resolve_application(p):
+            return INTENT_TYPES["WORKSPACE_COMMAND"], "RESTORE_APP"
+
+    if p.startswith(('close ', 'exit ')):
+        clean_target = p.replace('close ', '').replace('exit ', '').replace(' window', '')
+        if resolve_application(clean_target) or resolve_application(p):
+            return INTENT_TYPES["WORKSPACE_COMMAND"], "CLOSE_APP"
+
+    if p.startswith('minimize '):
+        clean_target = p.replace('minimize ', '').replace(' window', '')
+        if resolve_application(clean_target) or resolve_application(p):
+            return INTENT_TYPES["WORKSPACE_COMMAND"], "MINIMIZE_APP"
+
+    if p.startswith('maximize ') or 'full screen' in p:
+        clean_target = p.replace('maximize ', '').replace('make ', '').replace(' full screen', '').replace(' window', '')
+        if resolve_application(clean_target) or resolve_application(p):
+            return INTENT_TYPES["WORKSPACE_COMMAND"], "MAXIMIZE_APP"
+
+    if p.startswith('show ') and not p.startswith('show my projects') and not p.startswith('show projects'):
+        clean_target = p.replace('show ', '').replace(' planet', '').replace(' website', '')
+        if resolve_application(clean_target):
+            return INTENT_TYPES["WORKSPACE_COMMAND"], "FOCUS_PLANET"
+
+    if p.startswith(('open ', 'launch ', 'start ', 'view ', 'show my ')):
+        clean_target = p.replace('open ', '').replace('launch ', '').replace('start ', '').replace('view ', '').replace('show my ', '').replace(' website', '')
+        if resolve_application(clean_target) or resolve_application(p):
+            return INTENT_TYPES["WORKSPACE_COMMAND"], "OPEN_APP"
 
     if any(k in p for k in ['dark mode', 'dark theme', 'midnight theme']):
         return INTENT_TYPES["WORKSPACE_COMMAND"], "THEME_DARK"
@@ -158,17 +208,6 @@ def classify_intent(prompt: str) -> tuple[str, str]:
 
     if p in {'show my projects', 'show projects', 'show all projects', 'open projects', 'open project explorer'} or 'show my projects' in p or 'browse projects' in p:
         return INTENT_TYPES["WORKSPACE_COMMAND"], "OPEN_PROJECTS"
-
-    app_keywords = ['rsk', 'traders', 'photography', 'photo', 'jewellery', 'jewelry', 'gold', 'restaurant', 'food', 'jobsphere', 'college', 'erp']
-    if p.startswith(('open ', 'launch ', 'start ', 'view ')) and any(k in p for k in app_keywords):
-        return INTENT_TYPES["WORKSPACE_COMMAND"], "OPEN_APP"
-
-    if any(k in p for k in ['python projects', 'show python', 'filter by python']):
-        return INTENT_TYPES["WORKSPACE_COMMAND"], "FILTER_PYTHON"
-    if any(k in p for k in ['react projects', 'show react', 'filter by react']):
-        return INTENT_TYPES["WORKSPACE_COMMAND"], "FILTER_REACT"
-    if 'featured projects' in p:
-        return INTENT_TYPES["WORKSPACE_COMMAND"], "FILTER_FEATURED"
 
     if any(k in p for k in ['open terminal', 'launch terminal']) or p == 'terminal':
         return INTENT_TYPES["WORKSPACE_COMMAND"], "NAV_TERMINAL"
@@ -212,7 +251,10 @@ def run_local_intent_engine(message: str, available_repos: list = None) -> dict:
 
     # 2. IDENTITY QUESTION
     elif intent == INTENT_TYPES["IDENTITY_QUESTION"]:
-        if sub_intent == "NAME":
+        if sub_intent == "PRESENCE":
+            response_msg = "Always ready! What would you like me to do?"
+            suggestions = ["What can you do?", "Open RSK Traders", "Show my projects"]
+        elif sub_intent == "NAME":
             response_msg = "I'm KAM AI, your personal AI assistant inside KAMVERSE! ⚡"
             suggestions = ["What can you do?", "Who created you?", "Show my projects"]
         elif sub_intent == "CREATOR":
@@ -230,13 +272,13 @@ def run_local_intent_engine(message: str, available_repos: list = None) -> dict:
 
     # 3. CAPABILITY QUESTION
     elif intent == INTENT_TYPES["CAPABILITY_QUESTION"]:
-        response_msg = "I can manage your workspace, open projects, arrange windows, search repositories, switch themes and explore your GitHub activity."
-        suggestions = ["Open RSK Traders", "Show my projects", "Open RSK Traders and Photography side by side", "Enable dark mode"]
+        response_msg = "I can open applications, manage windows, search your projects, explore GitHub activity and customize your workspace."
+        suggestions = ["Open RSK Traders", "Show my projects", "Open RSK Traders and JobSphere side-by-side", "Enable dark mode"]
 
     # 4. GENERAL CONVERSATION
     elif intent == INTENT_TYPES["GENERAL_CONVERSATION"]:
         if sub_intent == "GRATITUDE":
-            response_msg = "You're welcome! Happy to help. 😊"
+            response_msg = "You're welcome! Happy to help."
             suggestions = ["Show my projects", "What can you do?", "Open RSK Traders"]
         elif sub_intent == "STATUS_CHECK":
             response_msg = "I'm running smoothly at 100% and ready to assist! How are things with you?"
@@ -265,34 +307,92 @@ def run_local_intent_engine(message: str, available_repos: list = None) -> dict:
         if sub_intent == "MULTI_OPEN_ARRANGE":
             apps = []
             if any(k in p for k in ['rsk', 'trader']): apps.append(('rsk-traders', 'RSK Traders'))
+            if any(k in p for k in ['job', 'sphere', 'jobspeher', 'jobspher', 'jobshere']): apps.append(('jobsphere', 'JobSphere'))
             if any(k in p for k in ['photo', 'camera']): apps.append(('photography', 'Photography'))
             if any(k in p for k in ['jewel', 'gold']): apps.append(('jewellery', 'Gold Jewellery'))
             if any(k in p for k in ['restaurant', 'food']): apps.append(('restaurant', 'Restaurant'))
-            if any(k in p for k in ['job', 'sphere']): apps.append(('jobsphere', 'JobSphere'))
             if any(k in p for k in ['erp', 'college']): apps.append(('college-erp', 'College ERP'))
 
             if len(apps) >= 2:
                 for app_id, _ in apps:
                     actions.append({"type": "OPEN_APPLICATION", "value": app_id, "payload": {"applicationId": app_id}})
-                actions.append({"type": "ARRANGE_WINDOWS", "value": "side-by-side", "payload": {"mode": "side-by-side"}})
-                response_msg = f"Opened {apps[0][1]} and {apps[1][1]} and arranged them side by side on your screen!"
+                actions.append({"type": "ARRANGE_WINDOWS", "value": "side-by-side", "payload": {"mode": "side-by-side", "applications": [a[0] for a in apps]}})
+                response_msg = f"Opened {apps[0][1]} and {apps[1][1]} side-by-side."
                 suggestions = ["Tile windows", "Close all windows", "Show my projects"]
             else:
-                response_msg = "Please specify two applications to arrange side by side (e.g. RSK Traders and Photography)."
-                suggestions = ["Open RSK Traders and Photography side by side", "Show my projects"]
+                response_msg = "Please specify two applications to arrange side by side (e.g. RSK Traders and JobSphere)."
+                suggestions = ["Open RSK Traders and JobSphere side-by-side", "Show my projects"]
 
         elif sub_intent == "OPEN_APP":
-            target_id = "rsk-traders"
-            target_name = "RSK Traders"
-            if any(k in p for k in ['photo', 'camera']): target_id, target_name = "photography", "Photography"
-            elif any(k in p for k in ['jewel', 'gold']): target_id, target_name = "jewellery", "Gold Jewellery"
-            elif any(k in p for k in ['restaurant', 'food']): target_id, target_name = "restaurant", "Restaurant"
-            elif any(k in p for k in ['job', 'sphere']): target_id, target_name = "jobsphere", "JobSphere"
-            elif any(k in p for k in ['erp', 'college']): target_id, target_name = "college-erp", "College ERP"
-
+            app = resolve_application(p)
+            target_id = app["id"] if app else "rsk-traders"
+            target_name = app["short_name"] if app else "RSK Traders"
             actions.append({"type": "OPEN_APPLICATION", "value": target_id, "payload": {"applicationId": target_id}})
-            response_msg = f"Opening {target_name} now!"
+            response_msg = f"Opening your {target_name} project."
             suggestions = ["Tile windows", "Show my projects", "Close all windows"]
+
+        elif sub_intent == "CLOSE_APP":
+            app = resolve_application(p)
+            target_id = app["id"] if app else "rsk-traders"
+            target_name = app["short_name"] if app else "RSK Traders"
+            actions.append({"type": "CLOSE_APPLICATION", "value": target_id, "payload": {"applicationId": target_id}})
+            response_msg = f"{target_name} has been closed successfully."
+            suggestions = ["Show my projects", "Open RSK Traders", "Close all windows"]
+
+        elif sub_intent == "SWITCH_APP":
+            app = resolve_application(p)
+            target_id = app["id"] if app else "rsk-traders"
+            target_name = app["short_name"] if app else "RSK Traders"
+            actions.append({"type": "SWITCH_APPLICATION", "value": target_id, "payload": {"applicationId": target_id}})
+            response_msg = f"Switching to your {target_name} window."
+            suggestions = ["Maximize window", "Minimize window", "Show my projects"]
+
+        elif sub_intent == "MINIMIZE_APP":
+            app = resolve_application(p)
+            target_id = app["id"] if app else "jobsphere"
+            target_name = app["short_name"] if app else "JobSphere"
+            actions.append({"type": "MINIMIZE_APPLICATION", "value": target_id, "payload": {"applicationId": target_id}})
+            response_msg = f"Minimized {target_name} window."
+            suggestions = [f"Restore {target_name}", "Show desktop", "Close all windows"]
+
+        elif sub_intent == "RESTORE_APP":
+            app = resolve_application(p)
+            target_id = app["id"] if app else "jobsphere"
+            target_name = app["short_name"] if app else "JobSphere"
+            actions.append({"type": "RESTORE_APPLICATION", "value": target_id, "payload": {"applicationId": target_id}})
+            response_msg = f"Restored {target_name} window."
+            suggestions = [f"Maximize {target_name}", "Minimize {target_name}"]
+
+        elif sub_intent == "MAXIMIZE_APP":
+            app = resolve_application(p)
+            target_id = app["id"] if app else "rsk-traders"
+            target_name = app["short_name"] if app else "RSK Traders"
+            actions.append({"type": "MAXIMIZE_APPLICATION", "value": target_id, "payload": {"applicationId": target_id}})
+            response_msg = f"Maximized {target_name} window."
+            suggestions = ["Restore window", "Close window", "Show desktop"]
+
+        elif sub_intent == "FOCUS_PLANET":
+            app = resolve_application(p)
+            target_id = app["id"] if app else "jobsphere"
+            target_name = app["short_name"] if app else "JobSphere"
+            actions.append({"type": "FOCUS_PLANET", "value": target_id, "payload": {"planetId": target_id}})
+            response_msg = f"Navigating 3D camera to {target_name} planet."
+            suggestions = ["Reset the universe", f"Open {target_name}", "Go back to desktop"]
+
+        elif sub_intent == "HIGHLIGHT_PYTHON":
+            actions.append({"type": "HIGHLIGHT_TECH_PLANETS", "value": "Python", "payload": {"tech": "Python"}})
+            response_msg = "Highlighting Python project planets in the 3D Universe."
+            suggestions = ["Show JobSphere", "Open College ERP", "Reset the universe"]
+
+        elif sub_intent == "RESET_UNIVERSE":
+            actions.append({"type": "RESET_UNIVERSE", "value": "reset", "payload": {}})
+            response_msg = "Reset 3D camera to cosmic orbital view."
+            suggestions = ["Show JobSphere", "Show RSK Traders", "Go back to desktop"]
+
+        elif sub_intent == "NAV_DESKTOP":
+            actions.append({"type": "NAVIGATE", "value": "desktop", "payload": {"view": "desktop"}})
+            response_msg = "Returned to the KAMVERSE desktop canvas."
+            suggestions = ["Open RSK Traders", "Show my projects", "3D Universe"]
 
         elif sub_intent == "OPEN_PROJECTS":
             actions.append({"type": "NAVIGATE", "value": "projects", "payload": {"view": "projects"}})

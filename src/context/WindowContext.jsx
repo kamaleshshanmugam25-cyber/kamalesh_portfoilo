@@ -49,6 +49,37 @@ export const WindowProvider = ({ children }) => {
   const toggleDock = useCallback(() => setIsDockVisible(prev => !prev), []);
   const setDockVisibility = useCallback((visible) => setIsDockVisible(Boolean(visible)), []);
 
+  // Dual Experience Mode: 'desktop' vs 'universe'
+  const [viewMode, setViewMode] = useState(() => {
+    try {
+      return localStorage.getItem('kamverse_view_mode') || 'desktop';
+    } catch (_) {
+      return 'desktop';
+    }
+  });
+
+  const toggleViewMode = useCallback(() => {
+    setViewMode((prev) => {
+      const next = prev === 'desktop' ? 'universe' : 'desktop';
+      try {
+        localStorage.setItem('kamverse_view_mode', next);
+      } catch (_) {}
+      return next;
+    });
+  }, []);
+
+  const setExplicitViewMode = useCallback((mode) => {
+    const validMode = mode === 'universe' ? 'universe' : 'desktop';
+    setViewMode(validMode);
+    try {
+      localStorage.setItem('kamverse_view_mode', validMode);
+    } catch (_) {}
+  }, []);
+
+  // 3D Universe Planet Selection & Highlighting
+  const [selectedPlanetId, setSelectedPlanetId] = useState(null);
+  const [techFilter, setTechFilter] = useState(null);
+
   // GitHub Live State
   const [gitHubProjects, setGitHubProjects] = useState([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
@@ -225,6 +256,50 @@ export const WindowProvider = ({ children }) => {
     focusWindow(appId);
   }, [focusWindow]);
 
+  // Restore minimized window
+  const restoreWindow = useCallback((appId) => {
+    setWindows((curr) => {
+      if (!curr[appId]) return curr;
+      return {
+        ...curr,
+        [appId]: {
+          ...curr[appId],
+          isMinimized: false
+        }
+      };
+    });
+    focusWindow(appId);
+  }, [focusWindow]);
+
+  // Switch to application: if already open, bring to front; if minimized, restore; if closed, open it
+  const switchWindow = useCallback((appId) => {
+    setWindows((curr) => {
+      const existing = curr[appId];
+      if (existing && existing.isOpen) {
+        // Bring to front and unminimize
+        return {
+          ...curr,
+          [appId]: {
+            ...existing,
+            isMinimized: false,
+            zIndex: topZIndex + 1
+          }
+        };
+      }
+      return curr;
+    });
+
+    setWindows((curr) => {
+      if (!curr[appId] || !curr[appId].isOpen) {
+        openWindow(appId);
+      } else {
+        setTopZIndex((prev) => prev + 1);
+        setActiveWindowId(appId);
+      }
+      return curr;
+    });
+  }, [openWindow, topZIndex]);
+
   // Arrange windows: side-by-side, cascade, tile/grid, vertical
   const arrangeWindows = useCallback((mode = 'side-by-side') => {
     setWindows((curr) => {
@@ -399,6 +474,15 @@ export const WindowProvider = ({ children }) => {
     isDockVisible,
     toggleDock,
     setDockVisibility,
+    viewMode,
+    setViewMode: setExplicitViewMode,
+    toggleViewMode,
+    selectedPlanetId,
+    setSelectedPlanetId,
+    techFilter,
+    setTechFilter,
+    restoreWindow,
+    switchWindow,
     windows,
     activeWindowId,
     openWindow,

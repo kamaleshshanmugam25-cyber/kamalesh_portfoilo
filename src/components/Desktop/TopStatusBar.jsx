@@ -25,7 +25,9 @@ export const TopStatusBar = () => {
     activeNavTab, 
     setActiveNavTab,
     soundEnabled,
-    setSoundEnabled
+    setSoundEnabled,
+    viewMode,
+    setViewMode
   } = useWindowManager();
 
   const [isSystemMenuOpen, setIsSystemMenuOpen] = useState(false);
@@ -176,15 +178,41 @@ export const TopStatusBar = () => {
         </nav>
       </div>
 
-      {/* Center: Search Bar Trigger */}
-      <div className="flex items-center">
+      {/* Center: Mode Switcher & Search Bar */}
+      <div className="flex items-center space-x-2 sm:space-x-3">
+        {/* Experience Switcher: DESKTOP MODE | 3D UNIVERSE */}
+        <div className="flex items-center bg-[#F5F5F0] border-2 border-[#151515] p-0.5 shadow-brutal-sm">
+          <button
+            onClick={() => setViewMode('desktop')}
+            className={`px-2 sm:px-2.5 py-1 text-[10px] sm:text-[11px] font-mono font-black uppercase tracking-wider transition-all ${
+              viewMode === 'desktop'
+                ? 'bg-[#3155FF] text-white shadow-[1px_1px_0px_#151515]'
+                : 'text-[#151515] hover:bg-white'
+            }`}
+          >
+            DESKTOP MODE
+          </button>
+          <div className="w-[1.5px] h-3.5 bg-[#151515]/30 mx-0.5" />
+          <button
+            onClick={() => setViewMode('universe')}
+            className={`px-2 sm:px-2.5 py-1 text-[10px] sm:text-[11px] font-mono font-black uppercase tracking-wider transition-all flex items-center space-x-1 ${
+              viewMode === 'universe'
+                ? 'bg-[#3155FF] text-white shadow-[1px_1px_0px_#151515]'
+                : 'text-[#151515] hover:bg-white'
+            }`}
+          >
+            <Sparkles className="w-3 h-3 text-[#F5F04E]" />
+            <span>3D UNIVERSE</span>
+          </button>
+        </div>
+
         <button
           onClick={() => setIsCommandPaletteOpen(true)}
-          className="flex items-center space-x-2 px-3.5 py-1.5 bg-[#F5F5F0] border-2 border-[#151515] shadow-brutal-sm hover:bg-white hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-brutal transition-all text-[#151515]"
+          className="flex items-center space-x-2 px-3 py-1.5 bg-[#F5F5F0] border-2 border-[#151515] shadow-brutal-sm hover:bg-white hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-brutal transition-all text-[#151515]"
         >
           <Search className="w-3.5 h-3.5 stroke-[2.5]" />
-          <span className="text-xs font-bold hidden sm:inline">Search apps, repos...</span>
-          <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 border border-[#151515] bg-white text-[10px] font-mono font-bold">
+          <span className="text-xs font-bold hidden md:inline">Search apps, repos...</span>
+          <kbd className="hidden md:inline-flex items-center px-1.5 py-0.5 border border-[#151515] bg-white text-[10px] font-mono font-bold">
             ⌘K
           </kbd>
         </button>
