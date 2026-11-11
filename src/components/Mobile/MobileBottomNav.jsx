@@ -25,51 +25,52 @@ export const MobileBottomNav = () => {
   };
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 h-16 glass-header border-t border-white/[0.08] light:border-black/[0.08] px-4 flex items-center justify-around transition-colors duration-300">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 h-16 bg-white border-t-3 border-[#151515] px-4 flex items-center justify-around select-none">
       <button
         onClick={() => handleTabClick('launcher')}
-        className="flex flex-col items-center justify-center space-y-1 text-workspace-muted hover:text-white light:hover:text-slate-900"
+        className="flex flex-col items-center justify-center space-y-1 text-[#151515] hover:text-[#3155FF] active:scale-95 transition-all"
       >
-        <Grid className="w-5 h-5 text-workspace-violet" />
-        <span className="text-[10px] font-medium">Apps</span>
+        <Grid className="w-5 h-5" strokeWidth={2.5} />
+        <span className="text-[10px] font-extrabold font-heading">Apps</span>
       </button>
 
       <button
         onClick={() => handleTabClick('projects')}
-        className={`flex flex-col items-center justify-center space-y-1 ${
-          activeNavTab === 'projects' ? 'text-workspace-cyan' : 'text-workspace-muted hover:text-white light:hover:text-slate-900'
+        className={`flex flex-col items-center justify-center space-y-1 transition-all ${
+          activeNavTab === 'projects' ? 'text-[#3155FF]' : 'text-[#151515] hover:text-[#3155FF]'
         }`}
       >
-        <Layers className="w-5 h-5" />
-        <span className="text-[10px] font-medium">Projects</span>
+        <Layers className="w-5 h-5" strokeWidth={2.5} />
+        <span className="text-[10px] font-extrabold font-heading">Projects</span>
       </button>
 
+      {/* Center Search Command Button */}
       <button
         onClick={() => setIsCommandPaletteOpen(true)}
-        className="flex flex-col items-center justify-center p-2 rounded-full bg-gradient-to-tr from-workspace-violet to-workspace-cyan text-white shadow-violet-glow -translate-y-2 hover:scale-105 active:scale-95 transition-all"
-        title="Search"
+        className="flex flex-col items-center justify-center p-3 rounded-2xl bg-[#3155FF] text-white border-2 border-[#151515] shadow-brutal-sm -translate-y-3 hover:-translate-y-3.5 active:-translate-y-2 transition-all"
+        title="Search Commands &amp; Repos"
       >
-        <Search className="w-5 h-5" />
+        <Search className="w-5 h-5" strokeWidth={2.5} />
       </button>
 
       <button
         onClick={() => handleTabClick('about')}
-        className={`flex flex-col items-center justify-center space-y-1 ${
-          activeNavTab === 'about' ? 'text-workspace-violet' : 'text-workspace-muted hover:text-white light:hover:text-slate-900'
+        className={`flex flex-col items-center justify-center space-y-1 transition-all ${
+          activeNavTab === 'about' ? 'text-[#FF5C8A]' : 'text-[#151515] hover:text-[#FF5C8A]'
         }`}
       >
-        <User className="w-5 h-5" />
-        <span className="text-[10px] font-medium">About</span>
+        <User className="w-5 h-5" strokeWidth={2.5} />
+        <span className="text-[10px] font-extrabold font-heading">About</span>
       </button>
 
       <button
         onClick={() => handleTabClick('contact')}
-        className={`flex flex-col items-center justify-center space-y-1 ${
-          activeNavTab === 'contact' ? 'text-workspace-cyan' : 'text-workspace-muted hover:text-white light:hover:text-slate-900'
+        className={`flex flex-col items-center justify-center space-y-1 transition-all ${
+          activeNavTab === 'contact' ? 'text-[#10B981]' : 'text-[#151515] hover:text-[#10B981]'
         }`}
       >
-        <Mail className="w-5 h-5" />
-        <span className="text-[10px] font-medium">Contact</span>
+        <Mail className="w-5 h-5" strokeWidth={2.5} />
+        <span className="text-[10px] font-extrabold font-heading">Contact</span>
       </button>
     </div>
   );

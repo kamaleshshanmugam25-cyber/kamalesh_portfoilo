@@ -63,13 +63,15 @@ export const IframeHandler = ({ app, currentUrl, reloadKey }) => {
   }
 
   return (
-    <div className="relative w-full h-full bg-workspace-bg flex flex-col">
+    <div className="relative w-full h-full bg-white flex flex-col">
       {/* Loading overlay spinner */}
       {isLoading && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-workspace-bg/90 backdrop-blur-sm">
-          <Loader2 className="w-8 h-8 text-workspace-accent animate-spin mb-3" />
-          <p className="text-xs font-medium text-white">Connecting to {app.shortName}...</p>
-          <p className="text-[11px] text-workspace-muted font-mono mt-1">{targetUrl}</p>
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[#F5F5F0]/95 select-none">
+          <div className="brutal-card p-6 rounded-2xl flex flex-col items-center space-y-3 shadow-brutal">
+            <Loader2 className="w-8 h-8 text-[#3155FF] animate-spin" strokeWidth={2.5} />
+            <p className="text-xs font-extrabold font-heading text-[#151515]">Connecting to {app.shortName}...</p>
+            <p className="text-[11px] text-[#151515]/70 font-mono font-bold bg-[#F5F04E] px-2 py-0.5 rounded border border-[#151515]">{targetUrl}</p>
+          </div>
         </div>
       )}
 
@@ -86,13 +88,13 @@ export const IframeHandler = ({ app, currentUrl, reloadKey }) => {
         className="w-full h-full border-none bg-white"
       />
 
-      {/* Subtle bottom helper bar if user wants to switch to overview or open external */}
-      <div className="h-7 px-3 bg-workspace-secondary/95 border-t border-white/[0.08] flex items-center justify-between text-[11px] text-workspace-muted">
-        <span className="truncate">Connected: {targetUrl}</span>
+      {/* Bottom helper bar if user wants to switch to overview or open external */}
+      <div className="h-8 px-4 bg-white border-t-2 border-[#151515] flex items-center justify-between text-[11px] font-mono font-bold text-[#151515] shrink-0">
+        <span className="truncate max-w-sm">Connected: {targetUrl}</span>
         <div className="flex items-center space-x-3 shrink-0">
           <button 
             onClick={() => setHasError(true)}
-            className="hover:text-white transition-colors"
+            className="hover:text-[#3155FF] transition-colors underline decoration-2"
           >
             Product Overview
           </button>
@@ -100,10 +102,10 @@ export const IframeHandler = ({ app, currentUrl, reloadKey }) => {
             href={targetUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center space-x-1 text-workspace-teal hover:underline"
+            className="flex items-center space-x-1 text-[#3155FF] hover:underline decoration-2"
           >
             <span>Open in Tab</span>
-            <ExternalLink className="w-3 h-3" />
+            <ExternalLink className="w-3.5 h-3.5" strokeWidth={2.5} />
           </a>
         </div>
       </div>

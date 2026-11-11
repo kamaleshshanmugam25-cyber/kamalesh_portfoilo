@@ -11,24 +11,54 @@ import {
 } from 'lucide-react';
 
 export const DesktopIcon = ({ app, onOpen, isSelected, onSelect }) => {
-  const getIcon = () => {
+  const getIconData = () => {
     switch (app.id) {
       case 'rsk-traders':
-        return <Globe2 className="w-6 h-6 text-white" strokeWidth={1.8} />;
+        return {
+          icon: <Globe2 className="w-7 h-7 text-white" strokeWidth={2.5} />,
+          bg: 'bg-[#10B981]',
+          rotate: 'group-hover:rotate-3'
+        };
       case 'photography':
-        return <Camera className="w-6 h-6 text-white" strokeWidth={1.8} />;
+        return {
+          icon: <Camera className="w-7 h-7 text-white" strokeWidth={2.5} />,
+          bg: 'bg-[#FF5C8A]',
+          rotate: 'group-hover:-rotate-3'
+        };
       case 'jewellery':
-        return <Gem className="w-6 h-6 text-white" strokeWidth={1.8} />;
+        return {
+          icon: <Gem className="w-7 h-7 text-[#151515]" strokeWidth={2.5} />,
+          bg: 'bg-[#FFB800]',
+          rotate: 'group-hover:rotate-4'
+        };
       case 'restaurant':
-        return <UtensilsCrossed className="w-6 h-6 text-white" strokeWidth={1.8} />;
+        return {
+          icon: <UtensilsCrossed className="w-7 h-7 text-white" strokeWidth={2.5} />,
+          bg: 'bg-[#EF4444]',
+          rotate: 'group-hover:-rotate-4'
+        };
       case 'jobsphere':
-        return <Briefcase className="w-6 h-6 text-white" strokeWidth={1.8} />;
+        return {
+          icon: <Briefcase className="w-7 h-7 text-white" strokeWidth={2.5} />,
+          bg: 'bg-[#3155FF]',
+          rotate: 'group-hover:rotate-3'
+        };
       case 'college-erp':
-        return <GraduationCap className="w-6 h-6 text-white" strokeWidth={1.8} />;
+        return {
+          icon: <GraduationCap className="w-7 h-7 text-white" strokeWidth={2.5} />,
+          bg: 'bg-[#A855F7]',
+          rotate: 'group-hover:-rotate-3'
+        };
       default:
-        return <Sparkles className="w-6 h-6 text-white" strokeWidth={1.8} />;
+        return {
+          icon: <Sparkles className="w-7 h-7 text-white" strokeWidth={2.5} />,
+          bg: 'bg-[#3155FF]',
+          rotate: 'group-hover:rotate-2'
+        };
     }
   };
+
+  const { icon, bg, rotate } = getIconData();
 
   const handleDoubleClick = (e) => {
     e.stopPropagation();
@@ -42,47 +72,42 @@ export const DesktopIcon = ({ app, onOpen, isSelected, onSelect }) => {
 
   return (
     <motion.div
-      whileHover={{ scale: 1.04, y: -3 }}
+      whileHover={{ y: -4 }}
       whileTap={{ scale: 0.96 }}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
-      className={`group flex flex-col items-center justify-center p-3 rounded-2xl cursor-pointer transition-all duration-300 select-none w-28 md:w-32 ${
+      className={`group flex flex-col items-center justify-center p-3 cursor-pointer select-none w-28 md:w-32 transition-all ${
         isSelected 
-          ? 'bg-white/[0.12] light:bg-black/[0.08] ring-1 ring-workspace-violet/50 shadow-violet-glow' 
-          : 'hover:bg-white/[0.05] light:hover:bg-black/[0.04]'
+          ? 'bg-white border-2 border-[#151515] shadow-brutal' 
+          : 'hover:bg-white/40'
       }`}
     >
-      {/* Icon Squircle with Glass & Gradient */}
+      {/* Icon Square with Thick Black Border & Hard Offset Shadow */}
       <div className="relative mb-2.5">
         <div 
-          className={`w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br ${app.iconGradient} flex items-center justify-center shadow-lg relative overflow-hidden group-hover:shadow-violet-glow transition-all duration-300 border border-white/[0.14]`}
+          className={`w-14 h-14 md:w-16 md:h-16 ${bg} border-3 border-[#151515] shadow-brutal flex items-center justify-center relative transition-all duration-150 ${rotate} group-hover:translate-x-[-2px] group-hover:translate-y-[-2px] group-hover:shadow-brutal-md`}
         >
-          {/* Translucent specular sheen */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-white/20 via-transparent to-transparent pointer-events-none" />
-          <div className="relative z-10 drop-shadow-sm">
-            {getIcon()}
-          </div>
+          {icon}
         </div>
 
         {/* Status Pill Badge */}
         {app.status === 'live' ? (
-          <span className="absolute -top-1 -right-1 flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-workspace-cyan opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-workspace-cyan border-2 border-workspace-bg"></span>
+          <span className="absolute -top-1.5 -right-1.5 px-1 py-0.2 bg-[#151515] text-[#A3E635] text-[9px] font-mono font-black border border-white tracking-tighter">
+            LIVE
           </span>
         ) : (
-          <span className="absolute -bottom-1 -right-1 px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-workspace-violet text-white border border-white/20 shadow">
+          <span className="absolute -bottom-1.5 -right-1.5 px-1 py-0.2 bg-[#151515] text-[#FF5C8A] text-[9px] font-mono font-black border border-white tracking-tighter">
             DEV
           </span>
         )}
       </div>
 
       {/* App Label */}
-      <div className="text-center w-full">
-        <p className="text-xs font-medium text-white light:text-slate-900 tracking-wide truncate group-hover:text-workspace-cyan transition-colors drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] light:drop-shadow-none">
-          {app.name}
+      <div className="text-center w-full mt-1">
+        <p className="text-xs font-heading font-black text-[#151515] uppercase tracking-tight truncate bg-white px-1.5 py-0.5 border border-[#151515] shadow-[2px_2px_0_#151515]">
+          {app.shortName || app.name}
         </p>
-        <p className="text-[10px] text-workspace-muted truncate">
+        <p className="text-[10px] font-mono font-bold text-[#151515]/80 truncate mt-0.5">
           {app.category.split(' ')[0]}
         </p>
       </div>

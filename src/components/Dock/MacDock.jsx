@@ -41,19 +41,38 @@ export const MacDock = () => {
   const getAppIcon = (id) => {
     switch (id) {
       case 'rsk-traders':
-        return <Globe2 className="w-5 h-5 text-workspace-cyan" strokeWidth={1.8} />;
+        return <Globe2 className="w-5 h-5 text-[#151515]" strokeWidth={2.2} />;
       case 'photography':
-        return <Camera className="w-5 h-5 text-workspace-violet" strokeWidth={1.8} />;
+        return <Camera className="w-5 h-5 text-[#151515]" strokeWidth={2.2} />;
       case 'jewellery':
-        return <Gem className="w-5 h-5 text-amber-300" strokeWidth={1.8} />;
+        return <Gem className="w-5 h-5 text-[#151515]" strokeWidth={2.2} />;
       case 'restaurant':
-        return <UtensilsCrossed className="w-5 h-5 text-rose-300" strokeWidth={1.8} />;
+        return <UtensilsCrossed className="w-5 h-5 text-[#151515]" strokeWidth={2.2} />;
       case 'jobsphere':
-        return <Briefcase className="w-5 h-5 text-blue-300" strokeWidth={1.8} />;
+        return <Briefcase className="w-5 h-5 text-white" strokeWidth={2.2} />;
       case 'college-erp':
-        return <GraduationCap className="w-5 h-5 text-emerald-300" strokeWidth={1.8} />;
+        return <GraduationCap className="w-5 h-5 text-white" strokeWidth={2.2} />;
       default:
         return null;
+    }
+  };
+
+  const getAppColor = (id) => {
+    switch (id) {
+      case 'rsk-traders':
+        return 'bg-[#39D5C8] hover:bg-[#2bc4b8]';
+      case 'photography':
+        return 'bg-[#9B87FF] hover:bg-[#8872fd]';
+      case 'jewellery':
+        return 'bg-[#F59E0B] hover:bg-[#d97706]';
+      case 'restaurant':
+        return 'bg-[#FF5C8A] hover:bg-[#ff3b71]';
+      case 'jobsphere':
+        return 'bg-[#3155FF] hover:bg-[#2042eb]';
+      case 'college-erp':
+        return 'bg-[#10B981] hover:bg-[#059669]';
+      default:
+        return 'bg-white hover:bg-[#F5F04E]';
     }
   };
 
@@ -62,21 +81,21 @@ export const MacDock = () => {
       <div
         onMouseMove={(e) => mouseX.set(e.pageX)}
         onMouseLeave={() => mouseX.set(Infinity)}
-        className="pointer-events-auto flex items-end gap-2 md:gap-2.5 px-3 py-2 rounded-3xl glass-dock shadow-dock transition-all duration-300"
+        className="pointer-events-auto flex items-end gap-1.5 md:gap-2 px-3 py-2 rounded-2xl bg-white border-3 border-[#151515] shadow-brutal-md transition-all duration-300"
       >
         {/* Launcher icon */}
         <DockItem
           mouseX={mouseX}
-          icon={<Grid className="w-5 h-5 text-workspace-violet" strokeWidth={1.8} />}
+          icon={<Grid className="w-5 h-5 text-[#151515]" strokeWidth={2.4} />}
           label="App Launcher"
           onClick={() => setIsLauncherOpen(true)}
           isOpen={false}
           isActive={false}
-          colorClass="bg-workspace-violet/12 hover:bg-workspace-violet/20"
+          colorClass="bg-[#F5F04E] hover:bg-[#ece736]"
         />
 
-        {/* Translucent separator */}
-        <div className="w-[1px] h-7 bg-white/[0.1] light:bg-black/[0.08] my-auto mx-0.5" />
+        {/* Solid Neo-Brutalist Separator */}
+        <div className="w-[2px] h-8 bg-[#151515] my-auto mx-1 shrink-0" />
 
         {/* 6 Configured Website Apps */}
         {APPLICATIONS.map((app) => {
@@ -93,56 +112,56 @@ export const MacDock = () => {
               onClick={() => handleAppClick(app.id)}
               isOpen={isOpen}
               isActive={isActive}
-              colorClass="bg-white/[0.05] light:bg-black/[0.04] hover:bg-white/[0.1] light:hover:bg-black/[0.08]"
+              colorClass={getAppColor(app.id)}
             />
           );
         })}
 
-        {/* Translucent separator */}
-        <div className="w-[1px] h-7 bg-white/[0.1] light:bg-black/[0.08] my-auto mx-0.5" />
+        {/* Solid Neo-Brutalist Separator */}
+        <div className="w-[2px] h-8 bg-[#151515] my-auto mx-1 shrink-0" />
 
         {/* Projects Showcase */}
         <DockItem
           mouseX={mouseX}
-          icon={<Layers className="w-5 h-5 text-workspace-cyan" strokeWidth={1.8} />}
+          icon={<Layers className="w-5 h-5 text-white" strokeWidth={2.2} />}
           label="Projects Explorer"
           onClick={() => openWindow('projects-window', { title: 'Projects Explorer', type: 'projects' })}
           isOpen={!!(windows['projects-window']?.isOpen && !windows['projects-window']?.isMinimized)}
           isActive={activeWindowId === 'projects-window'}
-          colorClass="bg-workspace-cyan/12 hover:bg-workspace-cyan/20"
+          colorClass="bg-[#3155FF] hover:bg-[#2042eb]"
         />
 
         {/* About Me */}
         <DockItem
           mouseX={mouseX}
-          icon={<User className="w-5 h-5 text-workspace-violet" strokeWidth={1.8} />}
+          icon={<User className="w-5 h-5 text-white" strokeWidth={2.2} />}
           label="About Kamalesh"
           onClick={() => openWindow('about-window', { title: 'About Kamalesh', type: 'about' })}
           isOpen={!!(windows['about-window']?.isOpen && !windows['about-window']?.isMinimized)}
           isActive={activeWindowId === 'about-window'}
-          colorClass="bg-workspace-violet/12 hover:bg-workspace-violet/20"
+          colorClass="bg-[#FF5C8A] hover:bg-[#ff3b71]"
         />
 
         {/* Terminal */}
         <DockItem
           mouseX={mouseX}
-          icon={<Terminal className="w-5 h-5 text-amber-400" strokeWidth={1.8} />}
+          icon={<Terminal className="w-5 h-5 text-[#F5F04E]" strokeWidth={2.2} />}
           label="Developer Terminal"
           onClick={() => openWindow('terminal-window', { title: 'Developer Terminal', type: 'terminal' })}
           isOpen={!!(windows['terminal-window']?.isOpen && !windows['terminal-window']?.isMinimized)}
           isActive={activeWindowId === 'terminal-window'}
-          colorClass="bg-amber-400/12 hover:bg-amber-400/20"
+          colorClass="bg-[#151515] hover:bg-[#2a2a2a]"
         />
 
         {/* Contact */}
         <DockItem
           mouseX={mouseX}
-          icon={<Mail className="w-5 h-5 text-rose-400" strokeWidth={1.8} />}
+          icon={<Mail className="w-5 h-5 text-[#151515]" strokeWidth={2.2} />}
           label="Contact & Hire"
           onClick={() => openWindow('contact-window', { title: 'Contact Kamalesh', type: 'contact' })}
           isOpen={!!(windows['contact-window']?.isOpen && !windows['contact-window']?.isMinimized)}
           isActive={activeWindowId === 'contact-window'}
-          colorClass="bg-rose-400/12 hover:bg-rose-400/20"
+          colorClass="bg-[#F5F04E] hover:bg-[#e7e237]"
         />
       </div>
     </div>

@@ -146,7 +146,7 @@ export const CommandPalette = () => {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 px-4 bg-black/60 backdrop-blur-md">
+      <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 px-4 bg-black/60">
         
         {/* Backdrop click to close */}
         <div 
@@ -160,11 +160,11 @@ export const CommandPalette = () => {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: -10 }}
           transition={{ duration: 0.15 }}
-          className="relative z-10 w-full max-w-xl rounded-2xl glass-panel-elevated overflow-hidden border border-white/[0.14] shadow-2xl flex flex-col"
+          className="relative z-10 w-full max-w-xl rounded-2xl bg-white border-3 border-[#151515] shadow-brutal-xl overflow-hidden flex flex-col text-[#151515]"
         >
           {/* Search bar input */}
-          <div className="p-4 border-b border-white/[0.08] flex items-center space-x-3">
-            <Search className="w-5 h-5 text-workspace-accent shrink-0" />
+          <div className="p-4 border-b-3 border-[#151515] flex items-center space-x-3 bg-white">
+            <Search className="w-5 h-5 text-[#3155FF] shrink-0" strokeWidth={2.5} />
             <input
               ref={inputRef}
               type="text"
@@ -175,17 +175,17 @@ export const CommandPalette = () => {
               }}
               onKeyDown={handleKeyDown}
               placeholder="Search apps, repositories, or commands..."
-              className="w-full bg-transparent text-sm text-white focus:outline-none placeholder-white/40"
+              className="w-full bg-transparent text-sm font-bold text-[#151515] focus:outline-none placeholder-[#151515]/40"
             />
-            <kbd className="px-1.5 py-0.5 rounded bg-white/[0.08] text-[10px] text-white/50 font-mono">
+            <kbd className="px-2 py-0.5 rounded-lg bg-[#F5F04E] text-[10px] text-[#151515] font-mono font-extrabold border border-[#151515] shadow-[1px_1px_0px_#151515]">
               ESC
             </kbd>
           </div>
 
           {/* Results List */}
-          <div className="max-h-80 overflow-y-auto p-2 space-y-1">
+          <div className="max-h-80 overflow-y-auto p-2 space-y-1 bg-[#F5F5F0]">
             {filteredCommands.length === 0 ? (
-              <div className="p-8 text-center text-xs text-workspace-muted">
+              <div className="p-8 text-center text-xs font-bold text-[#151515]/70">
                 No commands or repositories matching "{query}"
               </div>
             ) : (
@@ -196,28 +196,28 @@ export const CommandPalette = () => {
                     key={cmd.id}
                     onClick={() => executeCommand(cmd)}
                     onMouseEnter={() => setSelectedIndex(idx)}
-                    className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl cursor-pointer transition-colors ${
+                    className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl cursor-pointer transition-all ${
                       isSelected 
-                        ? 'bg-workspace-accent/20 text-white' 
-                        : 'text-white/80 hover:bg-white/[0.04]'
+                        ? 'bg-[#F5F04E] text-[#151515] border-2 border-[#151515] shadow-[2px_2px_0px_#151515] -translate-x-0.5' 
+                        : 'text-[#151515] hover:bg-white border-2 border-transparent'
                     }`}
                   >
                     <div className="flex items-center space-x-3 truncate">
-                      <div className="p-1.5 rounded-lg bg-white/[0.06] text-white shrink-0">
+                      <div className="p-1.5 rounded-lg bg-white border-2 border-[#151515] text-[#151515] shrink-0">
                         {cmd.icon}
                       </div>
                       <div className="truncate">
-                        <p className="text-xs font-semibold text-white truncate">{cmd.title}</p>
-                        <p className="text-[10px] text-workspace-muted truncate">{cmd.subtitle}</p>
+                        <p className="text-xs font-extrabold font-heading text-[#151515] truncate">{cmd.title}</p>
+                        <p className="text-[10px] text-[#151515]/70 font-mono font-medium truncate">{cmd.subtitle}</p>
                       </div>
                     </div>
 
                     <div className="flex items-center space-x-2 shrink-0">
-                      <span className="text-[10px] text-workspace-muted px-2 py-0.5 rounded bg-white/[0.04]">
+                      <span className="text-[10px] font-bold font-mono text-[#151515] px-2 py-0.5 rounded-md bg-white border border-[#151515]">
                         {cmd.category}
                       </span>
                       {isSelected && (
-                        <ArrowRight className="w-3.5 h-3.5 text-workspace-accent" />
+                        <ArrowRight className="w-3.5 h-3.5 text-[#3155FF]" strokeWidth={2.5} />
                       )}
                     </div>
                   </div>
@@ -227,10 +227,10 @@ export const CommandPalette = () => {
           </div>
 
           {/* Bottom Bar Hints */}
-          <div className="px-4 py-2.5 bg-workspace-surface border-t border-white/[0.06] flex items-center justify-between text-[11px] text-workspace-muted">
+          <div className="px-4 py-2.5 bg-white border-t-3 border-[#151515] flex items-center justify-between text-[11px] font-mono font-bold text-[#151515]">
             <div className="flex items-center space-x-3">
-              <span><kbd className="px-1 bg-white/[0.08] rounded">↑</kbd> <kbd className="px-1 bg-white/[0.08] rounded">↓</kbd> navigate</span>
-              <span><kbd className="px-1 bg-white/[0.08] rounded">↵</kbd> select</span>
+              <span><kbd className="px-1.5 py-0.5 bg-[#F5F04E] rounded border border-[#151515]">↑</kbd> <kbd className="px-1.5 py-0.5 bg-[#F5F04E] rounded border border-[#151515]">↓</kbd> navigate</span>
+              <span><kbd className="px-1.5 py-0.5 bg-[#F5F04E] rounded border border-[#151515]">↵</kbd> select</span>
             </div>
             <span>Spotlight • GitHub Synced</span>
           </div>

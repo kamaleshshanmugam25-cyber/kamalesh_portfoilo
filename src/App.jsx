@@ -11,20 +11,17 @@ import { CommandPalette } from './components/Launcher/CommandPalette';
 
 function WorkspaceLayout() {
   const { theme } = useWindowManager();
-  const isLight = theme === 'light';
 
   return (
-    <div className={`relative w-screen h-screen overflow-hidden ${
-      isLight ? 'bg-workspace-lightBg text-workspace-lightText' : 'bg-workspace-bg text-workspace-text'
-    } flex flex-col font-sans select-none transition-colors duration-300`}>
-      {/* Dynamic Midnight Aurora Background Canvas */}
+    <div className="relative w-screen h-screen overflow-hidden bg-[#F5F04E] text-[#151515] flex flex-col font-sans select-none">
+      {/* Dynamic Neo-Brutalist Matrix & Stamps Canvas */}
       <AmbientGlow />
 
-      {/* Top macOS-style Status Bar with Theme Switcher */}
+      {/* Top Status Bar with Archivo Stamp & Navigation */}
       <TopStatusBar />
 
       {/* Main Interactive Desktop Work Area */}
-      <main className="relative flex-1 w-full h-[calc(100vh-2.5rem)] overflow-hidden flex flex-col z-10">
+      <main className="relative flex-1 w-full h-[calc(100vh-3rem)] overflow-hidden flex flex-col z-10">
         <DesktopCanvas />
       </main>
 

@@ -44,8 +44,8 @@ const SingleWindow = ({ windowItem }) => {
       onPointerDown={handlePointerDown}
       initial={{ 
         opacity: 0, 
-        scale: 0.95, 
-        y: 15 
+        scale: 0.96, 
+        y: 20 
       }}
       animate={
         isMaximized
@@ -54,11 +54,11 @@ const SingleWindow = ({ windowItem }) => {
               scale: 1,
               x: 0,
               y: 0,
-              top: '40px',
+              top: '48px',
               left: '0px',
               width: '100vw',
-              height: 'calc(100vh - 40px - 64px)',
-              transition: { duration: 0.28, ease: [0.16, 1, 0.3, 1] }
+              height: 'calc(100vh - 48px - 64px)',
+              transition: { type: 'spring', damping: 24, stiffness: 220 }
             }
           : {
               opacity: 1,
@@ -67,18 +67,18 @@ const SingleWindow = ({ windowItem }) => {
               left: `${windowItem.position.x}px`,
               width: `${windowItem.size.width}px`,
               height: `${windowItem.size.height}px`,
-              transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] }
+              transition: { type: 'spring', damping: 22, stiffness: 200 }
             }
       }
-      exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.18, ease: 'easeOut' } }}
+      exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
       style={{
         zIndex: windowItem.zIndex,
         position: 'fixed'
       }}
-      className={`rounded-2xl overflow-hidden glass-panel-elevated flex flex-col transition-all duration-300 ${
+      className={`overflow-hidden flex flex-col bg-white border-3 border-[#151515] transition-shadow duration-150 ${
         isActive 
-          ? 'shadow-window-active border-workspace-violet/30 ring-1 ring-workspace-violet/25' 
-          : 'shadow-window-inactive border-white/[0.08] light:border-black/[0.08] opacity-95'
+          ? 'shadow-brutal-xl' 
+          : 'shadow-brutal-lg opacity-95'
       }`}
     >
       {/* Draggable Window Header */}
@@ -93,7 +93,7 @@ const SingleWindow = ({ windowItem }) => {
       </div>
 
       {/* Window Body Container */}
-      <div className="flex-1 w-full h-[calc(100%-2.25rem)] overflow-hidden relative bg-workspace-bg">
+      <div className="flex-1 w-full h-[calc(100%-2.5rem)] overflow-hidden relative bg-white">
         <WindowBody 
           windowItem={windowItem} 
           onClose={() => closeWindow(windowItem.id)} 

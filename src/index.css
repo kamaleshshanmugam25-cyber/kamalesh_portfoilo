@@ -14,114 +14,142 @@
     height: 100vh;
     height: 100dvh;
     overflow: hidden;
-    font-family: 'Geist', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: #F5F04E;
+    color: #151515;
+    font-family: 'Space Grotesk', 'Inter', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    transition: background-color 300ms ease, color 300ms ease;
-  }
-
-  /* Default Dark (Midnight Aurora) */
-  html.dark, html:not(.light) {
-    background-color: #08090D;
-    color: #FFFFFF;
-  }
-
-  /* Light Theme (Pearlescent Aurora) */
-  html.light {
-    background-color: #F8F9FC;
-    color: #0E1017;
   }
 }
 
-/* Custom Scrollbars */
+/* Custom Neo-Brutalist Scrollbars */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #F5F5F0;
+  border-left: 2px solid #151515;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 9999px;
+  background: #151515;
+  border-radius: 0;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.22);
+  background: #3155FF;
 }
 
-.light ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.12);
+/* Neo-Brutalist Card, Window & Dock classes */
+.brutal-card {
+  background: #FFFFFF;
+  border: 3px solid #151515;
+  box-shadow: 6px 6px 0px #151515;
 }
 
-.light ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.25);
+.brutal-card-sm {
+  background: #FFFFFF;
+  border: 2px solid #151515;
+  box-shadow: 4px 4px 0px #151515;
 }
 
-/* Glassmorphism Classes (Dark Theme) */
-.glass-panel {
-  background: rgba(16, 18, 26, 0.85);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+.brutal-window {
+  background: #FFFFFF;
+  border: 3px solid #151515;
+  box-shadow: 8px 8px 0px #151515;
 }
 
-.glass-panel-elevated {
-  background: rgba(21, 24, 35, 0.90);
-  backdrop-filter: blur(32px);
-  -webkit-backdrop-filter: blur(32px);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.06);
+.brutal-window-active {
+  background: #FFFFFF;
+  border: 3px solid #151515;
+  box-shadow: 10px 10px 0px #151515;
 }
 
-.glass-dock {
-  background: rgba(16, 18, 26, 0.78);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.06);
+.brutal-dock {
+  background: #FFFFFF;
+  border: 3px solid #151515;
+  box-shadow: 6px 6px 0px #151515;
 }
 
-.glass-header {
-  background: rgba(8, 9, 13, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+.brutal-header {
+  background: #FFFFFF;
+  border-bottom: 3px solid #151515;
 }
 
-/* Glassmorphism Classes (Light Theme overrides) */
-.light .glass-panel {
-  background: rgba(255, 255, 255, 0.88);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06);
+/* Neo-Brutalist Action Buttons */
+.brutal-btn-blue {
+  background-color: #3155FF;
+  color: #FFFFFF;
+  font-weight: 700;
+  border: 2px solid #151515;
+  box-shadow: 4px 4px 0px #151515;
+  transition: all 150ms ease;
+}
+.brutal-btn-blue:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #151515;
+}
+.brutal-btn-blue:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #151515;
 }
 
-.light .glass-panel-elevated {
-  background: rgba(255, 255, 255, 0.94);
-  border: 1px solid rgba(0, 0, 0, 0.09);
-  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04);
+.brutal-btn-pink {
+  background-color: #FF5C8A;
+  color: #FFFFFF;
+  font-weight: 700;
+  border: 2px solid #151515;
+  box-shadow: 4px 4px 0px #151515;
+  transition: all 150ms ease;
+}
+.brutal-btn-pink:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #151515;
+}
+.brutal-btn-pink:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #151515;
 }
 
-.light .glass-dock {
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+.brutal-btn-white {
+  background-color: #FFFFFF;
+  color: #151515;
+  font-weight: 700;
+  border: 2px solid #151515;
+  box-shadow: 4px 4px 0px #151515;
+  transition: all 150ms ease;
+}
+.brutal-btn-white:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #151515;
+}
+.brutal-btn-white:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #151515;
 }
 
-.light .glass-header {
-  background: rgba(248, 249, 252, 0.88);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+.brutal-btn-yellow {
+  background-color: #F5F04E;
+  color: #151515;
+  font-weight: 700;
+  border: 2px solid #151515;
+  box-shadow: 4px 4px 0px #151515;
+  transition: all 150ms ease;
+}
+.brutal-btn-yellow:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #151515;
+}
+.brutal-btn-yellow:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #151515;
 }
 
-/* Soft Violet Shadow for Active Elements */
-.shadow-violet-active {
-  box-shadow: 0 10px 30px -10px rgba(155, 135, 255, 0.28), 0 0 20px -5px rgba(155, 135, 255, 0.16);
-}
-
-/* Smooth standard transition */
-.transition-smooth {
-  transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
+/* Polka / Grid Matrix Background for Neo-Brutalist Yellow Canvas */
+.brutal-grid-pattern {
+  background-color: #F5F04E;
+  background-image: radial-gradient(#151515 1.5px, transparent 1.5px);
+  background-size: 28px 28px;
 }

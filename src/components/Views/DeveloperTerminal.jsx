@@ -140,19 +140,32 @@ Experience: ${PROFILE.experienceYears} | Status: ${PROFILE.availability}`
   };
 
   return (
-    <div className="w-full h-full bg-[#0B0D13] p-4 font-mono text-xs flex flex-col justify-between text-white selection:bg-workspace-accent/40 select-text">
+    <div className="w-full h-full bg-[#151515] p-4 md:p-6 font-mono text-xs flex flex-col justify-between text-white selection:bg-[#3155FF] select-text">
+      {/* Top CLI Header Stamp */}
+      <div className="flex items-center justify-between pb-3 mb-3 border-b-2 border-white/20 select-none">
+        <div className="flex items-center space-x-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#F5F04E] border border-white" />
+          <span className="text-[11px] font-bold text-[#F5F04E] tracking-wider uppercase">
+            KAMVERSE DEVELOPER TERMINAL [CLI v2.6.0]
+          </span>
+        </div>
+        <span className="text-[10px] text-white/60 font-bold uppercase">
+          READY • @{GITHUB_USERNAME}
+        </span>
+      </div>
+
       {/* Output log */}
       <div className="flex-1 overflow-y-auto space-y-2 pr-2">
         {history.map((item, idx) => (
           <div key={idx} className="leading-relaxed">
             {item.type === 'user' ? (
-              <span className="text-workspace-teal font-semibold">{item.text}</span>
+              <span className="text-[#39D5C8] font-bold">{item.text}</span>
             ) : item.type === 'error' ? (
-              <span className="text-rose-400">{item.text}</span>
+              <span className="text-[#FF5C8A] font-bold bg-[#FF5C8A]/10 px-1.5 py-0.5 rounded border border-[#FF5C8A]/30">{item.text}</span>
             ) : item.type === 'system' ? (
-              <span className="text-amber-400">{item.text}</span>
+              <span className="text-[#F5F04E] font-bold">{item.text}</span>
             ) : (
-              <pre className="text-workspace-muted font-mono whitespace-pre-wrap">{item.text}</pre>
+              <pre className="text-white/90 font-mono whitespace-pre-wrap">{item.text}</pre>
             )}
           </div>
         ))}
@@ -160,18 +173,22 @@ Experience: ${PROFILE.experienceYears} | Status: ${PROFILE.availability}`
       </div>
 
       {/* Input line */}
-      <form onSubmit={handleCommand} className="mt-3 pt-2 border-t border-white/[0.08] flex items-center space-x-2">
-        <span className="text-workspace-accent font-bold">kamalesh@workspace:~$</span>
+      <form onSubmit={handleCommand} className="mt-3 pt-3 border-t-2 border-white/20 flex items-center space-x-2">
+        <span className="text-[#F5F04E] font-extrabold shrink-0">kamalesh@workspace:~$</span>
         <input
           type="text"
           value={inputVal}
           onChange={(e) => setInputVal(e.target.value)}
           placeholder="type 'help', 'repos', or 'launch rsk-traders'..."
-          className="flex-1 bg-transparent text-white focus:outline-none font-mono text-xs caret-workspace-teal"
+          className="flex-1 bg-transparent text-white focus:outline-none font-mono text-xs font-bold caret-[#F5F04E]"
           autoFocus
         />
-        <button type="submit" className="text-workspace-muted hover:text-white transition-colors">
-          <CornerDownLeft className="w-3.5 h-3.5" />
+        <button 
+          type="submit" 
+          className="p-1.5 rounded-lg bg-[#3155FF] text-white border border-white hover:bg-[#2042eb] active:translate-y-0.5 transition-all"
+          title="Execute Command"
+        >
+          <CornerDownLeft className="w-3.5 h-3.5" strokeWidth={2.5} />
         </button>
       </form>
     </div>
