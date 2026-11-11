@@ -1,7 +1,10 @@
 import React, { useEffect, useRef } from 'react';
+import { useWindowManager } from '../../context/WindowContext';
 
 export const AmbientGlow = () => {
   const canvasRef = useRef(null);
+  const { theme } = useWindowManager();
+  const isLight = theme === 'light';
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -19,22 +22,21 @@ export const AmbientGlow = () => {
 
     window.addEventListener('resize', handleResize);
 
-    // Subtle floating cosmic dust particles
-    const particleCount = 45;
+    // Subtle celestial micro-particles
+    const particleCount = 35;
     const particles = Array.from({ length: particleCount }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
-      radius: Math.random() * 1.5 + 0.5,
-      speedX: (Math.random() - 0.5) * 0.25,
-      speedY: (Math.random() - 0.5) * 0.25,
-      alpha: Math.random() * 0.35 + 0.1,
-      color: Math.random() > 0.5 ? '#8B7CFF' : '#39D5C8'
+      radius: Math.random() * 1.2 + 0.4,
+      speedX: (Math.random() - 0.5) * 0.18,
+      speedY: (Math.random() - 0.5) * 0.18,
+      alpha: Math.random() * 0.25 + 0.08,
+      color: Math.random() > 0.5 ? '#9B87FF' : '#50DED0'
     }));
 
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // Render subtle particles
       particles.forEach((p) => {
         p.x += p.speedX;
         p.y += p.speedY;
@@ -47,8 +49,8 @@ export const AmbientGlow = () => {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         ctx.fillStyle = p.color;
-        ctx.globalAlpha = p.alpha;
-        ctx.shadowBlur = 8;
+        ctx.globalAlpha = isLight ? p.alpha * 0.4 : p.alpha;
+        ctx.shadowBlur = 6;
         ctx.shadowColor = p.color;
         ctx.fill();
       });
@@ -62,26 +64,46 @@ export const AmbientGlow = () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [isLight]);
 
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-      {/* Deep ambient gradients */}
-      <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-workspace-accent/15 blur-[120px] pointer-events-none animate-pulse-slow" />
-      <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-workspace-teal/15 blur-[120px] pointer-events-none animate-pulse-slow" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-indigo-950/20 blur-[160px] pointer-events-none" />
-      
-      {/* Subtle grid pattern */}
+    <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 select-none">
+      {/* Aurora Ribbon 1: Luminous Violet (#9B87FF) */}
       <div 
-        className="absolute inset-0 opacity-[0.035] pointer-events-none"
+        className={`absolute -top-32 -left-20 w-[550px] h-[550px] rounded-full blur-[140px] pointer-events-none animate-aurora-drift transition-opacity duration-700 ${
+          isLight ? 'bg-[#9B87FF]/12' : 'bg-[#9B87FF]/16'
+        }`}
+      />
+
+      {/* Aurora Ribbon 2: Cyan Aurora (#50DED0) */}
+      <div 
+        className={`absolute -bottom-36 -right-20 w-[550px] h-[550px] rounded-full blur-[140px] pointer-events-none animate-aurora-drift transition-opacity duration-700 ${
+          isLight ? 'bg-[#50DED0]/12' : 'bg-[#50DED0]/15'
+        }`}
+        style={{ animationDelay: '-8s' }}
+      />
+
+      {/* Aurora Ribbon 3: Deep Midnight Luminous Core */}
+      <div 
+        className={`absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[450px] rounded-full blur-[160px] pointer-events-none animate-aurora-glow transition-opacity duration-700 ${
+          isLight ? 'bg-indigo-300/10' : 'bg-[#9B87FF]/10'
+        }`}
+        style={{ animationDelay: '-4s' }}
+      />
+
+      {/* Ultra-subtle geometric stipple grid */}
+      <div 
+        className={`absolute inset-0 pointer-events-none transition-opacity duration-500 ${
+          isLight ? 'opacity-[0.02]' : 'opacity-[0.035]'
+        }`}
         style={{
-          backgroundImage: `radial-gradient(rgba(255, 255, 255, 0.4) 1px, transparent 1px)`,
-          backgroundSize: '32px 32px'
+          backgroundImage: `radial-gradient(${isLight ? '#000000' : '#FFFFFF'} 1px, transparent 1px)`,
+          backgroundSize: '36px 36px'
         }}
       />
 
-      {/* Particle Canvas */}
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-60 pointer-events-none" />
+      {/* Canvas micro particles */}
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
     </div>
   );
 };

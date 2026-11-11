@@ -10,41 +10,62 @@ export default {
       colors: {
         workspace: {
           bg: '#08090D',
-          secondary: '#11131B',
-          surface: '#151722',
-          surfaceHover: '#1D2130',
-          card: 'rgba(21, 23, 34, 0.75)',
+          surface1: '#10121A',
+          surface2: '#151823',
+          surface3: '#1D2029',
+          surface: '#10121A',
+          surfaceHover: '#151823',
+          card: 'rgba(16, 18, 26, 0.85)',
           border: 'rgba(255, 255, 255, 0.08)',
-          borderLight: 'rgba(255, 255, 255, 0.16)',
-          accent: '#8B7CFF',
-          accentGlow: 'rgba(139, 124, 255, 0.35)',
-          teal: '#39D5C8',
-          tealGlow: 'rgba(57, 213, 200, 0.35)',
-          muted: '#9295A5',
+          borderHover: 'rgba(255, 255, 255, 0.14)',
+          violet: '#9B87FF',
+          violetGlow: 'rgba(155, 135, 255, 0.25)',
+          cyan: '#50DED0',
+          cyanGlow: 'rgba(80, 222, 208, 0.22)',
+          accent: '#9B87FF',
+          teal: '#50DED0',
           text: '#FFFFFF',
+          muted: '#9296A5',
+          lightBg: '#F8F9FC',
+          lightSurface1: '#FFFFFF',
+          lightSurface2: '#F0F2F8',
+          lightSurface3: '#E5E8F2',
+          lightBorder: 'rgba(0, 0, 0, 0.08)',
+          lightText: '#0E1017',
+          lightMuted: '#636674'
         }
       },
       fontFamily: {
-        sans: ['Inter', 'Geist', 'Manrope', 'system-ui', '-apple-system', 'sans-serif'],
-        mono: ['JetBrains Mono', 'Fira Code', 'monospace']
+        sans: ['Geist', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        mono: ['Geist Mono', 'JetBrains Mono', 'Fira Code', 'monospace']
       },
       boxShadow: {
         'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.45)',
-        'glass-glow': '0 0 25px -5px rgba(139, 124, 255, 0.25)',
-        'window': '0 25px 60px -15px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.1)',
-        'dock': '0 20px 40px -10px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.12)',
+        'violet-glow': '0 10px 30px -10px rgba(155, 135, 255, 0.25), 0 0 20px -5px rgba(155, 135, 255, 0.15)',
+        'cyan-glow': '0 10px 30px -10px rgba(80, 222, 208, 0.22), 0 0 20px -5px rgba(80, 222, 208, 0.12)',
+        'window-active': '0 24px 70px -12px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(155, 135, 255, 0.25), 0 8px 32px -4px rgba(155, 135, 255, 0.15)',
+        'window-inactive': '0 20px 50px -10px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.08)',
+        'dock': '0 20px 45px -10px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.12)',
+        'card': '0 4px 20px -2px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.08)',
       },
       backdropBlur: {
         'xs': '2px',
+        '2xl': '40px',
       },
       animation: {
-        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'float': 'float 6s ease-in-out infinite',
+        'aurora-drift': 'auroraDrift 20s ease-in-out infinite alternate',
+        'aurora-glow': 'auroraGlow 14s ease-in-out infinite alternate',
       },
       keyframes: {
-        float: {
-          '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-6px)' },
+        auroraDrift: {
+          '0%': { transform: 'translate(0px, 0px) scale(1)' },
+          '50%': { transform: 'translate(-30px, 20px) scale(1.08)' },
+          '100%': { transform: 'translate(25px, -15px) scale(0.96)' },
+        },
+        auroraGlow: {
+          '0%': { opacity: '0.22', filter: 'hue-rotate(0deg)' },
+          '50%': { opacity: '0.32', filter: 'hue-rotate(15deg)' },
+          '100%': { opacity: '0.20', filter: 'hue-rotate(-15deg)' },
         }
       }
     },

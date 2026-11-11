@@ -23,6 +23,33 @@ export const WindowProvider = ({ children }) => {
   const [favoriteAppIds, setFavoriteAppIds] = useState(['rsk-traders', 'jobsphere']);
   const [soundEnabled, setSoundEnabled] = useState(false);
 
+  // Theme Management (Midnight Aurora Dark vs Pearlescent Light)
+  const [theme, setTheme] = useState(() => {
+    try {
+      return localStorage.getItem('kamverse_theme') || 'dark';
+    } catch (_) {
+      return 'dark';
+    }
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'light') {
+      root.classList.remove('dark');
+      root.classList.add('light');
+    } else {
+      root.classList.remove('light');
+      root.classList.add('dark');
+    }
+    try {
+      localStorage.setItem('kamverse_theme', theme);
+    } catch (_) {}
+  }, [theme]);
+
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  }, []);
+
   // GitHub Live State
   const [gitHubProjects, setGitHubProjects] = useState([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
@@ -249,6 +276,8 @@ export const WindowProvider = ({ children }) => {
   }, []);
 
   const value = {
+    theme,
+    toggleTheme,
     windows,
     activeWindowId,
     openWindow,

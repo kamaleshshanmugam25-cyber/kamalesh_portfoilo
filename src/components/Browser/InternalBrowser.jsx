@@ -40,29 +40,29 @@ export const InternalBrowser = ({ app, onClose }) => {
   };
 
   return (
-    <div className="flex flex-col w-full h-full bg-workspace-bg select-text">
+    <div className="flex flex-col w-full h-full bg-workspace-bg select-text transition-colors duration-300">
       {/* Browser Toolbar / Chrome */}
-      <div className="h-11 px-3 bg-workspace-secondary/95 border-b border-white/[0.08] flex items-center justify-between gap-2 shrink-0 select-none">
+      <div className="h-11 px-3 bg-workspace-surface1/95 light:bg-[#F0F2F8]/95 border-b border-white/[0.08] light:border-black/[0.08] flex items-center justify-between gap-2 shrink-0 select-none">
         
         {/* Navigation Buttons (Back, Forward, Reload) */}
         <div className="flex items-center space-x-1 shrink-0">
           <button 
             disabled 
-            className="p-1.5 rounded-lg text-white/30 cursor-not-allowed hover:bg-white/[0.04]"
+            className="p-1.5 rounded-lg text-white/30 light:text-black/30 cursor-not-allowed hover:bg-white/[0.04]"
             title="Back"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
           </button>
           <button 
             disabled 
-            className="p-1.5 rounded-lg text-white/30 cursor-not-allowed hover:bg-white/[0.04]"
+            className="p-1.5 rounded-lg text-white/30 light:text-black/30 cursor-not-allowed hover:bg-white/[0.04]"
             title="Forward"
           >
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
           <button 
             onClick={handleRefresh}
-            className="p-1.5 rounded-lg text-workspace-muted hover:text-white hover:bg-white/[0.08] transition-colors"
+            className="p-1.5 rounded-lg text-workspace-muted hover:text-white light:hover:text-slate-900 hover:bg-white/[0.08] light:hover:bg-black/[0.06] transition-colors"
             title="Reload Page"
           >
             <RotateCw className="w-3.5 h-3.5" />
@@ -71,22 +71,22 @@ export const InternalBrowser = ({ app, onClose }) => {
 
         {/* Address Bar */}
         <div className="flex-1 max-w-2xl mx-1 md:mx-4">
-          <div className="relative flex items-center w-full h-7 px-3 rounded-lg bg-workspace-bg/80 border border-white/[0.08] focus-within:border-workspace-accent/60 transition-colors">
-            <Lock className="w-3 h-3 text-emerald-400 mr-2 shrink-0" />
+          <div className="relative flex items-center w-full h-7 px-3 rounded-lg bg-workspace-bg/80 light:bg-white border border-white/[0.08] light:border-black/[0.08] focus-within:border-workspace-violet/60 focus-within:ring-1 focus-within:ring-workspace-violet/20 transition-all">
+            <Lock className="w-3 h-3 text-workspace-cyan mr-2 shrink-0" />
             <input
               type="text"
               readOnly
-              value={app.url || `https://${app.id}.kamalesh.workspace [staging]`}
-              className="w-full bg-transparent text-xs text-white/90 font-mono focus:outline-none truncate select-all"
+              value={app.url || `https://${app.id}.kamverse.workspace [staging]`}
+              className="w-full bg-transparent text-xs text-white/90 light:text-slate-900 font-mono focus:outline-none truncate select-all"
             />
             {app.url && (
               <button
                 onClick={handleCopyUrl}
-                className="ml-2 text-workspace-muted hover:text-white transition-colors"
+                className="ml-2 text-workspace-muted hover:text-white light:hover:text-slate-900 transition-colors"
                 title="Copy Address"
               >
                 {isCopied ? (
-                  <Check className="w-3 h-3 text-emerald-400" />
+                  <Check className="w-3 h-3 text-workspace-cyan" />
                 ) : (
                   <Copy className="w-3 h-3" />
                 )}
@@ -98,23 +98,23 @@ export const InternalBrowser = ({ app, onClose }) => {
         {/* Right Action Controls */}
         <div className="flex items-center space-x-1.5 shrink-0">
           {/* Mode Switcher */}
-          <div className="hidden sm:flex items-center bg-white/[0.06] rounded-lg p-0.5 border border-white/[0.06]">
+          <div className="hidden sm:flex items-center bg-white/[0.06] light:bg-black/[0.06] rounded-lg p-0.5 border border-white/[0.06] light:border-black/[0.06]">
             <button
               onClick={() => setViewMode('embed')}
-              className={`px-2 py-1 rounded text-[10px] font-medium transition-colors ${
+              className={`px-2 py-1 rounded text-[10px] font-medium transition-all ${
                 viewMode === 'embed' 
-                  ? 'bg-workspace-accent text-white shadow-sm' 
-                  : 'text-workspace-muted hover:text-white'
+                  ? 'bg-workspace-violet text-white shadow-violet-glow' 
+                  : 'text-workspace-muted hover:text-white light:hover:text-slate-900'
               }`}
             >
               Browser
             </button>
             <button
               onClick={() => setViewMode('overview')}
-              className={`px-2 py-1 rounded text-[10px] font-medium transition-colors ${
+              className={`px-2 py-1 rounded text-[10px] font-medium transition-all ${
                 viewMode === 'overview' 
-                  ? 'bg-workspace-accent text-white shadow-sm' 
-                  : 'text-workspace-muted hover:text-white'
+                  ? 'bg-workspace-violet text-white shadow-violet-glow' 
+                  : 'text-workspace-muted hover:text-white light:hover:text-slate-900'
               }`}
             >
               Overview
@@ -125,7 +125,7 @@ export const InternalBrowser = ({ app, onClose }) => {
           {app.url && !app.url.includes('[ADD') && (
             <button
               onClick={handleExternalOpen}
-              className="p-1.5 rounded-lg text-workspace-muted hover:text-white hover:bg-white/[0.08] transition-colors"
+              className="p-1.5 rounded-lg text-workspace-muted hover:text-white light:hover:text-slate-900 hover:bg-white/[0.08] light:hover:bg-black/[0.06] transition-colors"
               title="Open Official Website in New Browser Tab"
             >
               <ExternalLink className="w-3.5 h-3.5" />

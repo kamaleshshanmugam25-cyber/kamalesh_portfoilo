@@ -62,7 +62,7 @@ export const ContactModal = () => {
           particleCount: 80,
           spread: 70,
           origin: { y: 0.6 },
-          colors: ['#8B7CFF', '#39D5C8', '#FFFFFF']
+          colors: ['#9B87FF', '#50DED0', '#FFFFFF']
         });
       } catch (err) {
         console.error(err);
@@ -71,42 +71,42 @@ export const ContactModal = () => {
   };
 
   return (
-    <div className="w-full h-full overflow-y-auto bg-workspace-bg p-4 md:p-8 select-text">
+    <div className="w-full h-full overflow-y-auto bg-workspace-bg p-4 md:p-8 select-text transition-colors duration-300">
       <div className="max-w-2xl mx-auto space-y-6">
         
         {/* Header */}
         <div className="text-center space-y-2 pb-2">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-workspace-accent/15 border border-workspace-accent/30 text-workspace-accent text-[11px] font-bold tracking-wider uppercase">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-workspace-violet/15 border border-workspace-violet/30 text-workspace-violet text-[11px] font-bold tracking-wider uppercase">
             <Sparkles className="w-3 h-3" />
             <span>Direct Inquiries</span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-white light:text-slate-900 tracking-tight">
             Connect With Kamalesh
           </h1>
           <p className="text-xs md:text-sm text-workspace-muted max-w-md mx-auto">
-            Have a project in mind, an inquiry about any of the 6 platforms, or looking for high-end design &amp; frontend engineering?
+            Have a project in mind, an inquiry about any of the platforms, or looking for high-end design &amp; frontend engineering?
           </p>
         </div>
 
         {/* Quick Email Copy Bar */}
-        <div className="glass-panel rounded-2xl p-4 flex items-center justify-between border border-white/[0.08]">
+        <div className="glass-panel rounded-2xl p-4 flex items-center justify-between border border-white/[0.08] light:border-black/[0.08]">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 rounded-xl bg-workspace-teal/15 text-workspace-teal">
+            <div className="p-2.5 rounded-xl bg-workspace-cyan/15 text-workspace-cyan">
               <Mail className="w-4 h-4" />
             </div>
             <div>
               <p className="text-[10px] uppercase font-mono text-workspace-muted tracking-wider">Direct Email</p>
-              <p className="text-xs sm:text-sm font-semibold text-white font-mono">{PROFILE.email}</p>
+              <p className="text-xs sm:text-sm font-semibold text-white light:text-slate-900 font-mono">{PROFILE.email}</p>
             </div>
           </div>
           <button
             onClick={handleCopyEmail}
-            className="px-3.5 py-2 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-xs font-medium text-white flex items-center space-x-1.5 transition-all"
+            className="px-3.5 py-2 rounded-xl bg-white/[0.08] light:bg-black/[0.06] hover:bg-white/[0.14] text-xs font-medium text-white light:text-slate-900 flex items-center space-x-1.5 transition-all"
           >
             {isCopied ? (
               <>
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="text-emerald-400">Copied!</span>
+                <Check className="w-3.5 h-3.5 text-workspace-cyan" />
+                <span className="text-workspace-cyan">Copied!</span>
               </>
             ) : (
               <>
@@ -118,13 +118,13 @@ export const ContactModal = () => {
         </div>
 
         {/* Main Contact Form or Success State */}
-        <div className="glass-panel-elevated rounded-3xl p-6 md:p-8 border border-white/[0.1]">
+        <div className="glass-panel-elevated rounded-3xl p-6 md:p-8 border border-white/[0.1] light:border-black/[0.08]">
           {isSubmitted ? (
             <div className="py-8 text-center space-y-4">
-              <div className="w-14 h-14 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center mx-auto text-emerald-400 shadow-glass-glow">
+              <div className="w-14 h-14 rounded-full bg-workspace-cyan/20 border border-workspace-cyan/30 flex items-center justify-center mx-auto text-workspace-cyan shadow-cyan-glow">
                 <Check className="w-7 h-7" />
               </div>
-              <h3 className="text-xl font-bold text-white">Message Transmitted</h3>
+              <h3 className="text-xl font-bold text-white light:text-slate-900">Message Transmitted</h3>
               <p className="text-xs md:text-sm text-workspace-muted max-w-sm mx-auto">
                 Thank you for reaching out. Your message has been received, and I will respond to your email promptly.
               </p>
@@ -133,7 +133,7 @@ export const ContactModal = () => {
                   setIsSubmitted(false);
                   setFormData({ name: '', email: '', subject: '', message: '' });
                 }}
-                className="mt-4 px-5 py-2 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] text-xs font-semibold text-white transition-colors"
+                className="mt-4 px-5 py-2 rounded-xl bg-white/[0.08] light:bg-black/[0.06] hover:bg-white/[0.15] text-xs font-semibold text-white light:text-slate-900 transition-colors"
               >
                 Send Another Message
               </button>
@@ -142,56 +142,56 @@ export const ContactModal = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-white/90">Your Name</label>
+                  <label className="text-xs font-medium text-white/90 light:text-slate-700">Your Name</label>
                   <input
                     type="text"
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="e.g. John Doe"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] focus:border-workspace-accent focus:outline-none text-xs text-white placeholder-white/30 transition-colors"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] light:bg-black/[0.04] border border-white/[0.08] light:border-black/[0.08] focus:border-workspace-violet focus:outline-none text-xs text-white light:text-slate-900 placeholder-white/30 light:placeholder-black/30 transition-colors"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-white/90">Email Address</label>
+                  <label className="text-xs font-medium text-white/90 light:text-slate-700">Email Address</label>
                   <input
                     type="email"
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     placeholder="john@company.com"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] focus:border-workspace-accent focus:outline-none text-xs text-white placeholder-white/30 transition-colors"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] light:bg-black/[0.04] border border-white/[0.08] light:border-black/[0.08] focus:border-workspace-violet focus:outline-none text-xs text-white light:text-slate-900 placeholder-white/30 light:placeholder-black/30 transition-colors"
                   />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-white/90">Project or Platform of Interest</label>
+                <label className="text-xs font-medium text-white/90 light:text-slate-700">Project or Platform of Interest</label>
                 <input
                   type="text"
                   value={formData.subject}
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                  placeholder="e.g. RSK Traders, Custom Platform Architecture, UI/UX"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] focus:border-workspace-accent focus:outline-none text-xs text-white placeholder-white/30 transition-colors"
+                  placeholder="e.g. RSK Traders, Platform Architecture, UI/UX"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] light:bg-black/[0.04] border border-white/[0.08] light:border-black/[0.08] focus:border-workspace-violet focus:outline-none text-xs text-white light:text-slate-900 placeholder-white/30 light:placeholder-black/30 transition-colors"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-white/90">Message / Inquiry</label>
+                <label className="text-xs font-medium text-white/90 light:text-slate-700">Message / Inquiry</label>
                 <textarea
                   rows="4"
                   required
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   placeholder="Tell me about your goals, timelines, or collaboration ideas..."
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] focus:border-workspace-accent focus:outline-none text-xs text-white placeholder-white/30 transition-colors resize-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] light:bg-black/[0.04] border border-white/[0.08] light:border-black/[0.08] focus:border-workspace-violet focus:outline-none text-xs text-white light:text-slate-900 placeholder-white/30 light:placeholder-black/30 transition-colors resize-none"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-workspace-accent to-workspace-teal text-white font-semibold text-xs flex items-center justify-center space-x-2 shadow-glass-glow hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50"
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-workspace-violet to-workspace-cyan text-white font-semibold text-xs flex items-center justify-center space-x-2 shadow-violet-glow hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50"
               >
                 {isSubmitting ? (
                   <span>Sending Message...</span>
@@ -212,7 +212,7 @@ export const ContactModal = () => {
             href={PROFILE.github}
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2.5 rounded-xl glass-panel text-workspace-muted hover:text-white hover:border-white/20 transition-colors"
+            className="p-2.5 rounded-xl glass-panel text-workspace-muted hover:text-white light:hover:text-slate-900 hover:border-white/20 transition-colors"
             title="GitHub"
           >
             <GithubIcon className="w-4 h-4" />
@@ -221,7 +221,7 @@ export const ContactModal = () => {
             href={PROFILE.linkedin}
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2.5 rounded-xl glass-panel text-workspace-muted hover:text-white hover:border-white/20 transition-colors"
+            className="p-2.5 rounded-xl glass-panel text-workspace-muted hover:text-white light:hover:text-slate-900 hover:border-white/20 transition-colors"
             title="LinkedIn"
           >
             <LinkedinIcon className="w-4 h-4" />
@@ -230,7 +230,7 @@ export const ContactModal = () => {
             href={PROFILE.twitter}
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2.5 rounded-xl glass-panel text-workspace-muted hover:text-white hover:border-white/20 transition-colors"
+            className="p-2.5 rounded-xl glass-panel text-workspace-muted hover:text-white light:hover:text-slate-900 hover:border-white/20 transition-colors"
             title="Twitter"
           >
             <TwitterIcon className="w-4 h-4" />

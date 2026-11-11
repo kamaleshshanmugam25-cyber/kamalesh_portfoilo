@@ -44,8 +44,8 @@ const SingleWindow = ({ windowItem }) => {
       onPointerDown={handlePointerDown}
       initial={{ 
         opacity: 0, 
-        scale: 0.94, 
-        y: 20 
+        scale: 0.95, 
+        y: 15 
       }}
       animate={
         isMaximized
@@ -58,7 +58,7 @@ const SingleWindow = ({ windowItem }) => {
               left: '0px',
               width: '100vw',
               height: 'calc(100vh - 40px - 64px)',
-              transition: { duration: 0.25, ease: 'easeOut' }
+              transition: { duration: 0.28, ease: [0.16, 1, 0.3, 1] }
             }
           : {
               opacity: 1,
@@ -67,18 +67,18 @@ const SingleWindow = ({ windowItem }) => {
               left: `${windowItem.position.x}px`,
               width: `${windowItem.size.width}px`,
               height: `${windowItem.size.height}px`,
-              transition: { duration: 0.2, ease: 'easeOut' }
+              transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] }
             }
       }
-      exit={{ opacity: 0, scale: 0.92, transition: { duration: 0.15 } }}
+      exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.18, ease: 'easeOut' } }}
       style={{
         zIndex: windowItem.zIndex,
         position: 'fixed'
       }}
-      className={`rounded-2xl overflow-hidden glass-panel-elevated flex flex-col shadow-2xl border transition-shadow duration-200 ${
+      className={`rounded-2xl overflow-hidden glass-panel-elevated flex flex-col transition-all duration-300 ${
         isActive 
-          ? 'ring-1 ring-white/[0.2] border-white/[0.2] shadow-window' 
-          : 'border-white/[0.08] opacity-95'
+          ? 'shadow-window-active border-workspace-violet/30 ring-1 ring-workspace-violet/25' 
+          : 'shadow-window-inactive border-white/[0.08] light:border-black/[0.08] opacity-95'
       }`}
     >
       {/* Draggable Window Header */}

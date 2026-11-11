@@ -6,10 +6,10 @@ import {
   Sparkles, 
   ArrowUpRight, 
   RotateCw, 
-  Lock,
-  Server,
-  Zap,
-  CheckCircle2,
+  Lock, 
+  Server, 
+  Zap, 
+  CheckCircle2, 
   Clock
 } from 'lucide-react';
 
@@ -23,17 +23,17 @@ export const FallbackScreen = ({ app, reason = 'security', onRetry }) => {
   };
 
   return (
-    <div className="w-full h-full overflow-y-auto bg-workspace-bg/95 p-6 md:p-10 flex flex-col items-center justify-start text-white selection:bg-workspace-accent/30">
+    <div className="w-full h-full overflow-y-auto bg-workspace-bg p-6 md:p-10 flex flex-col items-center justify-start text-white light:text-slate-900 selection:bg-workspace-violet/30 transition-colors duration-300">
       <div className="max-w-3xl w-full flex flex-col space-y-6">
         
         {/* Banner Notice */}
-        <div className="rounded-2xl glass-panel p-4 border border-white/[0.1] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="rounded-2xl glass-panel p-4 border border-white/[0.08] light:border-black/[0.08] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 rounded-xl bg-workspace-accent/15 text-workspace-accent">
-              {isComingSoon ? <Clock className="w-5 h-5 text-amber-400" /> : <ShieldCheck className="w-5 h-5 text-workspace-teal" />}
+            <div className="p-2.5 rounded-xl bg-workspace-violet/15 text-workspace-violet">
+              {isComingSoon ? <Clock className="w-5 h-5 text-amber-400" /> : <ShieldCheck className="w-5 h-5 text-workspace-cyan" />}
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-white">
+              <h4 className="text-sm font-semibold text-white light:text-slate-900">
                 {isComingSoon ? 'Production Build in Progress' : 'External Security Boundary Protected'}
               </h4>
               <p className="text-xs text-workspace-muted">
@@ -49,7 +49,7 @@ export const FallbackScreen = ({ app, reason = 'security', onRetry }) => {
             {onRetry && (
               <button
                 onClick={onRetry}
-                className="px-3 py-2 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-xs font-medium text-white flex items-center justify-center space-x-1.5 transition-colors"
+                className="px-3 py-2 rounded-xl bg-white/[0.08] light:bg-black/[0.06] hover:bg-white/[0.14] text-xs font-medium text-white light:text-slate-900 flex items-center justify-center space-x-1.5 transition-colors"
               >
                 <RotateCw className="w-3.5 h-3.5" />
                 <span>Retry Embed</span>
@@ -58,7 +58,7 @@ export const FallbackScreen = ({ app, reason = 'security', onRetry }) => {
             {app.url && !app.url.includes('[ADD') && (
               <button
                 onClick={handleOpenExternal}
-                className="px-4 py-2 rounded-xl bg-gradient-to-r from-workspace-accent to-workspace-teal text-xs font-semibold text-white flex items-center justify-center space-x-1.5 shadow-glass-glow hover:scale-105 transition-all"
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-workspace-violet to-workspace-cyan text-xs font-semibold text-white flex items-center justify-center space-x-1.5 shadow-violet-glow hover:scale-105 transition-all"
               >
                 <span>Launch Live Site</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
@@ -68,7 +68,7 @@ export const FallbackScreen = ({ app, reason = 'security', onRetry }) => {
         </div>
 
         {/* Hero Product Card */}
-        <div className="rounded-3xl glass-panel-elevated p-6 md:p-8 relative overflow-hidden border border-white/[0.12]">
+        <div className="rounded-3xl glass-panel-elevated p-6 md:p-8 relative overflow-hidden border border-white/[0.1] light:border-black/[0.08]">
           <div className={`absolute top-0 right-0 w-80 h-80 bg-gradient-to-br ${app.gradient} blur-3xl pointer-events-none`} />
 
           <div className="relative z-10 flex flex-col space-y-6">
@@ -76,18 +76,18 @@ export const FallbackScreen = ({ app, reason = 'security', onRetry }) => {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <div className="flex items-center space-x-2 mb-2">
-                  <span className="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-white/[0.08] text-white/90 border border-white/[0.1]">
+                  <span className="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-white/[0.08] light:bg-black/[0.06] text-white/90 light:text-slate-800 border border-white/[0.1] light:border-black/[0.06]">
                     {app.category}
                   </span>
                   <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${
                     app.status === 'live' 
-                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
+                      ? 'bg-workspace-cyan/20 text-workspace-cyan border border-workspace-cyan/30' 
                       : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
                   }`}>
                     {app.badge || app.status.toUpperCase()}
                   </span>
                 </div>
-                <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
+                <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white light:text-slate-900">
                   {app.name}
                 </h1>
               </div>
@@ -112,9 +112,9 @@ export const FallbackScreen = ({ app, reason = 'security', onRetry }) => {
             {app.metrics && (
               <div className="grid grid-cols-3 gap-3 pt-2">
                 {app.metrics.map((metric, i) => (
-                  <div key={i} className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/[0.06] text-center">
+                  <div key={i} className="p-3.5 rounded-2xl bg-white/[0.04] light:bg-black/[0.03] border border-white/[0.06] light:border-black/[0.06] text-center">
                     <p className="text-[11px] text-workspace-muted mb-1">{metric.label}</p>
-                    <p className="text-sm md:text-base font-bold text-white tracking-wide">{metric.value}</p>
+                    <p className="text-sm md:text-base font-bold text-white light:text-slate-900 tracking-wide">{metric.value}</p>
                   </div>
                 ))}
               </div>
@@ -122,14 +122,14 @@ export const FallbackScreen = ({ app, reason = 'security', onRetry }) => {
 
             {/* Feature Checklist */}
             {app.features && (
-              <div className="space-y-3 pt-4 border-t border-white/[0.08]">
+              <div className="space-y-3 pt-4 border-t border-white/[0.08] light:border-black/[0.08]">
                 <h4 className="text-xs font-semibold tracking-wider uppercase text-workspace-muted">
                   Key Capabilities &amp; Architecture
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
                   {app.features.map((feature, i) => (
-                    <div key={i} className="flex items-start space-x-2.5 text-xs text-white/90">
-                      <CheckCircle2 className="w-4 h-4 text-workspace-teal shrink-0 mt-0.5" />
+                    <div key={i} className="flex items-start space-x-2.5 text-xs text-white/90 light:text-slate-800">
+                      <CheckCircle2 className="w-4 h-4 text-workspace-cyan shrink-0 mt-0.5" />
                       <span>{feature}</span>
                     </div>
                   ))}
@@ -139,7 +139,7 @@ export const FallbackScreen = ({ app, reason = 'security', onRetry }) => {
 
             {/* Tech Stack */}
             {app.techStack && (
-              <div className="space-y-2 pt-4 border-t border-white/[0.08]">
+              <div className="space-y-2 pt-4 border-t border-white/[0.08] light:border-black/[0.08]">
                 <h4 className="text-xs font-semibold tracking-wider uppercase text-workspace-muted">
                   Technology Stack
                 </h4>
@@ -147,7 +147,7 @@ export const FallbackScreen = ({ app, reason = 'security', onRetry }) => {
                   {app.techStack.map((tech, i) => (
                     <span 
                       key={i} 
-                      className="px-3 py-1 rounded-xl bg-white/[0.06] border border-white/[0.08] text-xs font-mono text-white/80"
+                      className="px-3 py-1 rounded-xl bg-white/[0.06] light:bg-black/[0.05] border border-white/[0.08] light:border-black/[0.06] text-xs font-mono text-white/80 light:text-slate-700"
                     >
                       {tech}
                     </span>
@@ -157,9 +157,9 @@ export const FallbackScreen = ({ app, reason = 'security', onRetry }) => {
             )}
 
             {/* Official Link & Status Bar */}
-            <div className="flex items-center justify-between text-xs text-workspace-muted pt-2 border-t border-white/[0.08]">
+            <div className="flex items-center justify-between text-xs text-workspace-muted pt-2 border-t border-white/[0.08] light:border-black/[0.08]">
               <div className="flex items-center space-x-2">
-                <Lock className="w-3.5 h-3.5 text-emerald-400" />
+                <Lock className="w-3.5 h-3.5 text-workspace-cyan" />
                 <span className="font-mono text-[11px]">
                   {app.url ? app.url : 'Configurable in src/config/applications.js'}
                 </span>

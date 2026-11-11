@@ -12,7 +12,7 @@ export const WindowHeader = ({
 
   return (
     <div 
-      className="window-drag-handle h-9 px-3 bg-workspace-surface border-b border-white/[0.08] flex items-center justify-between select-none cursor-grab active:cursor-grabbing rounded-t-2xl relative z-10"
+      className="window-drag-handle h-9 px-3 bg-workspace-surface1/95 light:bg-white/95 border-b border-white/[0.08] light:border-black/[0.08] flex items-center justify-between select-none cursor-grab active:cursor-grabbing rounded-t-2xl relative z-10 transition-colors duration-200"
     >
       {/* Left: macOS Traffic Light Controls */}
       <div 
@@ -66,11 +66,11 @@ export const WindowHeader = ({
       {/* Center: Title & Category */}
       <div className="flex-1 flex items-center justify-center px-4 overflow-hidden pointer-events-none">
         <div className="flex items-center space-x-2 truncate">
-          <span className="text-xs font-semibold text-white/90 truncate">
+          <span className="text-xs font-semibold text-white/90 light:text-slate-900 truncate">
             {windowItem.title}
           </span>
           {windowItem.metadata?.category && (
-            <span className="hidden sm:inline-block text-[10px] text-workspace-muted/80 px-1.5 py-0.5 rounded bg-white/[0.04]">
+            <span className="hidden sm:inline-block text-[10px] text-workspace-muted px-1.5 py-0.5 rounded bg-white/[0.04] light:bg-black/[0.04] border border-white/[0.06] light:border-black/[0.06]">
               {windowItem.metadata.category}
             </span>
           )}
@@ -84,7 +84,7 @@ export const WindowHeader = ({
             e.stopPropagation();
             onMaximize();
           }}
-          className="p-1.5 rounded-lg text-workspace-muted hover:text-white hover:bg-white/[0.08] transition-colors"
+          className="p-1.5 rounded-lg text-workspace-muted hover:text-white light:hover:text-slate-900 hover:bg-white/[0.08] light:hover:bg-black/[0.06] transition-colors"
           title={isMaximized ? "Restore Window" : "Maximize Window"}
         >
           {isMaximized ? (

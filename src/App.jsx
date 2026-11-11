@@ -1,5 +1,5 @@
 import React from 'react';
-import { WindowProvider } from './context/WindowContext';
+import { WindowProvider, useWindowManager } from './context/WindowContext';
 import { AmbientGlow } from './components/UI/AmbientGlow';
 import { TopStatusBar } from './components/Desktop/TopStatusBar';
 import { DesktopCanvas } from './components/Desktop/DesktopCanvas';
@@ -10,12 +10,17 @@ import { AppLauncherModal } from './components/Launcher/AppLauncherModal';
 import { CommandPalette } from './components/Launcher/CommandPalette';
 
 function WorkspaceLayout() {
+  const { theme } = useWindowManager();
+  const isLight = theme === 'light';
+
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-workspace-bg text-workspace-text flex flex-col font-sans select-none">
-      {/* Dynamic Ambient Background Canvas */}
+    <div className={`relative w-screen h-screen overflow-hidden ${
+      isLight ? 'bg-workspace-lightBg text-workspace-lightText' : 'bg-workspace-bg text-workspace-text'
+    } flex flex-col font-sans select-none transition-colors duration-300`}>
+      {/* Dynamic Midnight Aurora Background Canvas */}
       <AmbientGlow />
 
-      {/* Top macOS-style Status Bar */}
+      {/* Top macOS-style Status Bar with Theme Switcher */}
       <TopStatusBar />
 
       {/* Main Interactive Desktop Work Area */}
