@@ -10,18 +10,19 @@ export const DockItem = ({ mouseX, icon, label, onClick, isOpen, isActive, badge
     return val - bounds.x - bounds.width / 2;
   });
 
-  // macOS dock magnification effect: width smoothly expands from 48px to 64px
-  const widthSync = useTransform(distance, [-130, 0, 130], [48, 64, 48]);
-  const width = useSpring(widthSync, { mass: 0.1, stiffness: 200, damping: 15 });
+  // macOS dock magnification effect: snappy ultra-responsive spring
+  const widthSync = useTransform(distance, [-110, 0, 110], [48, 64, 48]);
+  const width = useSpring(widthSync, { mass: 0.04, stiffness: 500, damping: 25 });
 
   return (
     <div className="relative flex flex-col items-center">
       {/* Tooltip on hover */}
       {isHovered && (
         <motion.div
-          initial={{ opacity: 0, y: 8, scale: 0.94 }}
+          initial={{ opacity: 0, y: 6, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 4 }}
+          exit={{ opacity: 0, y: 3 }}
+          transition={{ duration: 0.1 }}
           className="absolute -top-11 px-2.5 py-1 rounded-lg bg-white text-[#151515] text-[11px] font-bold font-heading whitespace-nowrap shadow-brutal-sm border-2 border-[#151515] pointer-events-none z-50 tracking-tight"
         >
           {label}
@@ -35,8 +36,8 @@ export const DockItem = ({ mouseX, icon, label, onClick, isOpen, isActive, badge
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onClick={onClick}
-        whileTap={{ scale: 0.9, y: 2 }}
-        className={`relative rounded-xl flex items-center justify-center p-2 border-2 border-[#151515] transition-all select-none ${
+        whileTap={{ scale: 0.92, y: 1 }}
+        className={`relative rounded-xl flex items-center justify-center p-2 border-2 border-[#151515] transition-[box-shadow,transform,background-color] duration-100 select-none ${
           colorClass || 'bg-white hover:bg-[#F5F04E]'
         } ${
           isActive 

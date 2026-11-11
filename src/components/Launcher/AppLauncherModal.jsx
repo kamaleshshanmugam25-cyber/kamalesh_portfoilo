@@ -67,10 +67,10 @@ export const AppLauncherModal = () => {
 
         {/* Modal Dialog */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 10 }}
+          initial={{ opacity: 0, scale: 0.97, y: 8 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 10 }}
-          transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          exit={{ opacity: 0, scale: 0.97, y: 8 }}
+          transition={{ duration: 0.12, ease: [0.16, 1, 0.3, 1] }}
           className="relative z-10 w-full max-w-4xl max-h-[85vh] rounded-2xl bg-white border-3 border-[#151515] shadow-brutal-xl flex flex-col overflow-hidden text-[#151515]"
         >
           {/* Top Search Bar & Header */}

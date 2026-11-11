@@ -44,8 +44,8 @@ const SingleWindow = ({ windowItem }) => {
       onPointerDown={handlePointerDown}
       initial={{ 
         opacity: 0, 
-        scale: 0.96, 
-        y: 20 
+        scale: 0.98, 
+        y: 10 
       }}
       animate={
         isMaximized
@@ -58,7 +58,7 @@ const SingleWindow = ({ windowItem }) => {
               left: '0px',
               width: '100vw',
               height: 'calc(100vh - 48px - 64px)',
-              transition: { type: 'spring', damping: 24, stiffness: 220 }
+              transition: { duration: 0.14, ease: [0.16, 1, 0.3, 1] }
             }
           : {
               opacity: 1,
@@ -67,10 +67,10 @@ const SingleWindow = ({ windowItem }) => {
               left: `${windowItem.position.x}px`,
               width: `${windowItem.size.width}px`,
               height: `${windowItem.size.height}px`,
-              transition: { type: 'spring', damping: 22, stiffness: 200 }
+              transition: { duration: 0.14, ease: [0.16, 1, 0.3, 1] }
             }
       }
-      exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
+      exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.1 } }}
       style={{
         zIndex: windowItem.zIndex,
         position: 'fixed'

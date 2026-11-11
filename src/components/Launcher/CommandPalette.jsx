@@ -156,10 +156,10 @@ export const CommandPalette = () => {
 
         {/* Command Bar Dialog */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.96, y: -10 }}
+          initial={{ opacity: 0, scale: 0.98, y: -6 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.96, y: -10 }}
-          transition={{ duration: 0.15 }}
+          exit={{ opacity: 0, scale: 0.98, y: -6 }}
+          transition={{ duration: 0.1 }}
           className="relative z-10 w-full max-w-xl rounded-2xl bg-white border-3 border-[#151515] shadow-brutal-xl overflow-hidden flex flex-col text-[#151515]"
         >
           {/* Search bar input */}

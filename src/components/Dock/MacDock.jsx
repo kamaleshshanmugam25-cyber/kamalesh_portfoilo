@@ -55,7 +55,7 @@ export const MacDock = () => {
       <div
         onMouseMove={(e) => mouseX.set(e.pageX)}
         onMouseLeave={() => mouseX.set(Infinity)}
-        className="pointer-events-auto flex items-end gap-1.5 md:gap-2 px-3 py-2 rounded-2xl bg-white border-3 border-[#151515] shadow-brutal-md transition-all duration-300"
+        className="pointer-events-auto flex items-end gap-1.5 md:gap-2 px-3 py-2 rounded-2xl bg-white border-3 border-[#151515] shadow-brutal-md transition-all duration-100"
       >
         {/* Launcher icon */}
         <DockItem

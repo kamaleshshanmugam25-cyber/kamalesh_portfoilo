@@ -257,9 +257,9 @@ export const ProjectsShowcase = ({ onClose }) => {
             {filteredProjects.map((project, idx) => (
               <motion.div
                 key={project.id || project.name}
-                initial={{ opacity: 0, y: 15 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.25, delay: idx * 0.04 }}
+                transition={{ duration: 0.12, delay: Math.min(idx * 0.02, 0.12) }}
                 className="brutal-card rounded-2xl p-5 md:p-6 flex flex-col justify-between group hover:-translate-x-1 hover:-translate-y-1 hover:shadow-brutal-lg transition-all duration-200"
               >
                 <div>

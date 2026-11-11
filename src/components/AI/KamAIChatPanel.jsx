@@ -147,10 +147,10 @@ export const KamAIChatPanel = ({
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.94, y: 20 }}
+      initial={{ opacity: 0, scale: 0.98, y: 10 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.94, y: 20 }}
-      transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+      exit={{ opacity: 0, scale: 0.98, y: 10 }}
+      transition={{ duration: 0.12, ease: [0.16, 1, 0.3, 1] }}
       className="fixed bottom-20 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[410px] h-[580px] max-h-[82vh] bg-white rounded-2xl border-3 border-[#151515] shadow-brutal-xl flex flex-col overflow-hidden text-[#151515] select-text"
     >
       {/* 1. TOP HEADER */}

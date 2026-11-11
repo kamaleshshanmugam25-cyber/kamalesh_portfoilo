@@ -137,7 +137,7 @@ export const AboutMeModal = () => {
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${skill.level}%` }}
-                          transition={{ duration: 0.8, delay: 0.1 + skillIdx * 0.05 }}
+                          transition={{ duration: 0.35, delay: 0.03 * skillIdx }}
                           className={`h-full border-r-2 border-[#151515] ${
                             skill.highlight 
                               ? 'bg-[#3155FF]' 

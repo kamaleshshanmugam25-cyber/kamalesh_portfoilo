@@ -6,7 +6,7 @@ KAMALESH_PROFILE = {
     "name": "Kamalesh",
     "title": "Senior UI/UX Designer, Creative Frontend Architect & Full-Stack Developer",
     "experience_years": "8+ Years",
-    "email": "kamalesh.workspace@gmail.com",
+    "email": "kamaleshshanmugam25@gmail.com",
     "availability": "Available for Select High-Impact Contracts & Enterprise Architecture",
     "github_username": "kamaleshshanmugam25-cyber",
     "github_url": "https://github.com/kamaleshshanmugam25-cyber",

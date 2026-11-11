@@ -8,7 +8,7 @@ export const PROFILE = {
   experienceYears: '8+',
   location: 'India',
   availability: 'Available for Select Projects & Architecture Consulting',
-  email: 'kamalesh.workspace@gmail.com',
+  email: 'kamaleshshanmugam25@gmail.com',
   github: 'https://github.com/kamaleshshanmugam25-cyber',
   linkedin: 'https://linkedin.com',
   twitter: 'https://twitter.com',

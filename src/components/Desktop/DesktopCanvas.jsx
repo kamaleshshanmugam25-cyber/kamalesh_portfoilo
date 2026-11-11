@@ -76,9 +76,9 @@ export const DesktopCanvas = () => {
           
           {/* Giant Neo-Brutalist Hero Card */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
+            initial={{ opacity: 0, x: 10 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4 }}
+            transition={{ duration: 0.15 }}
             className="brutal-card p-6 bg-white relative overflow-hidden"
           >
             {/* Top decorative badge */}
