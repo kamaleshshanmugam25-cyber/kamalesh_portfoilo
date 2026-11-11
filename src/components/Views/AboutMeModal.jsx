@@ -27,13 +27,13 @@ export const AboutMeModal = () => {
         <div className="brutal-card rounded-2xl p-6 md:p-8 relative overflow-hidden">
           <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="flex items-center space-x-5">
-              {/* Profile Monogram */}
+              {/* Profile Photo */}
               <div className="relative">
-                <div className="w-20 h-20 md:w-22 md:h-22 rounded-2xl bg-[#F5F04E] border-3 border-[#151515] shadow-brutal flex items-center justify-center">
-                  <span className="text-4xl font-extrabold font-display text-[#151515]">
-                    K
-                  </span>
-                </div>
+                <img
+                  src="/kamalesh.jpg"
+                  alt="Kamalesh"
+                  className="w-20 h-20 md:w-24 md:h-24 rounded-2xl border-3 border-[#151515] shadow-brutal object-cover object-top bg-[#F5F04E]"
+                />
                 <span className="absolute -bottom-1 -right-1 flex h-4 w-4">
                   <span className="relative inline-flex rounded-full h-4 w-4 bg-[#10B981] border-2 border-[#151515]"></span>
                 </span>
