@@ -3,16 +3,10 @@ import { useMotionValue } from 'framer-motion';
 import { 
   Grid, 
   Globe2, 
-  Camera, 
-  Gem, 
-  UtensilsCrossed, 
-  Briefcase, 
-  GraduationCap, 
   Layers, 
   User, 
   Terminal, 
-  Mail,
-  Minimize2
+  Mail
 } from 'lucide-react';
 import { APPLICATIONS } from '../../config/applications';
 import { useWindowManager } from '../../context/WindowContext';
@@ -42,16 +36,6 @@ export const MacDock = () => {
     switch (id) {
       case 'rsk-traders':
         return <Globe2 className="w-5 h-5 text-[#151515]" strokeWidth={2.2} />;
-      case 'photography':
-        return <Camera className="w-5 h-5 text-[#151515]" strokeWidth={2.2} />;
-      case 'jewellery':
-        return <Gem className="w-5 h-5 text-[#151515]" strokeWidth={2.2} />;
-      case 'restaurant':
-        return <UtensilsCrossed className="w-5 h-5 text-[#151515]" strokeWidth={2.2} />;
-      case 'jobsphere':
-        return <Briefcase className="w-5 h-5 text-white" strokeWidth={2.2} />;
-      case 'college-erp':
-        return <GraduationCap className="w-5 h-5 text-white" strokeWidth={2.2} />;
       default:
         return null;
     }
@@ -61,16 +45,6 @@ export const MacDock = () => {
     switch (id) {
       case 'rsk-traders':
         return 'bg-[#39D5C8] hover:bg-[#2bc4b8]';
-      case 'photography':
-        return 'bg-[#9B87FF] hover:bg-[#8872fd]';
-      case 'jewellery':
-        return 'bg-[#F59E0B] hover:bg-[#d97706]';
-      case 'restaurant':
-        return 'bg-[#FF5C8A] hover:bg-[#ff3b71]';
-      case 'jobsphere':
-        return 'bg-[#3155FF] hover:bg-[#2042eb]';
-      case 'college-erp':
-        return 'bg-[#10B981] hover:bg-[#059669]';
       default:
         return 'bg-white hover:bg-[#F5F04E]';
     }
@@ -97,8 +71,8 @@ export const MacDock = () => {
         {/* Solid Neo-Brutalist Separator */}
         <div className="w-[2px] h-8 bg-[#151515] my-auto mx-1 shrink-0" />
 
-        {/* 6 Configured Website Apps */}
-        {APPLICATIONS.map((app) => {
+        {/* Flagship Live Website (RSK Traders) */}
+        {APPLICATIONS.filter(app => app.id === 'rsk-traders').map((app) => {
           const win = windows[app.id];
           const isOpen = !!(win && win.isOpen && !win.isMinimized);
           const isActive = activeWindowId === app.id;
