@@ -4,7 +4,7 @@ import { Bot, Sparkles, MessageSquare } from 'lucide-react';
 
 export const KamAITrigger = ({ isOpen, onClick }) => {
   return (
-    <div className="fixed bottom-5 right-5 z-40 select-none">
+    <div className="fixed bottom-16 sm:bottom-6 right-3 sm:right-6 z-40 select-none">
       <motion.button
         onClick={onClick}
         whileHover={{ scale: 1.05, y: -2 }}

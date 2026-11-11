@@ -72,7 +72,7 @@ const SingleWindow = ({ windowItem }) => {
       }
       exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.1 } }}
       style={{
-        zIndex: windowItem.zIndex,
+        zIndex: Math.min(windowItem.zIndex, 45),
         position: 'fixed'
       }}
       className={`overflow-hidden flex flex-col bg-white border-3 border-[#151515] transition-shadow duration-150 ${

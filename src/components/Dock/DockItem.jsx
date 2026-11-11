@@ -1,21 +1,24 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, useSpring, useTransform } from 'framer-motion';
 
+const getInitialScreenTier = () => {
+  if (typeof window === 'undefined') return 'desktop';
+  const w = window.innerWidth;
+  if (w < 380) return 'xs';
+  if (w < 640) return 'sm';
+  return 'desktop';
+};
+
 export const DockItem = ({ mouseX, icon, label, onClick, isOpen, isActive, badge, colorClass }) => {
   const ref = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
-  const [screenTier, setScreenTier] = useState('desktop');
+  const [screenTier, setScreenTier] = useState(getInitialScreenTier);
+  const touchStartRef = useRef({ time: 0, x: 0, y: 0 });
+  const lastActionTime = useRef(0);
 
   useEffect(() => {
     const handleResize = () => {
-      const w = typeof window !== 'undefined' ? window.innerWidth : 1024;
-      if (w < 380) {
-        setScreenTier('xs');
-      } else if (w < 640) {
-        setScreenTier('sm');
-      } else {
-        setScreenTier('desktop');
-      }
+      setScreenTier(getInitialScreenTier());
     };
     handleResize();
     window.addEventListener('resize', handleResize);
@@ -26,6 +29,7 @@ export const DockItem = ({ mouseX, icon, label, onClick, isOpen, isActive, badge
   const targetSize = screenTier === 'xs' ? 46 : screenTier === 'sm' ? 52 : 64;
   const maxDistance = screenTier === 'xs' ? 70 : screenTier === 'sm' ? 80 : 110;
 
+  // Track horizontal distance from mouse/finger to this item's center
   const distance = useTransform(mouseX, (val) => {
     if (val === Infinity || val === -Infinity || !ref.current) return Infinity;
     const bounds = ref.current.getBoundingClientRect();
@@ -33,21 +37,64 @@ export const DockItem = ({ mouseX, icon, label, onClick, isOpen, isActive, badge
     return val - centerX;
   });
 
-  // Snappy ultra-responsive spring for macOS dock magnification
-  const widthSync = useTransform(
-    distance, 
-    [-maxDistance, 0, maxDistance], 
-    [baseSize, targetSize, baseSize]
-  );
+  // Snappy bell-curve spring calculation (evaluates dynamically so it never gets stuck on stale static ranges)
+  const widthSync = useTransform(distance, (d) => {
+    if (d === Infinity || d === -Infinity) return baseSize;
+    const absD = Math.abs(d);
+    if (absD >= maxDistance) return baseSize;
+    const factor = (1 + Math.cos((absD / maxDistance) * Math.PI)) / 2;
+    return baseSize + (targetSize - baseSize) * factor;
+  });
   const width = useSpring(widthSync, { mass: 0.04, stiffness: 520, damping: 26 });
 
   // Icon scale spring so the icon zooms proportionally with the button
-  const iconScaleSync = useTransform(
-    distance, 
-    [-maxDistance, 0, maxDistance], 
-    [1, 1.25, 1]
-  );
+  const iconScaleSync = useTransform(distance, (d) => {
+    if (d === Infinity || d === -Infinity) return 1;
+    const absD = Math.abs(d);
+    if (absD >= maxDistance) return 1;
+    const factor = (1 + Math.cos((absD / maxDistance) * Math.PI)) / 2;
+    return 1 + 0.25 * factor;
+  });
   const iconScale = useSpring(iconScaleSync, { mass: 0.04, stiffness: 520, damping: 26 });
+
+  // Guaranteed action trigger debounced against synthetic double-clicks
+  const triggerAction = (e) => {
+    if (e && e.cancelable && e.type !== 'click') {
+      e.preventDefault();
+    }
+    const now = Date.now();
+    if (now - lastActionTime.current < 250) return;
+    lastActionTime.current = now;
+    if (onClick) {
+      onClick();
+    }
+  };
+
+  const handleTouchStart = (e) => {
+    setIsHovered(true);
+    if (e.touches && e.touches[0]) {
+      touchStartRef.current = {
+        time: Date.now(),
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY
+      };
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    setTimeout(() => setIsHovered(false), 500);
+    const duration = Date.now() - touchStartRef.current.time;
+    let dist = 0;
+    if (e.changedTouches && e.changedTouches[0]) {
+      const dx = e.changedTouches[0].clientX - touchStartRef.current.x;
+      const dy = e.changedTouches[0].clientY - touchStartRef.current.y;
+      dist = Math.sqrt(dx * dx + dy * dy);
+    }
+    // On touch devices: clean tap (< 450ms and < 20px drift) executes action immediately
+    if (duration < 450 && dist < 20) {
+      triggerAction(e);
+    }
+  };
 
   return (
     <div className="relative flex flex-col items-center shrink-0">
@@ -70,11 +117,12 @@ export const DockItem = ({ mouseX, icon, label, onClick, isOpen, isActive, badge
         style={{ width, height: width }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        onTouchStart={() => setIsHovered(true)}
-        onTouchEnd={() => setTimeout(() => setIsHovered(false), 500)}
-        onClick={onClick}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onClick={triggerAction}
+        onTap={triggerAction}
         whileTap={{ scale: 0.9 }}
-        className={`relative rounded-xl flex items-center justify-center p-1.5 sm:p-2 border-2 border-[#151515] transition-[box-shadow,background-color] duration-100 select-none ${
+        className={`relative rounded-xl flex items-center justify-center p-1.5 sm:p-2 border-2 border-[#151515] transition-[box-shadow,background-color] duration-100 select-none touch-manipulation ${
           colorClass || 'bg-white hover:bg-[#F5F04E]'
         } ${
           isActive 

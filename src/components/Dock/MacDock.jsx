@@ -52,7 +52,7 @@ export const MacDock = () => {
   };
 
   return (
-    <div className="fixed bottom-2 sm:bottom-3 left-0 right-0 z-40 flex justify-center pointer-events-none px-2">
+    <div className="fixed bottom-2 sm:bottom-3 left-0 right-0 z-50 flex justify-center pointer-events-none px-1.5 sm:px-2">
       <div
         onMouseMove={(e) => mouseX.set(e.clientX)}
         onMouseLeave={() => mouseX.set(Infinity)}
@@ -62,9 +62,9 @@ export const MacDock = () => {
         onTouchMove={(e) => {
           if (e.touches && e.touches[0]) mouseX.set(e.touches[0].clientX);
         }}
-        onTouchEnd={() => setTimeout(() => mouseX.set(Infinity), 200)}
+        onTouchEnd={() => setTimeout(() => mouseX.set(Infinity), 150)}
         onTouchCancel={() => mouseX.set(Infinity)}
-        className="pointer-events-auto flex items-end gap-1 sm:gap-1.5 md:gap-2 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-2xl bg-white border-3 border-[#151515] shadow-brutal-md max-w-[calc(100vw-0.75rem)] overflow-x-visible select-none touch-none transition-transform duration-100"
+        className="pointer-events-auto flex items-end gap-1 sm:gap-1.5 md:gap-2 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-2xl bg-white border-3 border-[#151515] shadow-brutal-md max-w-[calc(100vw-0.5rem)] overflow-x-visible select-none touch-manipulation transition-transform duration-100"
       >
         {/* Launcher icon */}
         <DockItem
