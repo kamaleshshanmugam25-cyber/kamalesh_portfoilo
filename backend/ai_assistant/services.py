@@ -1,5 +1,5 @@
 """
-KAM AI - Assistant Service & Workspace Operator Intent Engine
+KAM AI - Assistant Service & Conversational Workspace Operator Engine
 """
 
 import os
@@ -7,6 +7,18 @@ import json
 import re
 import requests
 from .knowledge import KAMALESH_PROFILE, FLAGSHIP_APPLICATIONS, build_system_prompt
+
+INTENT_TYPES = {
+    "GREETING": "GREETING",
+    "GENERAL_CONVERSATION": "GENERAL_CONVERSATION",
+    "IDENTITY_QUESTION": "IDENTITY_QUESTION",
+    "CAPABILITY_QUESTION": "CAPABILITY_QUESTION",
+    "PROJECT_QUESTION": "PROJECT_QUESTION",
+    "WORKSPACE_COMMAND": "WORKSPACE_COMMAND",
+    "GITHUB_QUESTION": "GITHUB_QUESTION",
+    "HELP_REQUEST": "HELP_REQUEST",
+    "UNKNOWN": "UNKNOWN"
+}
 
 def process_chat_message(message: str, conversation_id: str, available_repos: list = None) -> dict:
     """
@@ -55,439 +67,308 @@ def call_openai_provider(message: str, api_key: str, available_repos: list = Non
     content = result["choices"][0]["message"]["content"]
     data = json.loads(content)
 
+    clean_msg = data.get("message") or data.get("response") or "I processed your request."
     actions = data.get("actions", [])
     if not actions and data.get("action"):
         actions = [data.get("action")]
 
     return {
-        "response": data.get("response", "I processed your request."),
+        "message": clean_msg,
+        "response": clean_msg,
+        "text": clean_msg,
         "actions": actions,
         "action": actions[0] if actions else None,
-        "suggestions": data.get("suggestions", ["Show all projects", "Open RSK Traders", "Who is Kamalesh?"])
+        "suggestions": data.get("suggestions", ["Show my projects", "Open RSK Traders", "Who is Kamalesh?"])
     }
+
+def classify_intent(prompt: str) -> tuple[str, str]:
+    """
+    Accurately classifies user message into one of 9 categories before generating answers.
+    Normal conversations must not be interpreted as commands.
+    """
+    p = re.sub(r'[?!.,;]', '', prompt.lower().strip())
+
+    # 1. GREETING
+    greeting_exact = {'hi', 'hello', 'hey', 'heya', 'howdy', 'hola', 'yo', 'sup', 'greetings'}
+    greeting_phrases = ['good morning', 'good afternoon', 'good evening', 'hi there', 'hello there', 'hey kam']
+    if p in greeting_exact or any(p == phrase or p.startswith(phrase + ' ') for phrase in greeting_phrases):
+        return INTENT_TYPES["GREETING"], "DEFAULT"
+
+    # 2. IDENTITY QUESTION
+    if any(k in p for k in ['your name', 'who are you', 'what are you called', 'what is your name', 'whats your name']):
+        return INTENT_TYPES["IDENTITY_QUESTION"], "NAME"
+    if any(k in p for k in ['who created you', 'who made you', 'who built you', 'who developed you', 'your creator']):
+        return INTENT_TYPES["IDENTITY_QUESTION"], "CREATOR"
+    if any(k in p for k in ['are you intelligent', 'are you smart', 'how smart are you', 'are you an ai', 'are you ai']):
+        return INTENT_TYPES["IDENTITY_QUESTION"], "INTELLIGENCE"
+    if any(k in p for k in ['tell me about yourself', 'about yourself', 'introduce yourself', 'describe yourself']):
+        return INTENT_TYPES["IDENTITY_QUESTION"], "SELF_INTRO"
+    if any(k in p for k in ['who is kamalesh', 'about kamalesh', 'tell me about kamalesh', 'who is the developer']):
+        return INTENT_TYPES["IDENTITY_QUESTION"], "ABOUT_KAMALESH"
+
+    # 3. CAPABILITY QUESTION
+    if any(k in p for k in ['what can you do', 'what are your capabilities', 'what do you do', 'what can i ask you', 'how can you help', 'what can you help me with']):
+        return INTENT_TYPES["CAPABILITY_QUESTION"], "DEFAULT"
+
+    # 4. GENERAL CONVERSATION
+    if p in {'thank you', 'thanks', 'thanks a lot', 'thank u', 'thx'} or p.startswith('thank you') or p.startswith('thanks') or 'appreciate it' in p:
+        return INTENT_TYPES["GENERAL_CONVERSATION"], "GRATITUDE"
+    if p in {'how are you', 'how are you doing', 'hows it going', "what's up"}:
+        return INTENT_TYPES["GENERAL_CONVERSATION"], "STATUS_CHECK"
+    if p in {'goodbye', 'bye', 'see you', 'cya'}:
+        return INTENT_TYPES["GENERAL_CONVERSATION"], "FAREWELL"
+    if p in {'cool', 'awesome', 'nice', 'great', 'perfect', 'good', 'sweet', 'ok', 'okay'}:
+        return INTENT_TYPES["GENERAL_CONVERSATION"], "AFFIRMATION"
+
+    # Tech explanations
+    if any(k in p for k in ['what is react', 'explain react', 'tell me about react']):
+        return INTENT_TYPES["GENERAL_CONVERSATION"], "EXPLAIN_REACT"
+    if any(k in p for k in ['what is python', 'explain python', 'tell me about python']):
+        return INTENT_TYPES["GENERAL_CONVERSATION"], "EXPLAIN_PYTHON"
+    if any(k in p for k in ['what is django', 'explain django', 'tell me about django']):
+        return INTENT_TYPES["GENERAL_CONVERSATION"], "EXPLAIN_DJANGO"
+    if any(k in p for k in ['what is tailwind', 'explain tailwind']):
+        return INTENT_TYPES["GENERAL_CONVERSATION"], "EXPLAIN_TAILWIND"
+
+    # 5. WORKSPACE COMMANDS
+    if ('open' in p or 'launch' in p) and ('side by side' in p or 'and arrange' in p or 'together' in p):
+        return INTENT_TYPES["WORKSPACE_COMMAND"], "MULTI_OPEN_ARRANGE"
+    if 'side by side' in p or ('arrange' in p and 'window' in p):
+        return INTENT_TYPES["WORKSPACE_COMMAND"], "ARRANGE_SIDE_BY_SIDE"
+    if 'cascade' in p:
+        return INTENT_TYPES["WORKSPACE_COMMAND"], "CASCADE"
+    if 'tile' in p or ('grid' in p and 'window' in p):
+        return INTENT_TYPES["WORKSPACE_COMMAND"], "TILE"
+    if any(k in p for k in ['close all', 'close everything', 'shut all']):
+        return INTENT_TYPES["WORKSPACE_COMMAND"], "CLOSE_ALL"
+    if any(k in p for k in ['minimize all', 'show desktop', 'go to desktop', 'clear screen']):
+        return INTENT_TYPES["WORKSPACE_COMMAND"], "MINIMIZE_ALL"
+
+    if any(k in p for k in ['dark mode', 'dark theme', 'midnight theme']):
+        return INTENT_TYPES["WORKSPACE_COMMAND"], "THEME_DARK"
+    if any(k in p for k in ['light mode', 'light theme', 'bright mode', 'white theme']):
+        return INTENT_TYPES["WORKSPACE_COMMAND"], "THEME_LIGHT"
+    if any(k in p for k in ['yellow theme', 'neo-brutalist theme', 'reset theme']):
+        return INTENT_TYPES["WORKSPACE_COMMAND"], "THEME_YELLOW"
+
+    if 'hide dock' in p or 'remove dock' in p:
+        return INTENT_TYPES["WORKSPACE_COMMAND"], "DOCK_HIDE"
+    if 'show dock' in p or 'unhide dock' in p:
+        return INTENT_TYPES["WORKSPACE_COMMAND"], "DOCK_SHOW"
+
+    if p in {'show my projects', 'show projects', 'show all projects', 'open projects', 'open project explorer'} or 'show my projects' in p or 'browse projects' in p:
+        return INTENT_TYPES["WORKSPACE_COMMAND"], "OPEN_PROJECTS"
+
+    app_keywords = ['rsk', 'traders', 'photography', 'photo', 'jewellery', 'jewelry', 'gold', 'restaurant', 'food', 'jobsphere', 'college', 'erp']
+    if p.startswith(('open ', 'launch ', 'start ', 'view ')) and any(k in p for k in app_keywords):
+        return INTENT_TYPES["WORKSPACE_COMMAND"], "OPEN_APP"
+
+    if any(k in p for k in ['python projects', 'show python', 'filter by python']):
+        return INTENT_TYPES["WORKSPACE_COMMAND"], "FILTER_PYTHON"
+    if any(k in p for k in ['react projects', 'show react', 'filter by react']):
+        return INTENT_TYPES["WORKSPACE_COMMAND"], "FILTER_REACT"
+    if 'featured projects' in p:
+        return INTENT_TYPES["WORKSPACE_COMMAND"], "FILTER_FEATURED"
+
+    if any(k in p for k in ['open terminal', 'launch terminal']) or p == 'terminal':
+        return INTENT_TYPES["WORKSPACE_COMMAND"], "NAV_TERMINAL"
+    if any(k in p for k in ['open contact', 'contact page', 'hire page']) or p == 'contact':
+        return INTENT_TYPES["WORKSPACE_COMMAND"], "NAV_CONTACT"
+    if any(k in p for k in ['open about', 'about page']):
+        return INTENT_TYPES["WORKSPACE_COMMAND"], "NAV_ABOUT"
+    if any(k in p for k in ['open activity', 'activity center', 'show activity', 'latest commits', 'show commits', 'heatmap']):
+        return INTENT_TYPES["WORKSPACE_COMMAND"], "NAV_ACTIVITY"
+
+    # 6. GITHUB
+    if any(k in p for k in ['open github', 'take me to github', 'visit github']) or p == 'github':
+        return INTENT_TYPES["GITHUB_QUESTION"], "OPEN_GITHUB"
+    if any(k in p for k in ['github profile', 'his github', 'github account']):
+        return INTENT_TYPES["GITHUB_QUESTION"], "INFO_GITHUB"
+
+    # 7. PROJECT QUESTIONS
+    if any(k in p for k in ['what is rsk', 'tell me about rsk', 'what is jobsphere', 'what is college erp', 'skills', 'technologies', 'tech stack']):
+        return INTENT_TYPES["PROJECT_QUESTION"], "DEFAULT"
+
+    # 8. HELP
+    if p in {'help', 'help me'} or 'how to use' in p or 'what commands' in p:
+        return INTENT_TYPES["HELP_REQUEST"], "DEFAULT"
+
+    return INTENT_TYPES["UNKNOWN"], "DEFAULT"
 
 def run_local_intent_engine(message: str, available_repos: list = None) -> dict:
     """
-    Fast, reliable, zero-latency Workspace Operator intent matching engine.
-    Supports single and multi-step actions across windows, applications, themes, dock and projects.
+    Intelligent Workspace Operator intent matching and conversational generation.
     """
     p = message.lower().strip()
+    intent, sub_intent = classify_intent(message)
     actions = []
+    response_msg = ""
+    suggestions = []
 
-    # ============================================================
-    # 1. MULTI-STEP INTENTS (e.g., Open A, open B, and arrange...)
-    # ============================================================
-    if (("open" in p or "launch" in p) and ("and arrange" in p or "side by side" in p or "together" in p)):
-        apps_to_open = []
-        if any(k in p for k in ["rsk", "import", "trade"]):
-            apps_to_open.append("rsk-traders")
-        if any(k in p for k in ["photo", "camera", "studio"]):
-            apps_to_open.append("photography")
-        if any(k in p for k in ["jewel", "gold", "bullion"]):
-            apps_to_open.append("jewellery")
-        if any(k in p for k in ["restaurant", "food", "dining"]):
-            apps_to_open.append("restaurant")
-        if any(k in p for k in ["job", "career", "sphere"]):
-            apps_to_open.append("jobsphere")
-        if any(k in p for k in ["erp", "college", "campus"]):
-            apps_to_open.append("college-erp")
+    # 1. GREETING
+    if intent == INTENT_TYPES["GREETING"]:
+        response_msg = "Hey! 👋 Welcome back. What are we working on today?"
+        suggestions = ["Open RSK Traders", "Show my projects", "What can you do?", "Who is Kamalesh?"]
 
-        if len(apps_to_open) >= 2:
-            for app_id in apps_to_open:
-                actions.append({
-                    "type": "OPEN_APPLICATION",
-                    "payload": {"applicationId": app_id}
-                })
-            actions.append({
-                "type": "ARRANGE_WINDOWS",
-                "payload": {"mode": "side-by-side"}
-            })
+    # 2. IDENTITY QUESTION
+    elif intent == INTENT_TYPES["IDENTITY_QUESTION"]:
+        if sub_intent == "NAME":
+            response_msg = "I'm KAM AI, your personal AI assistant inside KAMVERSE! ⚡"
+            suggestions = ["What can you do?", "Who created you?", "Show my projects"]
+        elif sub_intent == "CREATOR":
+            response_msg = "I was created for Kamalesh's KAMVERSE digital workspace."
+            suggestions = ["Who is Kamalesh?", "What can you do?", "Show my projects"]
+        elif sub_intent == "INTELLIGENCE":
+            response_msg = "I'm designed to understand your requests, assist with your projects and control your KAMVERSE workspace."
+            suggestions = ["What can you do?", "Open RSK Traders", "Show my projects"]
+        elif sub_intent == "SELF_INTRO":
+            response_msg = "I'm KAM AI, your personal assistant and workspace operator inside KAMVERSE. I was created for Kamalesh to help visitors explore projects, discuss technologies, and control this interactive digital workspace using natural language."
+            suggestions = ["What can you do?", "Show my projects", "Who is Kamalesh?"]
+        elif sub_intent == "ABOUT_KAMALESH":
+            response_msg = f"Kamalesh is a Senior UI/UX Designer, Creative Frontend Architect and Full-Stack Developer with {KAMALESH_PROFILE['experience_years']} of enterprise experience building modern digital ecosystems."
+            suggestions = ["What technologies does he use?", "Show my projects", "Contact Kamalesh"]
 
-            return {
-                "response": "Opened both applications and arranged them side by side on your screen. You can interact with both workspaces simultaneously!",
-                "actions": actions,
-                "action": actions[0],
-                "suggestions": ["Tile windows", "Close all windows", "Show all projects"]
-            }
+    # 3. CAPABILITY QUESTION
+    elif intent == INTENT_TYPES["CAPABILITY_QUESTION"]:
+        response_msg = "I can manage your workspace, open projects, arrange windows, search repositories, switch themes and explore your GitHub activity."
+        suggestions = ["Open RSK Traders", "Show my projects", "Open RSK Traders and Photography side by side", "Enable dark mode"]
 
-    # ============================================================
-    # 2. WINDOW ARRANGE, CASCADE, TILE COMMANDS
-    # ============================================================
-    if ("arrange" in p and "side by side" in p) or "side by side" in p or "split screen" in p:
-        actions.append({"type": "ARRANGE_WINDOWS", "payload": {"mode": "side-by-side"}})
-        return {
-            "response": "Arranged your active workspace windows side by side in split columns.",
-            "actions": actions,
-            "action": actions[0],
-            "suggestions": ["Cascade windows", "Tile windows", "Close all windows"]
-        }
+    # 4. GENERAL CONVERSATION
+    elif intent == INTENT_TYPES["GENERAL_CONVERSATION"]:
+        if sub_intent == "GRATITUDE":
+            response_msg = "You're welcome! Happy to help. 😊"
+            suggestions = ["Show my projects", "What can you do?", "Open RSK Traders"]
+        elif sub_intent == "STATUS_CHECK":
+            response_msg = "I'm running smoothly at 100% and ready to assist! How are things with you?"
+            suggestions = ["What can you do?", "Show my projects", "Open RSK Traders"]
+        elif sub_intent == "FAREWELL":
+            response_msg = "Goodbye! Feel free to summon me anytime you need assistance in KAMVERSE. 👋"
+            suggestions = ["Hi", "Open RSK Traders", "Show my projects"]
+        elif sub_intent == "AFFIRMATION":
+            response_msg = "Glad to hear! Let me know what you'd like to explore next."
+            suggestions = ["Show my projects", "Open RSK Traders", "Tile windows"]
+        elif sub_intent == "EXPLAIN_REACT":
+            response_msg = "React is an open-source JavaScript library developed by Meta for building dynamic, interactive user interfaces using reusable components and declarative state. It forms the core foundation of KAMVERSE and Kamalesh's frontend architecture!"
+            suggestions = ["What is Python?", "Show my projects", "What technologies does he use?"]
+        elif sub_intent == "EXPLAIN_PYTHON":
+            response_msg = "Python is an intuitive, high-level programming language renowned for its clean syntax, versatility, and rich ecosystem across backend web development, AI, automation, and data engineering."
+            suggestions = ["Show Python projects", "What is Django?", "Open JobSphere"]
+        elif sub_intent == "EXPLAIN_DJANGO":
+            response_msg = "Django is a high-level Python web framework designed for rapid development and clean, pragmatic architecture. Kamalesh leverages Django and Django REST Framework for robust, scalable backend platforms like College ERP."
+            suggestions = ["Show Python projects", "Open College ERP", "What is React?"]
+        elif sub_intent == "EXPLAIN_TAILWIND":
+            response_msg = "Tailwind CSS is a utility-first CSS framework that allows engineers to compose beautiful, responsive custom designs directly in HTML. It powers KAMVERSE's crisp Neo-Brutalist design tokens!"
+            suggestions = ["Show my projects", "What is React?", "Open RSK Traders"]
 
-    if "cascade" in p:
-        actions.append({"type": "CASCADE_WINDOWS", "payload": {}})
-        return {
-            "response": "Cascaded your active windows with diagonal progressive stacking.",
-            "actions": actions,
-            "action": actions[0],
-            "suggestions": ["Tile windows", "Arrange side by side", "Minimize all"]
-        }
+    # 5. WORKSPACE COMMANDS
+    elif intent == INTENT_TYPES["WORKSPACE_COMMAND"]:
+        if sub_intent == "MULTI_OPEN_ARRANGE":
+            apps = []
+            if any(k in p for k in ['rsk', 'trader']): apps.append(('rsk-traders', 'RSK Traders'))
+            if any(k in p for k in ['photo', 'camera']): apps.append(('photography', 'Photography'))
+            if any(k in p for k in ['jewel', 'gold']): apps.append(('jewellery', 'Gold Jewellery'))
+            if any(k in p for k in ['restaurant', 'food']): apps.append(('restaurant', 'Restaurant'))
+            if any(k in p for k in ['job', 'sphere']): apps.append(('jobsphere', 'JobSphere'))
+            if any(k in p for k in ['erp', 'college']): apps.append(('college-erp', 'College ERP'))
 
-    if "tile" in p or "grid" in p:
-        actions.append({"type": "TILE_WINDOWS", "payload": {}})
-        return {
-            "response": "Tiled all active windows into a balanced desktop grid.",
-            "actions": actions,
-            "action": actions[0],
-            "suggestions": ["Cascade windows", "Arrange side by side", "Close all windows"]
-        }
+            if len(apps) >= 2:
+                for app_id, _ in apps:
+                    actions.append({"type": "OPEN_APPLICATION", "value": app_id, "payload": {"applicationId": app_id}})
+                actions.append({"type": "ARRANGE_WINDOWS", "value": "side-by-side", "payload": {"mode": "side-by-side"}})
+                response_msg = f"Opened {apps[0][1]} and {apps[1][1]} and arranged them side by side on your screen!"
+                suggestions = ["Tile windows", "Close all windows", "Show my projects"]
+            else:
+                response_msg = "Please specify two applications to arrange side by side (e.g. RSK Traders and Photography)."
+                suggestions = ["Open RSK Traders and Photography side by side", "Show my projects"]
 
-    if any(k in p for k in ["close all", "close everything", "shut all"]):
-        actions.append({"type": "CLOSE_ALL_WINDOWS", "payload": {}})
-        return {
-            "response": "Closed all active windows and cleared your workspace.",
-            "actions": actions,
-            "action": actions[0],
-            "suggestions": ["Open RSK Traders", "Show all projects", "Who is Kamalesh?"]
-        }
+        elif sub_intent == "OPEN_APP":
+            target_id = "rsk-traders"
+            target_name = "RSK Traders"
+            if any(k in p for k in ['photo', 'camera']): target_id, target_name = "photography", "Photography"
+            elif any(k in p for k in ['jewel', 'gold']): target_id, target_name = "jewellery", "Gold Jewellery"
+            elif any(k in p for k in ['restaurant', 'food']): target_id, target_name = "restaurant", "Restaurant"
+            elif any(k in p for k in ['job', 'sphere']): target_id, target_name = "jobsphere", "JobSphere"
+            elif any(k in p for k in ['erp', 'college']): target_id, target_name = "college-erp", "College ERP"
 
-    if any(k in p for k in ["minimize all", "clear screen", "show desktop", "go to desktop"]):
-        actions.append({"type": "MINIMIZE_ALL_WINDOWS", "payload": {}})
-        return {
-            "response": "Minimized all windows down to the KAMVERSE desktop canvas.",
-            "actions": actions,
-            "action": actions[0],
-            "suggestions": ["Open RSK Traders", "Show all projects", "Tile windows"]
-        }
+            actions.append({"type": "OPEN_APPLICATION", "value": target_id, "payload": {"applicationId": target_id}})
+            response_msg = f"Opening {target_name} now!"
+            suggestions = ["Tile windows", "Show my projects", "Close all windows"]
 
-    # ============================================================
-    # 3. THEME COMMANDS
-    # ============================================================
-    if any(k in p for k in ["dark mode", "dark theme", "midnight theme", "black theme"]):
-        actions.append({"type": "SET_THEME", "payload": {"theme": "dark"}})
-        return {
-            "response": "Activated the Midnight Dark theme (#151515). High-contrast dark visuals are now active.",
-            "actions": actions,
-            "action": actions[0],
-            "suggestions": ["Switch to yellow theme", "Switch to light theme", "Open RSK Traders"]
-        }
+        elif sub_intent == "OPEN_PROJECTS":
+            actions.append({"type": "NAVIGATE", "value": "projects", "payload": {"view": "projects"}})
+            response_msg = "Opening your Projects Explorer! You can explore all public repositories and live projects."
+            suggestions = ["Show Python projects", "Open RSK Traders", "Open Live Activity Center"]
 
-    if any(k in p for k in ["light mode", "light theme", "bright mode", "white theme"]):
-        actions.append({"type": "SET_THEME", "payload": {"theme": "light"}})
-        return {
-            "response": "Activated the Clean Light theme (#F5F5F0) for daytime clarity.",
-            "actions": actions,
-            "action": actions[0],
-            "suggestions": ["Switch to yellow theme", "Enable dark mode", "Show all projects"]
-        }
+        elif sub_intent == "ARRANGE_SIDE_BY_SIDE":
+            actions.append({"type": "ARRANGE_WINDOWS", "value": "side-by-side", "payload": {"mode": "side-by-side"}})
+            response_msg = "Arranged your active workspace windows side by side in split columns."
+            suggestions = ["Tile windows", "Cascade windows", "Close all windows"]
 
-    if any(k in p for k in ["yellow theme", "neo-brutalist theme", "default theme", "reset theme"]):
-        actions.append({"type": "SET_THEME", "payload": {"theme": "yellow"}})
-        return {
-            "response": "Restored the signature Neo-Brutalist Yellow theme (#F5F04E).",
-            "actions": actions,
-            "action": actions[0],
-            "suggestions": ["Enable dark mode", "Show all projects", "Open RSK Traders"]
-        }
+        elif sub_intent == "CASCADE":
+            actions.append({"type": "CASCADE_WINDOWS", "value": "cascade", "payload": {}})
+            response_msg = "Cascaded all open windows with diagonal progressive stacking."
+            suggestions = ["Tile windows", "Arrange side by side", "Show desktop"]
 
-    # ============================================================
-    # 4. DOCK COMMANDS
-    # ============================================================
-    if "hide dock" in p or "remove dock" in p:
-        actions.append({"type": "SET_DOCK_VISIBILITY", "payload": {"visible": False}})
-        return {
-            "response": "Hidden the bottom macOS dock to give you maximum canvas space.",
-            "actions": actions,
-            "action": actions[0],
-            "suggestions": ["Show dock", "Open RSK Traders", "Show all projects"]
-        }
+        elif sub_intent == "TILE":
+            actions.append({"type": "TILE_WINDOWS", "value": "tile", "payload": {}})
+            response_msg = "Tiled all active windows into a balanced desktop grid."
+            suggestions = ["Arrange side by side", "Cascade windows", "Close all windows"]
 
-    if "show dock" in p or "unhide dock" in p or "bring back dock" in p:
-        actions.append({"type": "SET_DOCK_VISIBILITY", "payload": {"visible": True}})
-        return {
-            "response": "Bottom macOS dock is now visible.",
-            "actions": actions,
-            "action": actions[0],
-            "suggestions": ["Hide dock", "Tile windows", "Show all projects"]
-        }
+        elif sub_intent == "CLOSE_ALL":
+            actions.append({"type": "CLOSE_ALL_WINDOWS", "value": "all", "payload": {}})
+            response_msg = "Closed all active windows and cleared your workspace."
+            suggestions = ["Open RSK Traders", "Show my projects", "Who is Kamalesh?"]
 
-    # ============================================================
-    # 5. GREETINGS
-    # ============================================================
-    if re.search(r'^(hi|hello|hey|greetings|introduce|who are you)', p):
-        return {
-            "response": (
-                "Hello! I am **KAM AI**, your Workspace Operator in KAMVERSE. ⚡\n\n"
-                f"I know everything about Kamalesh's {KAMALESH_PROFILE['experience_years']} of engineering experience, "
-                "his 6 flagship applications, and his public GitHub profile. "
-                "You can also command me to arrange windows, toggle themes, and launch workspaces!\n\n"
-                "How can I configure your workspace today?"
-            ),
-            "actions": [],
-            "action": None,
-            "suggestions": [
-                "Open RSK Traders and Photography side-by-side",
-                "Show Python projects",
-                "Enable dark mode",
-                "Who is Kamalesh?",
-                "Tile windows in grid"
-            ]
-        }
+        elif sub_intent == "MINIMIZE_ALL":
+            actions.append({"type": "MINIMIZE_ALL_WINDOWS", "value": "all", "payload": {}})
+            response_msg = "Minimized all windows down to the KAMVERSE desktop canvas."
+            suggestions = ["Show my projects", "Open RSK Traders", "Tile windows"]
 
-    # ============================================================
-    # 6. ABOUT KAMALESH
-    # ============================================================
-    if re.search(r'(who is kamalesh|about kamalesh|bio|background|experience|career)', p):
-        actions.append({"type": "NAVIGATE", "payload": {"view": "about"}})
-        return {
-            "response": (
-                f"**{KAMALESH_PROFILE['name']}** is a **{KAMALESH_PROFILE['title']}** "
-                f"with over **{KAMALESH_PROFILE['experience_years']}** of enterprise web engineering experience.\n\n"
-                f"• **Status**: {KAMALESH_PROFILE['availability']}\n"
-                f"• **Philosophy**: {KAMALESH_PROFILE['bio']}\n\n"
-                "I am opening his full profile window for you!"
-            ),
-            "actions": actions,
-            "action": actions[0],
-            "suggestions": [
-                "What technologies does he use?",
-                "Show all projects",
-                "Contact Kamalesh"
-            ]
-        }
+        elif sub_intent == "THEME_DARK":
+            actions.append({"type": "SET_THEME", "value": "dark", "payload": {"theme": "dark"}})
+            response_msg = "Activated the Midnight Dark theme (#151515). High-contrast dark visuals are now active."
+            suggestions = ["Switch to yellow theme", "Switch to light theme", "Open RSK Traders"]
 
-    # ============================================================
-    # 7. TECHNOLOGIES & SKILLS
-    # ============================================================
-    if re.search(r'(skills|technologies|tech stack|what does he use|languages|tools)', p):
-        skills_summary = (
-            "• **Frontend**: React, Next.js, Tailwind CSS, Framer Motion, TypeScript\n"
-            "• **Backend**: Python, Django, Django REST Framework, PostgreSQL, Redis\n"
-            "• **Architecture**: Scalable Design Systems, Neo-Brutalism, Micro-Interactions"
-        )
-        actions.append({"type": "NAVIGATE", "payload": {"view": "about"}})
-        return {
-            "response": (
-                f"Kamalesh specializes in modern full-stack web architectures:\n\n{skills_summary}\n\n"
-                "Navigating to his technical skills view!"
-            ),
-            "actions": actions,
-            "action": actions[0],
-            "suggestions": [
-                "Show Python projects",
-                "Show all projects",
-                "Open RSK Traders"
-            ]
-        }
+        elif sub_intent == "THEME_LIGHT":
+            actions.append({"type": "SET_THEME", "value": "light", "payload": {"theme": "light"}})
+            response_msg = "Activated the Clean Light theme (#F5F5F0) for daytime clarity."
+            suggestions = ["Switch to yellow theme", "Enable dark mode", "Show my projects"]
 
-    # ============================================================
-    # 8. FLAGSHIP WEBSITES
-    # ============================================================
-    if re.search(r'(rsk|traders|import|export|bulk trade)', p):
-        actions.append({"type": "OPEN_APPLICATION", "payload": {"applicationId": "rsk-traders"}})
-        return {
-            "response": (
-                "**RSK TRADERS** is an international import & export platform for global merchant trade and bulk logistics.\n"
-                "Opening the RSK Traders application window right now!"
-            ),
-            "actions": actions,
-            "action": actions[0],
-            "suggestions": ["Show all projects", "Open JobSphere", "Tile windows"]
-        }
+        elif sub_intent == "THEME_YELLOW":
+            actions.append({"type": "SET_THEME", "value": "yellow", "payload": {"theme": "yellow"}})
+            response_msg = "Restored the signature Neo-Brutalist Yellow theme (#F5F04E)."
+            suggestions = ["Enable dark mode", "Show my projects", "Open RSK Traders"]
 
-    if re.search(r'(photography|studio|photos|camera)', p):
-        actions.append({"type": "OPEN_APPLICATION", "payload": {"applicationId": "photography"}})
-        return {
-            "response": (
-                "**PHOTOGRAPHY WEBSITE** is an editorial visual storytelling studio with private client proofing suites.\n"
-                "Opening the Photography application overview!"
-            ),
-            "actions": actions,
-            "action": actions[0],
-            "suggestions": ["Open Gold Jewellery", "Show all projects", "Arrange side by side"]
-        }
+        elif sub_intent == "FILTER_PYTHON":
+            actions.append({"type": "FILTER_PROJECTS", "value": "Python", "payload": {"language": "Python"}})
+            response_msg = "Navigated to Projects Explorer and applied the Python filter!"
+            suggestions = ["Show my projects", "Open JobSphere", "Open College ERP"]
 
-    if re.search(r'(jewellery|jewelry|gold|bullion|ornaments)', p):
-        actions.append({"type": "OPEN_APPLICATION", "payload": {"applicationId": "jewellery"}})
-        return {
-            "response": (
-                "**GOLD JEWELLERY WEBSITE** is a bespoke fine jewellery e-commerce platform with real-time bullion market tickers.\n"
-                "Opening the Gold Jewellery application window!"
-            ),
-            "actions": actions,
-            "action": actions[0],
-            "suggestions": ["Open Restaurant", "Show all projects"]
-        }
+        elif sub_intent == "NAV_ACTIVITY":
+            actions.append({"type": "NAVIGATE", "value": "activity", "payload": {"view": "activity"}})
+            response_msg = "Opening the Live GitHub Activity Center. You can review latest commits, the 52-week contribution heatmap, and repository metrics in real-time!"
+            suggestions = ["Show my projects", "Open RSK Traders", "Who is Kamalesh?"]
 
-    if re.search(r'(restaurant|food|dining|culinary|menu)', p):
-        actions.append({"type": "OPEN_APPLICATION", "payload": {"applicationId": "restaurant"}})
-        return {
-            "response": (
-                "**RESTAURANT WEBSITE** is an artisanal culinary dining portal featuring digital interactive menus and table reservations.\n"
-                "Opening the Restaurant application window!"
-            ),
-            "actions": actions,
-            "action": actions[0],
-            "suggestions": ["Open College ERP", "Show all projects"]
-        }
+    # 6. GITHUB QUESTIONS
+    elif intent == INTENT_TYPES["GITHUB_QUESTION"]:
+        if sub_intent == "OPEN_GITHUB":
+            actions.append({"type": "OPEN_GITHUB", "value": GITHUB_PROFILE_URL, "payload": {"url": GITHUB_PROFILE_URL}})
+            response_msg = f"Opening Kamalesh's official GitHub profile (@{GITHUB_USERNAME}) in a secure new tab."
+            suggestions = ["Show my projects", "Open Live Activity Center", "Who is Kamalesh?"]
+        else:
+            response_msg = f"Kamalesh's official GitHub account is @{GITHUB_USERNAME}. Would you like me to open his profile or the Live Activity Center?"
+            suggestions = ["Open Live Activity Center", "Open GitHub", "Show my projects"]
 
-    if re.search(r'(jobsphere|job|career portal|hiring)', p):
-        actions.append({"type": "OPEN_APPLICATION", "payload": {"applicationId": "jobsphere"}})
-        return {
-            "response": (
-                "**JOBSPHERE** is a next-generation tech job aggregation platform featuring AI candidate matching and salary benchmarks.\n"
-                "Opening the JobSphere application window!"
-            ),
-            "actions": actions,
-            "action": actions[0],
-            "suggestions": ["Show Python projects", "Open College ERP"]
-        }
+    # 7. HELP / UNKNOWN FALLBACK
+    else:
+        response_msg = "I'm ready to assist you! You can chat with me, ask about Kamalesh's projects, or ask me to open and arrange workspace applications."
+        suggestions = ["What can you do?", "Open RSK Traders", "Show my projects", "Who is Kamalesh?"]
 
-    if re.search(r'(college|erp|campus|academic)', p):
-        actions.append({"type": "OPEN_APPLICATION", "payload": {"applicationId": "college-erp"}})
-        return {
-            "response": (
-                "**COLLEGE ERP** is an enterprise campus management suite handling records, admissions, fees, and examinations for 10,000+ students.\n"
-                "Opening the College ERP application window!"
-            ),
-            "actions": actions,
-            "action": actions[0],
-            "suggestions": ["Show Python projects", "Show all projects"]
-        }
-
-    # ============================================================
-    # 9. PROJECT FILTERS
-    # ============================================================
-    if re.search(r'(python projects|show python|python repos|django projects)', p):
-        actions.append({"type": "FILTER_PROJECTS", "payload": {"language": "Python"}})
-        return {
-            "response": (
-                "Kamalesh has engineered several backend and full-stack Python platforms, "
-                "including **College ERP** and **JobSphere**.\n\n"
-                "I have opened the **Projects Explorer** and applied the **Python** filter!"
-            ),
-            "actions": actions,
-            "action": actions[0],
-            "suggestions": ["Show React projects", "Show all projects", "Open JobSphere"]
-        }
-
-    if re.search(r'(react projects|show react|frontend projects|javascript projects)', p):
-        actions.append({"type": "FILTER_PROJECTS", "payload": {"language": "JavaScript"}})
-        return {
-            "response": "Navigated to Projects Explorer with the React / JavaScript filter applied!",
-            "actions": actions,
-            "action": actions[0],
-            "suggestions": ["Show Python projects", "Show all projects", "Open RSK Traders"]
-        }
-
-    if re.search(r'(featured projects|show featured|highlighted)', p):
-        actions.append({"type": "SHOW_FEATURED_PROJECTS", "payload": {}})
-        return {
-            "response": "Showing Kamalesh's featured flagship applications in the Projects Explorer!",
-            "actions": actions,
-            "action": actions[0],
-            "suggestions": ["Show all projects", "Show Python projects"]
-        }
-
-    if re.search(r'(show all projects|all projects|browse projects|repositories|projects explorer)', p):
-        actions.append({"type": "NAVIGATE", "payload": {"view": "projects"}})
-        return {
-            "response": (
-                f"Opening the **Projects Explorer**! Here you can explore all public repositories "
-                f"synchronized with @{KAMALESH_PROFILE['github_username']}, view live README specs, stars, and launch demos."
-            ),
-            "actions": actions,
-            "action": actions[0],
-            "suggestions": ["Show Python projects", "Open RSK Traders", "Take me to GitHub"]
-        }
-
-    # ============================================================
-    # 10. GITHUB PROFILE
-    # ============================================================
-    if re.search(r'(github|git profile|source code|take me to github|open github)', p):
-        actions.append({"type": "OPEN_GITHUB", "payload": {"url": KAMALESH_PROFILE["github_url"]}})
-        return {
-            "response": (
-                f"Kamalesh's official GitHub profile is **@{KAMALESH_PROFILE['github_username']}**.\n"
-                "Opening his GitHub profile in a secure tab for you!"
-            ),
-            "actions": actions,
-            "action": actions[0],
-            "suggestions": ["Show all projects", "Who is Kamalesh?"]
-        }
-
-    # ============================================================
-    # 11. CONTACT & HIRE
-    # ============================================================
-    if re.search(r'(contact|hire|email|reach out|collaborate)', p):
-        actions.append({"type": "NAVIGATE", "payload": {"view": "contact"}})
-        return {
-            "response": (
-                f"You can reach Kamalesh directly at: `{KAMALESH_PROFILE['email']}`.\n"
-                "Opening the direct Contact & Hire portal!"
-            ),
-            "actions": actions,
-            "action": actions[0],
-            "suggestions": ["Who is Kamalesh?", "Show all projects"]
-        }
-
-    # ============================================================
-    # 12. TERMINAL & LAUNCHER
-    # ============================================================
-    if re.search(r'(terminal|cli|console|command line)', p):
-        actions.append({"type": "NAVIGATE", "payload": {"view": "terminal"}})
-        return {
-            "response": "Opening the interactive **Developer Terminal** for you!",
-            "actions": actions,
-            "action": actions[0],
-            "suggestions": ["Show all projects", "Tile windows"]
-        }
-
-    if re.search(r'(launcher|spotlight|command palette)', p):
-        actions.append({"type": "NAVIGATE", "payload": {"view": "launcher"}})
-        return {
-            "response": "Opening the Application Launcher & Command Palette!",
-            "actions": actions,
-            "action": actions[0],
-            "suggestions": ["Show all projects", "Who is Kamalesh?"]
-        }
-
-    # ============================================================
-    # 13. SPECIFIC REPO LOOKUP
-    # ============================================================
-    if available_repos:
-        for r in available_repos:
-            r_name = r.get("name", "").lower()
-            if r_name and r_name in p:
-                actions.append({
-                    "type": "OPEN_PROJECT_DETAILS",
-                    "payload": {"repoName": r.get("name")}
-                })
-                return {
-                    "response": (
-                        f"Found repository **{r.get('displayName') or r.get('name')}** "
-                        f"({r.get('category')}, {r.get('language')}).\n"
-                        "Opening its project details window!"
-                    ),
-                    "actions": actions,
-                    "action": actions[0],
-                    "suggestions": ["Show all projects", "Take me to GitHub"]
-                }
-
-    # ============================================================
-    # 14. DEFAULT FALLBACK
-    # ============================================================
     return {
-        "response": (
-            "I am ready to control the workspace! You can command me to open apps (e.g. *'Open RSK Traders and Photography side by side'*), "
-            "manage windows (*'Tile windows'*, *'Cascade windows'*, *'Close all'*), "
-            "change themes (*'Dark mode'*, *'Light theme'*), or explore GitHub projects (*'Show Python projects'*)."
-        ),
-        "actions": [],
-        "action": None,
-        "suggestions": [
-            "Open RSK Traders and Photography side-by-side",
-            "Tile windows in grid",
-            "Enable dark mode",
-            "Show Python projects",
-            "Who is Kamalesh?"
-        ]
+        "message": response_msg,
+        "response": response_msg,
+        "text": response_msg,
+        "actions": actions,
+        "action": actions[0] if actions else None,
+        "suggestions": suggestions
     }

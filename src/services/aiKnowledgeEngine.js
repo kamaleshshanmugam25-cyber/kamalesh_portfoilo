@@ -1,538 +1,616 @@
 /**
- * KAM AI - WORKSPACE OPERATOR NLU & INTENT ENGINE
+ * KAM AI - WORKSPACE OPERATOR & CONVERSATIONAL INTELLIGENCE ENGINE
  * 
- * Translates natural-language visitor commands into structured workspace actions.
- * Supports multi-step execution, window tiling/cascading, application controls,
- * theme adjustments, and project discovery.
+ * Identity:
+ * - Name: KAM AI
+ * - Role: Personal AI Assistant and Workspace Operator
+ * - Platform: KAMVERSE
+ * - Creator: Kamalesh
+ * - Personality: Friendly, intelligent, professional, confident and conversational.
+ * 
+ * Features:
+ * - 9-Category Intelligent Intent Classification
+ * - Direct conversational responses (never outputs raw lists of commands for normal conversation)
+ * - Structured actions array with strict validation
+ * - Technical topic explanations (React, Python, Django, Tailwind, Neo-Brutalism)
+ * - Multi-turn conversation context awareness
  */
 
-import { PROFILE } from '../config/profile';
-import { APPLICATIONS } from '../config/applications';
-import { GITHUB_USERNAME, GITHUB_PROFILE_URL } from '../config/projects';
+import { PROFILE } from '../config/profile.js';
+import { APPLICATIONS } from '../config/applications.js';
+import { GITHUB_USERNAME, GITHUB_PROFILE_URL } from '../config/projects.js';
+
+export const INTENT_TYPES = {
+  GREETING: 'GREETING',
+  GENERAL_CONVERSATION: 'GENERAL_CONVERSATION',
+  IDENTITY_QUESTION: 'IDENTITY_QUESTION',
+  CAPABILITY_QUESTION: 'CAPABILITY_QUESTION',
+  PROJECT_QUESTION: 'PROJECT_QUESTION',
+  WORKSPACE_COMMAND: 'WORKSPACE_COMMAND',
+  GITHUB_QUESTION: 'GITHUB_QUESTION',
+  HELP_REQUEST: 'HELP_REQUEST',
+  UNKNOWN: 'UNKNOWN'
+};
+
+/**
+ * Intelligent Intent Classifier
+ * Accurately categorizes visitor queries before generating responses.
+ * Ensures normal conversational turns are NEVER misinterpreted as workspace commands.
+ * 
+ * @param {string} rawPrompt - User message text
+ * @param {Array} history - Previous conversation messages
+ * @returns {Object} { intent: string, subIntent?: string, entities?: Object }
+ */
+export const classifyIntent = (rawPrompt = '', history = []) => {
+  const p = rawPrompt.trim().toLowerCase().replace(/[?!.,;]/g, '');
+
+  // 1. GREETING
+  const greetingExact = ['hi', 'hello', 'hey', 'heya', 'howdy', 'hola', 'yo', 'sup', 'greetings'];
+  const greetingPhrases = ['good morning', 'good afternoon', 'good evening', 'hi there', 'hello there', 'hey kam'];
+  if (greetingExact.includes(p) || greetingPhrases.some(phrase => p === phrase || p.startsWith(phrase + ' '))) {
+    return { intent: INTENT_TYPES.GREETING };
+  }
+
+  // 2. IDENTITY QUESTION
+  if (
+    p.includes('your name') || 
+    p === 'who are you' || 
+    p.includes('what are you called') || 
+    p.includes('what is your name') || 
+    p.includes('whats your name')
+  ) {
+    return { intent: INTENT_TYPES.IDENTITY_QUESTION, subIntent: 'NAME' };
+  }
+
+  if (
+    p.includes('who created you') || 
+    p.includes('who made you') || 
+    p.includes('who built you') || 
+    p.includes('who developed you') || 
+    p.includes('your creator') || 
+    p.includes('who is your creator')
+  ) {
+    return { intent: INTENT_TYPES.IDENTITY_QUESTION, subIntent: 'CREATOR' };
+  }
+
+  if (
+    p.includes('are you intelligent') || 
+    p.includes('are you smart') || 
+    p.includes('how smart are you') || 
+    p.includes('are you an ai') || 
+    p.includes('are you ai')
+  ) {
+    return { intent: INTENT_TYPES.IDENTITY_QUESTION, subIntent: 'INTELLIGENCE' };
+  }
+
+  if (
+    p.includes('tell me about yourself') || 
+    p.includes('about yourself') || 
+    p.includes('introduce yourself') || 
+    p.includes('describe yourself')
+  ) {
+    return { intent: INTENT_TYPES.IDENTITY_QUESTION, subIntent: 'SELF_INTRO' };
+  }
+
+  if (
+    p.includes('who is kamalesh') || 
+    p.includes('about kamalesh') || 
+    p.includes('tell me about kamalesh') || 
+    p.includes('who is the developer')
+  ) {
+    return { intent: INTENT_TYPES.IDENTITY_QUESTION, subIntent: 'ABOUT_KAMALESH' };
+  }
+
+  // 3. CAPABILITY QUESTION
+  if (
+    p.includes('what can you do') || 
+    p.includes('what are your capabilities') || 
+    p.includes('what do you do') || 
+    p.includes('what can i ask you') || 
+    p.includes('how can you help') || 
+    p.includes('what can you help me with') || 
+    p.includes('your features')
+  ) {
+    return { intent: INTENT_TYPES.CAPABILITY_QUESTION };
+  }
+
+  // 4. GENERAL CONVERSATION (Thank you, small talk, tech explanations)
+  if (
+    p === 'thank you' || 
+    p === 'thanks' || 
+    p === 'thanks a lot' || 
+    p === 'thank u' || 
+    p === 'thx' || 
+    p.startsWith('thank you') || 
+    p.startsWith('thanks') || 
+    p.includes('appreciate it')
+  ) {
+    return { intent: INTENT_TYPES.GENERAL_CONVERSATION, subIntent: 'GRATITUDE' };
+  }
+
+  if (p === 'how are you' || p === 'how are you doing' || p === 'hows it going' || p === "what's up") {
+    return { intent: INTENT_TYPES.GENERAL_CONVERSATION, subIntent: 'STATUS_CHECK' };
+  }
+
+  if (p === 'goodbye' || p === 'bye' || p === 'see you' || p === 'cya') {
+    return { intent: INTENT_TYPES.GENERAL_CONVERSATION, subIntent: 'FAREWELL' };
+  }
+
+  if (['cool', 'awesome', 'nice', 'great', 'perfect', 'good', 'sweet', 'ok', 'okay'].includes(p)) {
+    return { intent: INTENT_TYPES.GENERAL_CONVERSATION, subIntent: 'AFFIRMATION' };
+  }
+
+  // Technical explanation questions
+  if (p.includes('what is react') || p.includes('explain react') || p.includes('tell me about react')) {
+    return { intent: INTENT_TYPES.GENERAL_CONVERSATION, subIntent: 'EXPLAIN_REACT' };
+  }
+  if (p.includes('what is python') || p.includes('explain python') || p.includes('tell me about python')) {
+    return { intent: INTENT_TYPES.GENERAL_CONVERSATION, subIntent: 'EXPLAIN_PYTHON' };
+  }
+  if (p.includes('what is django') || p.includes('explain django') || p.includes('tell me about django')) {
+    return { intent: INTENT_TYPES.GENERAL_CONVERSATION, subIntent: 'EXPLAIN_DJANGO' };
+  }
+  if (p.includes('what is tailwind') || p.includes('explain tailwind')) {
+    return { intent: INTENT_TYPES.GENERAL_CONVERSATION, subIntent: 'EXPLAIN_TAILWIND' };
+  }
+  if (p.includes('what is neo brutalism') || p.includes('explain neo brutalism') || p.includes('neo-brutalism')) {
+    return { intent: INTENT_TYPES.GENERAL_CONVERSATION, subIntent: 'EXPLAIN_NEO_BRUTALISM' };
+  }
+
+  // 5. WORKSPACE COMMANDS
+  // Multi-step commands (open X and Y side by side)
+  if ((p.includes('open') || p.includes('launch')) && (p.includes('side by side') || p.includes('and arrange') || p.includes('together'))) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'MULTI_OPEN_ARRANGE' };
+  }
+
+  // Window arrangement
+  if (p.includes('side by side') || (p.includes('arrange') && p.includes('windows'))) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'ARRANGE_SIDE_BY_SIDE' };
+  }
+  if (p.includes('cascade')) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'CASCADE' };
+  }
+  if (p.includes('tile') || (p.includes('grid') && p.includes('window'))) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'TILE' };
+  }
+  if (p.includes('close all') || p.includes('close everything') || p.includes('shut all')) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'CLOSE_ALL' };
+  }
+  if (p.includes('minimize all') || p.includes('show desktop') || p.includes('go to desktop') || p.includes('clear screen')) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'MINIMIZE_ALL' };
+  }
+
+  // Theme Commands
+  if (p.includes('dark mode') || p.includes('dark theme') || p.includes('midnight theme')) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'THEME_DARK' };
+  }
+  if (p.includes('light mode') || p.includes('light theme') || p.includes('bright mode') || p.includes('white theme')) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'THEME_LIGHT' };
+  }
+  if (p.includes('yellow theme') || p.includes('neo-brutalist theme') || p.includes('reset theme')) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'THEME_YELLOW' };
+  }
+
+  // Dock Commands
+  if (p.includes('hide dock') || p.includes('remove dock')) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'DOCK_HIDE' };
+  }
+  if (p.includes('show dock') || p.includes('unhide dock')) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'DOCK_SHOW' };
+  }
+
+  // Show my projects / Projects explorer command
+  if (
+    p === 'show my projects' || 
+    p === 'show projects' || 
+    p === 'show all projects' || 
+    p === 'open projects' || 
+    p === 'open project explorer' ||
+    p.includes('show my projects') ||
+    p.includes('browse projects') ||
+    p.includes('open projects')
+  ) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'OPEN_PROJECTS' };
+  }
+
+  // Application Commands (Open, Close, Minimize, Maximize)
+  const appKeywords = ['rsk', 'traders', 'photography', 'photo', 'jewellery', 'jewelry', 'gold', 'restaurant', 'food', 'jobsphere', 'college', 'erp'];
+  if (p.startsWith('open ') || p.startsWith('launch ') || p.startsWith('start ') || p.startsWith('view ')) {
+    const hasApp = appKeywords.some(k => p.includes(k));
+    if (hasApp) {
+      return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'OPEN_APP' };
+    }
+  }
+
+  if (p.startsWith('close ') && appKeywords.some(k => p.includes(k))) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'CLOSE_APP' };
+  }
+
+  if (p.startsWith('minimize ') && appKeywords.some(k => p.includes(k))) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'MINIMIZE_APP' };
+  }
+
+  if (p.startsWith('maximize ') && appKeywords.some(k => p.includes(k))) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'MAXIMIZE_APP' };
+  }
+
+  // Project Filters (e.g. show python projects)
+  if (p.includes('python projects') || p.includes('show python') || p.includes('filter by python')) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'FILTER_PYTHON' };
+  }
+  if (p.includes('react projects') || p.includes('show react') || p.includes('filter by react')) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'FILTER_REACT' };
+  }
+  if (p.includes('featured projects')) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'FILTER_FEATURED' };
+  }
+
+  // Navigation commands
+  if (p.includes('open terminal') || p.includes('launch terminal') || p === 'terminal') {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'NAV_TERMINAL' };
+  }
+  if (p.includes('open contact') || p.includes('contact page') || p.includes('hire page') || p === 'contact') {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'NAV_CONTACT' };
+  }
+  if (p.includes('open about') || p.includes('about page')) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'NAV_ABOUT' };
+  }
+  if (p.includes('open activity') || p.includes('activity center') || p.includes('show activity') || p.includes('latest commits') || p.includes('show commits') || p.includes('heatmap')) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'NAV_ACTIVITY' };
+  }
+
+  // 6. GITHUB QUESTIONS & ACTIONS
+  if (p.includes('open github') || p.includes('take me to github') || p.includes('visit github') || p === 'github') {
+    return { intent: INTENT_TYPES.GITHUB_QUESTION, subIntent: 'OPEN_GITHUB' };
+  }
+  if (p.includes('github profile') || p.includes('his github') || p.includes('github account')) {
+    return { intent: INTENT_TYPES.GITHUB_QUESTION, subIntent: 'INFO_GITHUB' };
+  }
+
+  // 7. PROJECT QUESTIONS (Inquiries without command)
+  if (
+    p.includes('what is rsk') || 
+    p.includes('tell me about rsk') || 
+    p.includes('what is jobsphere') || 
+    p.includes('what is college erp') || 
+    p.includes('skills') || 
+    p.includes('technologies') || 
+    p.includes('tech stack') || 
+    p.includes('what does he use')
+  ) {
+    return { intent: INTENT_TYPES.PROJECT_QUESTION };
+  }
+
+  // 8. HELP REQUEST
+  if (p === 'help' || p === 'help me' || p.includes('how to use') || p.includes('what commands')) {
+    return { intent: INTENT_TYPES.HELP_REQUEST };
+  }
+
+  // 9. UNKNOWN
+  return { intent: INTENT_TYPES.UNKNOWN };
+};
 
 /**
  * Generate an intelligent response and navigation actions for a user prompt
  * 
  * @param {string} prompt - User message
  * @param {Array} gitHubProjects - Synced GitHub repositories from context
- * @returns {Object} { text: string, actions: Array<Object>, action: Object|null, suggestions: Array<string> }
+ * @param {Array} history - Previous conversation messages
+ * @returns {Object} { message: string, text: string, response: string, actions: Array<Object>, action: Object|null, suggestions: Array<string> }
  */
-export const queryKnowledgeEngine = (prompt, gitHubProjects = []) => {
-  const p = prompt.trim().toLowerCase();
+export const queryKnowledgeEngine = (prompt = '', gitHubProjects = [], history = []) => {
+  const p = prompt.trim();
+  const lower = p.toLowerCase();
   const actions = [];
+  let message = '';
+  let suggestions = [];
 
-  // ============================================================
-  // 1. MULTI-STEP INTENTS (e.g., Open A, open B, and arrange...)
-  // ============================================================
-  if ((p.includes('open') || p.includes('launch')) && (p.includes('and arrange') || p.includes('side by side') || p.includes('together'))) {
-    const appsToOpen = [];
-    if (p.includes('rsk') || p.includes('import') || p.includes('trade')) appsToOpen.push('rsk-traders');
-    if (p.includes('photo') || p.includes('camera')) appsToOpen.push('photography');
-    if (p.includes('jewel') || p.includes('gold')) appsToOpen.push('jewellery');
-    if (p.includes('restaurant') || p.includes('food') || p.includes('dining')) appsToOpen.push('restaurant');
-    if (p.includes('job') || p.includes('career') || p.includes('sphere')) appsToOpen.push('jobsphere');
-    if (p.includes('erp') || p.includes('college') || p.includes('campus')) appsToOpen.push('college-erp');
+  // Step 1: Classify user intent
+  const { intent, subIntent } = classifyIntent(prompt, history);
 
-    if (appsToOpen.length >= 2) {
-      appsToOpen.forEach(appId => {
+  // Step 2: Route by intent category
+  switch (intent) {
+
+    // ============================================================
+    // 1. GREETING
+    // ============================================================
+    case INTENT_TYPES.GREETING: {
+      message = "Hey! 👋 Welcome back. What are we working on today?";
+      suggestions = [
+        'Open RSK Traders',
+        'Show my projects',
+        'What can you do?',
+        'Who is Kamalesh?'
+      ];
+      break;
+    }
+
+    // ============================================================
+    // 2. IDENTITY QUESTIONS
+    // ============================================================
+    case INTENT_TYPES.IDENTITY_QUESTION: {
+      if (subIntent === 'NAME') {
+        message = "I'm KAM AI, your personal AI assistant inside KAMVERSE! ⚡";
+        suggestions = ['What can you do?', 'Who created you?', 'Show my projects'];
+      } else if (subIntent === 'CREATOR') {
+        message = "I was created for Kamalesh's KAMVERSE digital workspace.";
+        suggestions = ['Who is Kamalesh?', 'What can you do?', 'Show my projects'];
+      } else if (subIntent === 'INTELLIGENCE') {
+        message = "I'm designed to understand your requests, assist with your projects and control your KAMVERSE workspace.";
+        suggestions = ['What can you do?', 'Open RSK Traders', 'Show my projects'];
+      } else if (subIntent === 'SELF_INTRO') {
+        message = "I'm KAM AI, your personal assistant and workspace operator inside KAMVERSE. I was created for Kamalesh to help visitors explore projects, discuss technologies, and control this interactive digital workspace using natural language.";
+        suggestions = ['What can you do?', 'Show my projects', 'Who is Kamalesh?'];
+      } else if (subIntent === 'ABOUT_KAMALESH') {
+        message = `Kamalesh is a Senior UI/UX Designer, Creative Frontend Architect and Full-Stack Developer with 8+ years of enterprise experience building modern digital ecosystems.`;
+        suggestions = ['What technologies does he use?', 'Show my projects', 'Contact Kamalesh'];
+      }
+      break;
+    }
+
+    // ============================================================
+    // 3. CAPABILITY QUESTIONS
+    // ============================================================
+    case INTENT_TYPES.CAPABILITY_QUESTION: {
+      message = "I can manage your workspace, open projects, arrange windows, search repositories, switch themes and explore your GitHub activity.";
+      suggestions = [
+        'Open RSK Traders',
+        'Show my projects',
+        'Open RSK Traders and Photography side by side',
+        'Enable dark mode'
+      ];
+      break;
+    }
+
+    // ============================================================
+    // 4. GENERAL CONVERSATION (Thank you, small talk, technical topics)
+    // ============================================================
+    case INTENT_TYPES.GENERAL_CONVERSATION: {
+      if (subIntent === 'GRATITUDE') {
+        message = "You're welcome! Happy to help. 😊";
+        suggestions = ['Show my projects', 'What can you do?', 'Open RSK Traders'];
+      } else if (subIntent === 'STATUS_CHECK') {
+        message = "I'm running smoothly at 100% and ready to assist! How are things with you?";
+        suggestions = ['What can you do?', 'Show my projects', 'Open RSK Traders'];
+      } else if (subIntent === 'FAREWELL') {
+        message = "Goodbye! Feel free to summon me anytime you need assistance in KAMVERSE. 👋";
+        suggestions = ['Hi', 'Open RSK Traders', 'Show my projects'];
+      } else if (subIntent === 'AFFIRMATION') {
+        message = "Glad to hear! Let me know what you'd like to explore next.";
+        suggestions = ['Show my projects', 'Open RSK Traders', 'Tile windows'];
+      } else if (subIntent === 'EXPLAIN_REACT') {
+        message = "React is an open-source JavaScript library developed by Meta for building dynamic, interactive user interfaces using reusable components and declarative state. It forms the core foundation of KAMVERSE and Kamalesh's frontend architecture!";
+        suggestions = ['What is Python?', 'Show my projects', 'What technologies does he use?'];
+      } else if (subIntent === 'EXPLAIN_PYTHON') {
+        message = "Python is an intuitive, high-level programming language renowned for its clean syntax, versatility, and rich ecosystem across backend web development, AI, automation, and data engineering.";
+        suggestions = ['Show Python projects', 'What is Django?', 'Open JobSphere'];
+      } else if (subIntent === 'EXPLAIN_DJANGO') {
+        message = "Django is a high-level Python web framework designed for rapid development and clean, pragmatic architecture. Kamalesh leverages Django and Django REST Framework for robust, scalable backend platforms like College ERP.";
+        suggestions = ['Show Python projects', 'Open College ERP', 'What is React?'];
+      } else if (subIntent === 'EXPLAIN_TAILWIND') {
+        message = "Tailwind CSS is a utility-first CSS framework that allows engineers to compose beautiful, responsive custom designs directly in HTML without writing repetitive stylesheets. It powers KAMVERSE's crisp Neo-Brutalist design tokens!";
+        suggestions = ['What is Neo-Brutalism?', 'Show my projects', 'What is React?'];
+      } else if (subIntent === 'EXPLAIN_NEO_BRUTALISM') {
+        message = "Neo-Brutalism is a bold modern design aesthetic characterized by vibrant saturated colors (like our signature #F5F04E yellow), thick black borders (#151515), hard offset drop shadows, and expressive typography that stand out against conventional muted UI design.";
+        suggestions = ['Switch to dark theme', 'Open RSK Traders', 'Show my projects'];
+      }
+      break;
+    }
+
+    // ============================================================
+    // 5. PROJECT QUESTIONS (Inquiries without command)
+    // ============================================================
+    case INTENT_TYPES.PROJECT_QUESTION: {
+      if (lower.includes('rsk') || lower.includes('traders')) {
+        message = "RSK TRADERS is an international import & export enterprise platform engineered by Kamalesh for global trade, commodity logistics, and supply chain operations. Would you like me to open it?";
+        suggestions = ['Open RSK Traders', 'Show my projects', 'What technologies does he use?'];
+      } else if (lower.includes('jobsphere')) {
+        message = "JobSphere is a modern tech job aggregation platform featuring AI candidate matching, salary analytics, and applicant tracking. Engineered with React and Django.";
+        suggestions = ['Open JobSphere', 'Show Python projects', 'Show my projects'];
+      } else if (lower.includes('college') || lower.includes('erp')) {
+        message = "College ERP is an institutional campus management system handling student records, faculty modules, fee processing, and examinations for over 10,000 users.";
+        suggestions = ['Open College ERP', 'Show Python projects', 'Show my projects'];
+      } else if (lower.includes('skills') || lower.includes('technologies') || lower.includes('tech stack')) {
+        message = "Kamalesh's core stack includes React, Tailwind CSS, JavaScript (ESNext), Python, Django, Django REST Framework, PostgreSQL, and scalable design systems. I can open his skills view if you'd like!";
+        suggestions = ['Open About page', 'Show my projects', 'Show Python projects'];
+      } else {
+        message = "Kamalesh has engineered 6 flagship applications and 13 public repositories spanning enterprise systems, e-commerce, and SaaS platforms.";
+        suggestions = ['Show my projects', 'Open RSK Traders', 'What can you do?'];
+      }
+      break;
+    }
+
+    // ============================================================
+    // 6. WORKSPACE COMMANDS
+    // ============================================================
+    case INTENT_TYPES.WORKSPACE_COMMAND: {
+      if (subIntent === 'MULTI_OPEN_ARRANGE') {
+        const appsToOpen = [];
+        if (lower.includes('rsk') || lower.includes('trader')) appsToOpen.push({ id: 'rsk-traders', name: 'RSK Traders' });
+        if (lower.includes('photo') || lower.includes('camera')) appsToOpen.push({ id: 'photography', name: 'Photography' });
+        if (lower.includes('jewel') || lower.includes('gold')) appsToOpen.push({ id: 'jewellery', name: 'Gold Jewellery' });
+        if (lower.includes('restaurant') || lower.includes('food')) appsToOpen.push({ id: 'restaurant', name: 'Restaurant' });
+        if (lower.includes('job') || lower.includes('sphere')) appsToOpen.push({ id: 'jobsphere', name: 'JobSphere' });
+        if (lower.includes('erp') || lower.includes('college')) appsToOpen.push({ id: 'college-erp', name: 'College ERP' });
+
+        if (appsToOpen.length >= 2) {
+          appsToOpen.forEach(app => {
+            actions.push({
+              type: 'OPEN_APPLICATION',
+              value: app.id,
+              payload: { applicationId: app.id }
+            });
+          });
+          actions.push({
+            type: 'ARRANGE_WINDOWS',
+            value: 'side-by-side',
+            payload: { mode: 'side-by-side' }
+          });
+          message = `Opened ${appsToOpen.map(a => a.name).join(' and ')} and arranged them side by side on your screen!`;
+          suggestions = ['Tile windows', 'Close all windows', 'Show my projects'];
+        } else {
+          message = "Please specify at least two applications to arrange side by side (e.g. RSK Traders and Photography).";
+          suggestions = ['Open RSK Traders and Photography side by side', 'Show my projects'];
+        }
+      } else if (subIntent === 'OPEN_APP') {
+        let targetId = 'rsk-traders';
+        let targetName = 'RSK Traders';
+        if (lower.includes('photo') || lower.includes('camera')) { targetId = 'photography'; targetName = 'Photography'; }
+        else if (lower.includes('jewel') || lower.includes('gold')) { targetId = 'jewellery'; targetName = 'Gold Jewellery'; }
+        else if (lower.includes('restaurant') || lower.includes('food')) { targetId = 'restaurant'; targetName = 'Restaurant'; }
+        else if (lower.includes('job') || lower.includes('sphere')) { targetId = 'jobsphere'; targetName = 'JobSphere'; }
+        else if (lower.includes('erp') || lower.includes('college')) { targetId = 'college-erp'; targetName = 'College ERP'; }
+
         actions.push({
           type: 'OPEN_APPLICATION',
-          payload: { applicationId: appId }
+          value: targetId,
+          payload: { applicationId: targetId }
         });
-      });
-      actions.push({
-        type: 'ARRANGE_WINDOWS',
-        payload: { mode: 'side-by-side' }
-      });
-
-      return {
-        text: `Opened both applications and arranged them side by side on your screen. You can interact with both workspaces simultaneously!`,
-        actions,
-        action: actions[0],
-        suggestions: ['Tile windows', 'Cascade windows', 'Close all windows', 'Take me home']
-      };
+        message = `Opening ${targetName} now!`;
+        suggestions = ['Tile windows', 'Show my projects', 'Close all windows'];
+      } else if (subIntent === 'OPEN_PROJECTS') {
+        actions.push({
+          type: 'NAVIGATE',
+          value: 'projects',
+          payload: { view: 'projects' }
+        });
+        message = `Opening your Projects Explorer! You can explore all ${gitHubProjects.length || 13} public repositories and live projects.`;
+        suggestions = ['Show Python projects', 'Open RSK Traders', 'Open Live Activity Center'];
+      } else if (subIntent === 'ARRANGE_SIDE_BY_SIDE') {
+        actions.push({
+          type: 'ARRANGE_WINDOWS',
+          value: 'side-by-side',
+          payload: { mode: 'side-by-side' }
+        });
+        message = "Arranged your active workspace windows side by side in split columns.";
+        suggestions = ['Tile windows', 'Cascade windows', 'Close all windows'];
+      } else if (subIntent === 'CASCADE') {
+        actions.push({
+          type: 'CASCADE_WINDOWS',
+          value: 'cascade',
+          payload: {}
+        });
+        message = "Cascaded all open windows with diagonal progressive stacking.";
+        suggestions = ['Tile windows', 'Arrange side by side', 'Show desktop'];
+      } else if (subIntent === 'TILE') {
+        actions.push({
+          type: 'TILE_WINDOWS',
+          value: 'tile',
+          payload: {}
+        });
+        message = "Tiled all active windows into a balanced desktop grid.";
+        suggestions = ['Arrange side by side', 'Cascade windows', 'Close all windows'];
+      } else if (subIntent === 'CLOSE_ALL') {
+        actions.push({ type: 'CLOSE_ALL_WINDOWS', value: 'all', payload: {} });
+        message = "Closed all active windows and cleared your workspace.";
+        suggestions = ['Open RSK Traders', 'Show my projects', 'Who is Kamalesh?'];
+      } else if (subIntent === 'MINIMIZE_ALL') {
+        actions.push({ type: 'MINIMIZE_ALL_WINDOWS', value: 'all', payload: {} });
+        message = "Minimized all windows down to the KAMVERSE desktop canvas.";
+        suggestions = ['Show my projects', 'Open RSK Traders', 'Tile windows'];
+      } else if (subIntent === 'THEME_DARK') {
+        actions.push({ type: 'SET_THEME', value: 'dark', payload: { theme: 'dark' } });
+        message = "Activated the Midnight Dark theme (#151515). High-contrast dark visuals are now active.";
+        suggestions = ['Switch to yellow theme', 'Switch to light theme', 'Open RSK Traders'];
+      } else if (subIntent === 'THEME_LIGHT') {
+        actions.push({ type: 'SET_THEME', value: 'light', payload: { theme: 'light' } });
+        message = "Activated the Clean Light theme (#F5F5F0) for daytime clarity.";
+        suggestions = ['Switch to yellow theme', 'Enable dark mode', 'Show my projects'];
+      } else if (subIntent === 'THEME_YELLOW') {
+        actions.push({ type: 'SET_THEME', value: 'yellow', payload: { theme: 'yellow' } });
+        message = "Restored the signature Neo-Brutalist Yellow theme (#F5F04E).";
+        suggestions = ['Enable dark mode', 'Show my projects', 'Open RSK Traders'];
+      } else if (subIntent === 'DOCK_HIDE') {
+        actions.push({ type: 'SET_DOCK_VISIBILITY', value: false, payload: { visible: false } });
+        message = "Hidden the bottom macOS dock to give you maximum canvas space.";
+        suggestions = ['Show dock', 'Open RSK Traders', 'Show my projects'];
+      } else if (subIntent === 'DOCK_SHOW') {
+        actions.push({ type: 'SET_DOCK_VISIBILITY', value: true, payload: { visible: true } });
+        message = "Bottom macOS dock is now visible.";
+        suggestions = ['Hide dock', 'Show my projects', 'Tile windows'];
+      } else if (subIntent === 'FILTER_PYTHON') {
+        actions.push({ type: 'FILTER_PROJECTS', value: 'Python', payload: { language: 'Python' } });
+        message = "Navigated to Projects Explorer and applied the Python filter!";
+        suggestions = ['Show my projects', 'Open JobSphere', 'Open College ERP'];
+      } else if (subIntent === 'FILTER_REACT') {
+        actions.push({ type: 'FILTER_PROJECTS', value: 'JavaScript', payload: { language: 'JavaScript' } });
+        message = "Navigated to Projects Explorer with the React / JavaScript filter applied!";
+        suggestions = ['Show my projects', 'Open RSK Traders', 'Show Python projects'];
+      } else if (subIntent === 'FILTER_FEATURED') {
+        actions.push({ type: 'SHOW_FEATURED_PROJECTS', value: 'featured', payload: { featuredOnly: true } });
+        message = "Showing Kamalesh's featured flagship applications in the Projects Explorer!";
+        suggestions = ['Show my projects', 'Open RSK Traders', 'Show Python projects'];
+      } else if (subIntent === 'NAV_TERMINAL') {
+        actions.push({ type: 'NAVIGATE', value: 'terminal', payload: { view: 'terminal' } });
+        message = "Opening the interactive Developer Terminal for you!";
+        suggestions = ['Show my projects', 'Take me home', 'Tile windows'];
+      } else if (subIntent === 'NAV_CONTACT') {
+        actions.push({ type: 'NAVIGATE', value: 'contact', payload: { view: 'contact' } });
+        message = `Opening the Contact portal. You can reach Kamalesh at ${PROFILE.email}.`;
+        suggestions = ['Who is Kamalesh?', 'Show my projects', 'Open RSK Traders'];
+      } else if (subIntent === 'NAV_ABOUT') {
+        actions.push({ type: 'NAVIGATE', value: 'about', payload: { view: 'about' } });
+        message = "Opening About Kamalesh profile window.";
+        suggestions = ['What technologies does he use?', 'Show my projects', 'Contact Kamalesh'];
+      } else if (subIntent === 'NAV_ACTIVITY') {
+        actions.push({ type: 'NAVIGATE', value: 'activity', payload: { view: 'activity' } });
+        message = "Opening the Live GitHub Activity Center. You can review latest commits, the 52-week contribution heatmap, and repository metrics in real-time!";
+        suggestions = ['Show my projects', 'Open RSK Traders', 'Who is Kamalesh?'];
+      }
+      break;
     }
-  }
 
-  // ============================================================
-  // 2. CLOSE EVERYTHING & GO HOME
-  // ============================================================
-  if (
-    (p.includes('close everything') || p.includes('close all')) && 
-    (p.includes('home') || p.includes('desktop') || p.includes('take me'))
-  ) {
-    actions.push({ type: 'CLOSE_ALL_WINDOWS' });
-    actions.push({ type: 'NAVIGATE', payload: { view: 'desktop' } });
-    return {
-      text: `Closed all active windows and returned you to the main KAMVERSE home screen.`,
-      actions,
-      action: actions[0],
-      suggestions: ['Open RSK Traders', 'Show all projects', 'Open Developer Terminal']
-    };
-  }
-
-  // ============================================================
-  // 3. WINDOW ARRANGEMENT COMMANDS
-  // ============================================================
-  if (p.includes('side by side') || p.includes('split screen') || p.includes('arrange horizontally')) {
-    actions.push({ type: 'ARRANGE_WINDOWS', payload: { mode: 'side-by-side' } });
-    return {
-      text: `Arranged all open windows side by side.`,
-      actions,
-      action: actions[0],
-      suggestions: ['Cascade windows', 'Tile windows in a grid', 'Minimize all windows']
-    };
-  }
-
-  if (p.includes('cascade') || p.includes('stagger')) {
-    actions.push({ type: 'CASCADE_WINDOWS', payload: { mode: 'cascade' } });
-    return {
-      text: `Cascaded your open windows diagonally with clean overlapping headers.`,
-      actions,
-      action: actions[0],
-      suggestions: ['Arrange side by side', 'Tile windows', 'Close all windows']
-    };
-  }
-
-  if (p.includes('tile') || p.includes('grid view') || p.includes('arrange in grid')) {
-    actions.push({ type: 'TILE_WINDOWS', payload: { mode: 'tile' } });
-    return {
-      text: `Tiled your active windows into a balanced desktop grid.`,
-      actions,
-      action: actions[0],
-      suggestions: ['Arrange side by side', 'Cascade windows', 'Close all windows']
-    };
-  }
-
-  if (p.includes('close all windows') || p.includes('close all apps') || p === 'close all') {
-    actions.push({ type: 'CLOSE_ALL_WINDOWS' });
-    return {
-      text: `All open windows have been closed. Your workspace is clear.`,
-      actions,
-      action: actions[0],
-      suggestions: ['Open RSK Traders', 'Show all projects', 'Open About page']
-    };
-  }
-
-  if (p.includes('minimize all') || p.includes('clear screen') || p === 'go to desktop' || p === 'take me home') {
-    actions.push({ type: 'MINIMIZE_ALL_WINDOWS' });
-    actions.push({ type: 'NAVIGATE', payload: { view: 'desktop' } });
-    return {
-      text: `Minimized all windows. You are now at the desktop canvas.`,
-      actions,
-      action: actions[0],
-      suggestions: ['Open RSK Traders', 'Show all projects', 'Show dock']
-    };
-  }
-
-  // ============================================================
-  // 4. THEME CONTROLS
-  // ============================================================
-  if (p.includes('brighter') || p.includes('light mode') || p.includes('light theme')) {
-    actions.push({ type: 'SET_THEME', payload: { theme: 'light' } });
-    return {
-      text: `Light mode enabled. The interface is now bright and crisp!`,
-      actions,
-      action: actions[0],
-      suggestions: ['Enable dark mode', 'Enable yellow theme', 'Show all projects']
-    };
-  }
-
-  if (p.includes('dark mode') || p.includes('dark theme') || p.includes('darker')) {
-    actions.push({ type: 'SET_THEME', payload: { theme: 'dark' } });
-    return {
-      text: `Dark mode enabled with high-contrast jet black surfaces.`,
-      actions,
-      action: actions[0],
-      suggestions: ['Enable light mode', 'Enable yellow theme', 'Open RSK Traders']
-    };
-  }
-
-  if (p.includes('yellow theme') || p.includes('neo-brutalist theme') || p.includes('reset theme')) {
-    actions.push({ type: 'SET_THEME', payload: { theme: 'yellow' } });
-    return {
-      text: `Reset theme to the official KAMVERSE Canary Yellow Neo-Brutalist look!`,
-      actions,
-      action: actions[0],
-      suggestions: ['Enable light mode', 'Enable dark mode', 'Open RSK Traders']
-    };
-  }
-
-  // ============================================================
-  // 5. DOCK VISIBILITY
-  // ============================================================
-  if (p.includes('hide dock') || p.includes('hide the dock')) {
-    actions.push({ type: 'SET_DOCK_VISIBILITY', payload: { visible: false } });
-    return {
-      text: `The dock is now hidden for an uncluttered workspace view. Say "Show dock" whenever you want it back!`,
-      actions,
-      action: actions[0],
-      suggestions: ['Show dock', 'Show all projects', 'Open Developer Terminal']
-    };
-  }
-
-  if (p.includes('show dock') || p.includes('show the dock')) {
-    actions.push({ type: 'SET_DOCK_VISIBILITY', payload: { visible: true } });
-    return {
-      text: `The bottom dock is now visible.`,
-      actions,
-      action: actions[0],
-      suggestions: ['Hide dock', 'Open RSK Traders', 'Show Python projects']
-    };
-  }
-
-  // ============================================================
-  // 6. SPECIFIC WINDOW CLOSE / MINIMIZE / MAXIMIZE ACTIONS
-  // ============================================================
-  // Close specific application
-  if (p.startsWith('close ') || p.startsWith('exit ')) {
-    const targetQuery = p.replace(/^(close|exit)\s+/, '').replace(/\s+(website|app|application|window)$/, '').trim();
-    actions.push({
-      type: 'CLOSE_APPLICATION',
-      payload: { applicationId: targetQuery }
-    });
-    return {
-      text: `Closing ${targetQuery} window as requested.`,
-      actions,
-      action: actions[0],
-      suggestions: ['Show all projects', 'Open RSK Traders', 'Take me home']
-    };
-  }
-
-  // Maximize specific application
-  if (p.startsWith('maximize ') || p.includes('full screen') || p.includes('fullscreen')) {
-    const targetQuery = p.replace(/^maximize\s+/, '').replace(/\s+(full\s*screen|window|app)$/, '').trim() || 'rsk-traders';
-    actions.push({
-      type: 'MAXIMIZE_APPLICATION',
-      payload: { applicationId: targetQuery }
-    });
-    return {
-      text: `Maximized the window to full screen view.`,
-      actions,
-      action: actions[0],
-      suggestions: ['Tile windows', 'Side by side', 'Close all windows']
-    };
-  }
-
-  // Minimize specific application
-  if (p.startsWith('minimize ')) {
-    const targetQuery = p.replace(/^minimize\s+/, '').replace(/\s+(window|app)$/, '').trim();
-    actions.push({
-      type: 'MINIMIZE_APPLICATION',
-      payload: { applicationId: targetQuery }
-    });
-    return {
-      text: `Minimized ${targetQuery} window down to the desktop.`,
-      actions,
-      action: actions[0],
-      suggestions: ['Open RSK Traders', 'Show all projects']
-    };
-  }
-
-  // ============================================================
-  // 7. APPLICATION LAUNCHES (Single App)
-  // ============================================================
-  // A. RSK Traders
-  if (p.includes('rsk') || p.includes('import') || p.includes('export') || p.includes('commodity trade')) {
-    actions.push({
-      type: 'OPEN_APPLICATION',
-      payload: { applicationId: 'rsk-traders' }
-    });
-    return {
-      text: `RSK Traders is now open. Explore the application!`,
-      actions,
-      action: actions[0],
-      suggestions: ['Open JobSphere', 'Show all projects', 'Arrange side by side']
-    };
-  }
-
-  // B. Photography
-  if (p.includes('photography') || p.includes('camera') || p.includes('studio') || p.includes('kavin')) {
-    actions.push({
-      type: 'OPEN_APPLICATION',
-      payload: { applicationId: 'photography' }
-    });
-    return {
-      text: `Photography studio is now open. Explore the application!`,
-      actions,
-      action: actions[0],
-      suggestions: ['Open Gold Jewellery', 'Open RSK Traders', 'Show all projects']
-    };
-  }
-
-  // C. Gold Jewellery
-  if (p.includes('jewellery') || p.includes('jewelry') || p.includes('gold') || p.includes('bullion')) {
-    actions.push({
-      type: 'OPEN_APPLICATION',
-      payload: { applicationId: 'jewellery' }
-    });
-    return {
-      text: `Gold Jewellery website is now open. Explore the application!`,
-      actions,
-      action: actions[0],
-      suggestions: ['Open Restaurant', 'Open RSK Traders', 'Show all projects']
-    };
-  }
-
-  // D. Restaurant
-  if (p.includes('restaurant') || p.includes('food') || p.includes('dining') || p.includes('menu')) {
-    actions.push({
-      type: 'OPEN_APPLICATION',
-      payload: { applicationId: 'restaurant' }
-    });
-    return {
-      text: `Restaurant website is now open. Explore the application!`,
-      actions,
-      action: actions[0],
-      suggestions: ['Open College ERP', 'Open RSK Traders', 'Show all projects']
-    };
-  }
-
-  // E. JobSphere
-  if (p.includes('jobsphere') || p.includes('job') || p.includes('career portal') || p.includes('hiring')) {
-    actions.push({
-      type: 'OPEN_APPLICATION',
-      payload: { applicationId: 'jobsphere' }
-    });
-    return {
-      text: `JobSphere is now open. Explore the application!`,
-      actions,
-      action: actions[0],
-      suggestions: ['Show Python projects', 'Open College ERP', 'Show all projects']
-    };
-  }
-
-  // F. College ERP
-  if (p.includes('college') || p.includes('erp') || p.includes('campus') || p.includes('student management')) {
-    actions.push({
-      type: 'OPEN_APPLICATION',
-      payload: { applicationId: 'college-erp' }
-    });
-    return {
-      text: `College ERP is now open. Explore the application!`,
-      actions,
-      action: actions[0],
-      suggestions: ['Show Python projects', 'Show all projects', 'Open RSK Traders']
-    };
-  }
-
-  // ============================================================
-  // 8. PROJECT FILTERS & DISCOVERY
-  // ============================================================
-  // React projects
-  if (p.includes('react projects') || p.includes('show react') || p.includes('react only')) {
-    actions.push({
-      type: 'FILTER_PROJECTS',
-      payload: { language: 'JavaScript', query: 'react' }
-    });
-    return {
-      text: `Filtered projects to display Kamalesh's React applications.`,
-      actions,
-      action: actions[0],
-      suggestions: ['Show Python projects', 'Show all projects', 'Open RSK Traders']
-    };
-  }
-
-  // Python / Django projects
-  if (p.includes('python') || p.includes('django')) {
-    actions.push({
-      type: 'FILTER_PROJECTS',
-      payload: { language: 'Python' }
-    });
-    return {
-      text: `Filtered Projects Explorer to show all Python and Django platforms.`,
-      actions,
-      action: actions[0],
-      suggestions: ['Open College ERP', 'Open JobSphere', 'Show all projects']
-    };
-  }
-
-  // Featured projects
-  if (p.includes('featured')) {
-    actions.push({
-      type: 'SHOW_FEATURED_PROJECTS',
-      payload: { featured: true }
-    });
-    return {
-      text: `Displaying featured flagship projects in Projects Explorer.`,
-      actions,
-      action: actions[0],
-      suggestions: ['Show all projects', 'Open RSK Traders', 'Who is Kamalesh?']
-    };
-  }
-
-  // Search projects by keyword
-  if (p.startsWith('search projects for') || p.startsWith('find project') || p.startsWith('search ')) {
-    const q = p.replace(/^(search projects for|find project|search)\s+/, '').trim();
-    actions.push({
-      type: 'SEARCH_PROJECTS',
-      payload: { query: q }
-    });
-    return {
-      text: `Searching projects for "${q}".`,
-      actions,
-      action: actions[0],
-      suggestions: ['Show all projects', 'Show Python projects', 'Take me to GitHub']
-    };
-  }
-
-  // Show all projects / Projects Explorer
-  if (p.includes('all projects') || p.includes('show projects') || p.includes('browse projects') || p.includes('repositories') || p.includes('project explorer')) {
-    actions.push({
-      type: 'NAVIGATE',
-      payload: { view: 'projects' }
-    });
-    return {
-      text: `Projects Explorer is now open with all ${gitHubProjects.length || 13} synchronized repositories.`,
-      actions,
-      action: actions[0],
-      suggestions: ['Show Python projects', 'Open RSK Traders', 'Take me to GitHub']
-    };
-  }
-
-  // ============================================================
-  // 9. NAVIGATION (About, Contact, Terminal, GitHub)
-  // ============================================================
-  // Who is Kamalesh / About
-  if (p.includes('who is kamalesh') || p.includes('about kamalesh') || p.includes('bio') || p.includes('experience') || p.includes('background') || p === 'about') {
-    actions.push({
-      type: 'NAVIGATE',
-      payload: { view: 'about' }
-    });
-    return {
-      text: `Opened Kamalesh's profile window. He is a Senior UI/UX Designer & Full-Stack Developer with 8+ years of experience!`,
-      actions,
-      action: actions[0],
-      suggestions: ['What technologies does he use?', 'Contact Kamalesh', 'Show all projects']
-    };
-  }
-
-  // Skills / Tech stack
-  if (p.includes('skills') || p.includes('technologies') || p.includes('tech stack') || p.includes('what technologies')) {
-    actions.push({
-      type: 'NAVIGATE',
-      payload: { view: 'about' }
-    });
-    return {
-      text: `Kamalesh's core stack includes React, Tailwind CSS, Python/Django, PostgreSQL, and Neo-Brutalist design systems. Opened his skills view!`,
-      actions,
-      action: actions[0],
-      suggestions: ['Show Python projects', 'Show all projects', 'Open RSK Traders']
-    };
-  }
-
-  // Contact / Hire
-  if (p.includes('contact') || p.includes('hire') || p.includes('email') || p.includes('reach out') || p.includes('collaborate')) {
-    actions.push({
-      type: 'NAVIGATE',
-      payload: { view: 'contact' }
-    });
-    return {
-      text: `Opened the Contact portal. You can reach Kamalesh at ${PROFILE.email}.`,
-      actions,
-      action: actions[0],
-      suggestions: ['Who is Kamalesh?', 'Show all projects', 'Open Developer Terminal']
-    };
-  }
-
-  // Developer Terminal
-  if (p.includes('terminal') || p.includes('cli') || p.includes('command line') || p.includes('console')) {
-    actions.push({
-      type: 'NAVIGATE',
-      payload: { view: 'terminal' }
-    });
-    return {
-      text: `Developer Terminal is now active. Type 'help', 'repos', or 'apps' inside the CLI!`,
-      actions,
-      action: actions[0],
-      suggestions: ['Show all projects', 'Take me home', 'Tile windows']
-    };
-  }
-
-  // Live GitHub Activity Center / Commits / Heatmap
-  if (p.includes('activity') || p.includes('commit') || p.includes('heatmap') || p.includes('activity center') || p.includes('contribution')) {
-    actions.push({
-      type: 'NAVIGATE',
-      payload: { view: 'activity' }
-    });
-    return {
-      text: `Opening the Live GitHub Activity Center. You can review latest commits, the 52-week contribution heatmap, and repository metrics in real-time!`,
-      actions,
-      action: actions[0],
-      suggestions: ['Show all projects', 'Open RSK Traders', 'Who is Kamalesh?']
-    };
-  }
-
-  // GitHub Profile
-  if (p.includes('github') || p.includes('git profile') || p.includes('open github') || p.includes('take me to github')) {
-    actions.push({
-      type: 'OPEN_GITHUB',
-      payload: { url: GITHUB_PROFILE_URL }
-    });
-    return {
-      text: `Opening Kamalesh's official GitHub profile (@${GITHUB_USERNAME}) in a secure new tab.`,
-      actions,
-      action: actions[0],
-      suggestions: ['Show all projects', 'Who is Kamalesh?', 'Open RSK Traders']
-    };
-  }
-
-  // Specific repo match
-  if (gitHubProjects && gitHubProjects.length > 0) {
-    const matchingRepo = gitHubProjects.find(r => 
-      p.includes(r.name.toLowerCase()) || 
-      (r.displayName && p.includes(r.displayName.toLowerCase()))
-    );
-    if (matchingRepo) {
-      actions.push({
-        type: 'OPEN_PROJECT_DETAILS',
-        payload: { repoName: matchingRepo.name }
-      });
-      return {
-        text: `Found repository "${matchingRepo.displayName || matchingRepo.name}". Opening its specification and README viewer!`,
-        actions,
-        action: actions[0],
-        suggestions: ['Show all projects', 'Show Python projects', 'Take me to GitHub']
-      };
+    // ============================================================
+    // 7. GITHUB QUESTIONS & ACTIONS
+    // ============================================================
+    case INTENT_TYPES.GITHUB_QUESTION: {
+      if (subIntent === 'OPEN_GITHUB') {
+        actions.push({
+          type: 'OPEN_GITHUB',
+          value: GITHUB_PROFILE_URL,
+          payload: { url: GITHUB_PROFILE_URL }
+        });
+        message = `Opening Kamalesh's official GitHub profile (@${GITHUB_USERNAME}) in a secure new tab.`;
+        suggestions = ['Show my projects', 'Open Live Activity Center', 'Who is Kamalesh?'];
+      } else {
+        message = `Kamalesh's GitHub username is @${GITHUB_USERNAME}. He has ${gitHubProjects.length || 13} public repositories synchronized in KAMVERSE. Would you like me to open his GitHub profile or the Live Activity Center?`;
+        suggestions = ['Open Live Activity Center', 'Open GitHub', 'Show my projects'];
+      }
+      break;
     }
-  }
 
-  // Greet / General intro
-  if (/^(hi|hello|hey|who are you|what can you do)/i.test(p)) {
-    return {
-      text: `Hello! I am **KAM AI**, your workspace operator. You can control the entire KAMVERSE interface using natural voice or text commands!
+    // ============================================================
+    // 8. HELP REQUEST
+    // ============================================================
+    case INTENT_TYPES.HELP_REQUEST: {
+      message = "You can chat with me normally, ask about Kamalesh's experience and technologies, or command me to control the workspace:\n\n• Open applications (e.g. *'Open RSK Traders'*)\n• Multi-window arrange (*'Open RSK Traders and Photography side by side'*)\n• Window layouts (*'Tile windows'*, *'Cascade windows'*, *'Close all'*)\n• Themes (*'Enable dark mode'*, *'Yellow theme'*)\n• Exploration (*'Show my projects'*, *'Show latest commits'*)\n\nWhat would you like to do?";
+      suggestions = ['Open RSK Traders', 'Show my projects', 'Who is Kamalesh?'];
+      break;
+    }
 
-Try saying:
-• *"Open RSK Traders and Photography side by side"*
-• *"Show only my React projects"*
-• *"Make the interface brighter"*
-• *"Tile my active windows"*
-• *"Close everything and take me to the home screen"*
-
-What would you like me to do?`,
-      actions: [],
-      action: null,
-      suggestions: [
+    // ============================================================
+    // 9. UNKNOWN
+    // ============================================================
+    case INTENT_TYPES.UNKNOWN:
+    default: {
+      message = "I'm not completely sure about that. You can chat with me, ask about Kamalesh's projects, or ask me to open and arrange workspace applications!";
+      suggestions = [
+        'What can you do?',
         'Open RSK Traders',
-        'Show all projects',
-        'Show Python projects',
-        'Make the interface brighter',
-        'Tile windows'
-      ]
-    };
+        'Show my projects',
+        'Who is Kamalesh?'
+      ];
+      break;
+    }
   }
 
-  // Default helpful response
   return {
-    text: `I'm ready to control the workspace! You can tell me to open applications (*"Open RSK Traders"*), arrange windows (*"Tile windows"* or *"Side by side"*), switch themes (*"Enable light mode"*), or search projects (*"Show Python projects"*).`,
-    actions: [],
-    action: null,
-    suggestions: [
-      'Open RSK Traders',
-      'Show all projects',
-      'Tile windows',
-      'Make the interface brighter',
-      'Who is Kamalesh?'
-    ]
+    intent,
+    message,
+    text: message, // Backward compatibility
+    response: message, // Backward compatibility
+    actions,
+    action: actions[0] || null, // Backward compatibility
+    suggestions
   };
 };

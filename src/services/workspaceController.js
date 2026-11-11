@@ -91,6 +91,7 @@ export const executeSingleAction = (action, wm) => {
   const rawType = action.type.toUpperCase().trim();
   const canonicalType = ACTION_REGISTRY[rawType];
   const payload = action.payload || {};
+  const directValue = action.value || payload.value || '';
 
   if (!canonicalType) {
     return { success: false, message: `Action type "${rawType}" is not permitted by the registry.` };
@@ -117,7 +118,7 @@ export const executeSingleAction = (action, wm) => {
   switch (canonicalType) {
     // 1. APPLICATION COMMANDS
     case 'OPEN_APPLICATION': {
-      const targetQuery = payload.applicationId || payload.appId || payload.target || '';
+      const targetQuery = directValue || payload.applicationId || payload.appId || payload.target || '';
       const app = resolveApplication(targetQuery);
       if (app) {
         openWindow(app.id);
@@ -131,7 +132,7 @@ export const executeSingleAction = (action, wm) => {
     }
 
     case 'CLOSE_APPLICATION': {
-      const targetQuery = payload.applicationId || payload.appId || payload.target || '';
+      const targetQuery = directValue || payload.applicationId || payload.appId || payload.target || '';
       const app = resolveApplication(targetQuery);
       const targetId = app ? app.id : targetQuery.toLowerCase();
       if (windows[targetId]) {
@@ -142,7 +143,7 @@ export const executeSingleAction = (action, wm) => {
     }
 
     case 'MINIMIZE_APPLICATION': {
-      const targetQuery = payload.applicationId || payload.appId || payload.target || '';
+      const targetQuery = directValue || payload.applicationId || payload.appId || payload.target || '';
       const app = resolveApplication(targetQuery);
       const targetId = app ? app.id : targetQuery.toLowerCase();
       if (windows[targetId]) {
@@ -153,7 +154,7 @@ export const executeSingleAction = (action, wm) => {
     }
 
     case 'MAXIMIZE_APPLICATION': {
-      const targetQuery = payload.applicationId || payload.appId || payload.target || '';
+      const targetQuery = directValue || payload.applicationId || payload.appId || payload.target || '';
       const app = resolveApplication(targetQuery);
       const targetId = app ? app.id : targetQuery.toLowerCase();
       if (windows[targetId]) {
@@ -169,7 +170,7 @@ export const executeSingleAction = (action, wm) => {
     }
 
     case 'SWITCH_APPLICATION': {
-      const targetQuery = payload.applicationId || payload.appId || payload.target || '';
+      const targetQuery = directValue || payload.applicationId || payload.appId || payload.target || '';
       const app = resolveApplication(targetQuery);
       const targetId = app ? app.id : targetQuery.toLowerCase();
       if (windows[targetId]) {
@@ -180,7 +181,7 @@ export const executeSingleAction = (action, wm) => {
     }
 
     case 'OPEN_MULTIPLE_APPLICATIONS': {
-      const appList = payload.applications || payload.targets || [];
+      const appList = payload.applications || payload.targets || (directValue ? [directValue] : []);
       const opened = [];
       appList.forEach(q => {
         const a = resolveApplication(q);
@@ -212,7 +213,7 @@ export const executeSingleAction = (action, wm) => {
     case 'ARRANGE_WINDOWS':
     case 'CASCADE_WINDOWS':
     case 'TILE_WINDOWS': {
-      let mode = payload.mode || 'side-by-side';
+      let mode = directValue || payload.mode || 'side-by-side';
       if (canonicalType === 'CASCADE_WINDOWS') mode = 'cascade';
       if (canonicalType === 'TILE_WINDOWS') mode = 'tile';
       arrangeWindows(mode);
@@ -225,7 +226,7 @@ export const executeSingleAction = (action, wm) => {
 
     // 3. THEME COMMANDS
     case 'SET_THEME': {
-      let targetTheme = (payload.theme || 'yellow').toLowerCase().trim();
+      let targetTheme = (directValue || payload.theme || 'yellow').toLowerCase().trim();
       if (targetTheme === 'bright' || targetTheme === 'light') targetTheme = 'light';
       else if (targetTheme === 'dark' || targetTheme === 'midnight') targetTheme = 'dark';
       else targetTheme = 'yellow'; // default neo-brutalist yellow
@@ -259,11 +260,11 @@ export const executeSingleAction = (action, wm) => {
       openWindow('projects-window', { title: 'Projects Explorer', type: 'projects' });
       const filterDetail = {
         category: payload.category || null,
-        language: payload.language || payload.technology || null,
+        language: directValue || payload.language || payload.technology || null,
         searchQuery: payload.query || null
       };
       window.dispatchEvent(new CustomEvent('kamverse:filter-projects', { detail: filterDetail }));
-      const label = payload.language || payload.category || payload.query || 'Selected criteria';
+      const label = filterDetail.language || filterDetail.category || filterDetail.searchQuery || 'Selected criteria';
       return { 
         success: true, 
         message: `Filtered projects by: ${label}.`, 
@@ -273,7 +274,7 @@ export const executeSingleAction = (action, wm) => {
 
     case 'SEARCH_PROJECTS': {
       openWindow('projects-window', { title: 'Projects Explorer', type: 'projects' });
-      const q = payload.query || '';
+      const q = directValue || payload.query || '';
       window.dispatchEvent(new CustomEvent('kamverse:filter-projects', { detail: { searchQuery: q } }));
       return { success: true, message: `Searching projects for "${q}".`, target: q };
     }
@@ -285,7 +286,7 @@ export const executeSingleAction = (action, wm) => {
     }
 
     case 'OPEN_PROJECT_DETAILS': {
-      const repoQuery = (payload.repoName || payload.target || '').toLowerCase().trim();
+      const repoQuery = (directValue || payload.repoName || payload.target || '').toLowerCase().trim();
       const match = gitHubProjects.find(
         r => r.name.toLowerCase() === repoQuery ||
              (r.displayName && r.displayName.toLowerCase().includes(repoQuery)) ||
@@ -304,7 +305,7 @@ export const executeSingleAction = (action, wm) => {
 
     // 6. NAVIGATION COMMANDS
     case 'NAVIGATE': {
-      const view = (payload.view || payload.target || '').toLowerCase().trim();
+      const view = (directValue || payload.view || payload.target || '').toLowerCase().trim();
       if (view === 'desktop' || view === 'home') {
         minimizeAllWindows();
         return { success: true, message: 'Returned to the KAMVERSE desktop canvas.', target: 'Desktop' };
@@ -332,7 +333,7 @@ export const executeSingleAction = (action, wm) => {
 
     // 7. EXTERNAL ACTIONS
     case 'OPEN_GITHUB': {
-      const rawUrl = payload.url || (payload.repoName ? `https://github.com/${GITHUB_USERNAME}/${payload.repoName}` : GITHUB_PROFILE_URL);
+      const rawUrl = directValue || payload.url || (payload.repoName ? `https://github.com/${GITHUB_USERNAME}/${payload.repoName}` : GITHUB_PROFILE_URL);
       if (rawUrl.startsWith('https://github.com/')) {
         window.open(rawUrl, '_blank', 'noopener,noreferrer');
         return { success: true, message: 'Opened official GitHub repository in a new tab.', target: rawUrl };

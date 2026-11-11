@@ -18,6 +18,19 @@ import {
   Command
 } from 'lucide-react';
 
+const extractCleanDisplayMessage = (content) => {
+  if (!content) return '';
+  if (typeof content !== 'string') return String(content);
+  const trimmed = content.trim();
+  if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      return parsed.message || parsed.response || parsed.text || trimmed;
+    } catch (_) {}
+  }
+  return content;
+};
+
 const formatActionLabel = (action) => {
   if (!action || !action.type) return 'Workspace Action';
   const type = action.type.toUpperCase();
@@ -322,7 +335,7 @@ export const KamAIChatPanel = ({
               >
                 {/* Render lines cleanly */}
                 <div className="space-y-1.5 whitespace-pre-wrap">
-                  {msg.text}
+                  {extractCleanDisplayMessage(msg.text)}
                 </div>
 
                 {/* If action(s) were executed with this message */}

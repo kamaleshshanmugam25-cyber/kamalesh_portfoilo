@@ -29,9 +29,10 @@ export const getConversationId = () => {
  * 
  * @param {string} message - The visitor's message
  * @param {Array} gitHubProjects - Synced GitHub repositories from context
- * @returns {Promise<Object>} { response: string, action: Object|null, suggestions: Array<string> }
+ * @param {Array} history - Previous conversation messages for context
+ * @returns {Promise<Object>} { message: string, response: string, actions: Array<Object>, action: Object|null, suggestions: Array<string> }
  */
-export const sendAIMessage = async (message, gitHubProjects = []) => {
+export const sendAIMessage = async (message, gitHubProjects = [], history = []) => {
   const conversationId = getConversationId();
 
   try {
@@ -47,6 +48,7 @@ export const sendAIMessage = async (message, gitHubProjects = []) => {
       body: JSON.stringify({
         message,
         conversation_id: conversationId,
+        history: history.slice(-6).map(m => ({ sender: m.sender, text: m.text || m.message })),
         available_repos: gitHubProjects.map(r => ({
           name: r.name,
           displayName: r.displayName,
@@ -62,12 +64,15 @@ export const sendAIMessage = async (message, gitHubProjects = []) => {
     if (response.ok) {
       const data = await response.json();
       const actions = data.actions || (data.action ? [data.action] : []);
+      const cleanMessage = data.message || data.response || data.text || 'I processed your request.';
       return {
-        response: data.response || data.text || 'I processed your request.',
+        message: cleanMessage,
+        response: cleanMessage,
+        text: cleanMessage,
         actions,
         action: actions[0] || null,
         suggestions: data.suggestions || [
-          'Show all projects',
+          'Show my projects',
           'Open RSK Traders',
           'Who is Kamalesh?'
         ]
@@ -75,16 +80,18 @@ export const sendAIMessage = async (message, gitHubProjects = []) => {
     }
   } catch (err) {
     // Backend offline or request timed out; seamlessly route to local engine
-    // console.info('Django AI backend not reachable; running local knowledge engine.');
   }
 
   // Resilient fallback using the comprehensive Knowledge & Intent Engine
-  const localResult = queryKnowledgeEngine(message, gitHubProjects);
+  const localResult = queryKnowledgeEngine(message, gitHubProjects, history);
   const actions = localResult.actions || (localResult.action ? [localResult.action] : []);
+  const cleanMessage = localResult.message || localResult.text || localResult.response;
   return {
-    response: localResult.text,
+    message: cleanMessage,
+    response: cleanMessage,
+    text: cleanMessage,
     actions,
-    action: localResult.action || actions[0] || null,
+    action: actions[0] || null,
     suggestions: localResult.suggestions
   };
 };

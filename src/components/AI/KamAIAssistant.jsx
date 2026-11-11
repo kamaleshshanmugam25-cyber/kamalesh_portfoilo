@@ -9,27 +9,18 @@ const INITIAL_WELCOME_MESSAGE = {
   id: 'welcome',
   sender: 'ai',
   isWelcome: true,
-  text: `Hello! I am **KAM AI**, your Workspace Operator in KAMVERSE. ⚡
+  text: `Hey! I am **KAM AI**, your personal AI assistant and Workspace Operator in KAMVERSE. ⚡
 
-I can navigate and control the entire workspace using natural-language commands:
-• *"Open RSK Traders and Photography side-by-side"*
-• *"Tile windows in a grid"* or *"Cascade all windows"*
-• *"Show only React projects"*
-• *"Switch to dark theme"* or *"Reset theme"*
-• *"Hide dock"* or *"Show dock"*
-• *"Close all windows"*
-
-How can I configure your workspace today?`,
+You can chat with me naturally, ask about projects and technologies, or command me to control your workspace. What are we working on today?`,
   actions: []
 };
 
 const DEFAULT_SUGGESTIONS = [
-  'Open RSK Traders and Photography side-by-side',
-  'Show React projects',
-  'Tile windows in grid',
-  'Enable dark mode',
-  'Who is Kamalesh?',
-  'Close all windows'
+  'What can you do?',
+  'Open RSK Traders',
+  'Show my projects',
+  'Who created you?',
+  'Open RSK Traders and Photography side-by-side'
 ];
 
 export const KamAIAssistant = () => {
@@ -77,7 +68,7 @@ export const KamAIAssistant = () => {
 
     // 2. Fetch response from AI Service (Backend with automatic local fallback)
     try {
-      const result = await sendAIMessage(text, gitHubProjects);
+      const result = await sendAIMessage(text, gitHubProjects, messages);
       const actions = result.actions || (result.action ? [result.action] : []);
 
       // 3. Execution-first: Dispatch approved workspace actions through Controller
@@ -91,10 +82,11 @@ export const KamAIAssistant = () => {
       }
 
       // 4. Formulate clean user-facing response with action execution tags
+      const cleanText = result.message || result.response || result.text;
       const aiMsg = {
         id: 'ai_' + Date.now(),
         sender: 'ai',
-        text: result.response,
+        text: cleanText,
         actions: actions,
         action: actions[0] || null,
         executionReport
