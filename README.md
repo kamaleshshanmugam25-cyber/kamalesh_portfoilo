@@ -1,87 +1,75 @@
 # KAMALESH — Digital Ecosystem & Interactive Workspace
 
-A luxury, futuristic digital workspace combining a developer portfolio, interactive macOS-inspired desktop operating system, multi-website launcher, and in-window browser chrome.
+A luxury, futuristic digital workspace combining a developer portfolio, interactive macOS-inspired desktop operating system, live GitHub-powered project discovery engine, multi-website launcher, and in-window browser chrome.
 
 ---
 
 ## 🌟 Key Highlights
 
-- **Desktop Operating System Experience**: Movable, resizable, minimizable, and maximizable windows with active z-index focus management.
-- **macOS Floating Dock**: Magnification physics on cursor proximity, running indicator lights, and tooltips.
-- **6 Configurable Flagship Applications**:
-  1. **RSK Traders** (`https://rsktraders.co.in`) — Import & Export global trade portal.
-  2. **Photography Website** — Creative services & visual storytelling studio.
-  3. **Gold Jewellery Website** — Bespoke fine jewellery & luxury e-commerce.
-  4. **Restaurant Website** — Gourmet dining, digital reservations & culinary tasting.
-  5. **JobSphere** — Tech career aggregation & AI candidate matching platform.
-  6. **College ERP** — Unified institutional management suite.
-- **Internal Browser Engine**: In-window address bar, security SSL lock, reload, copy URL, and external tab link.
-- **X-Frame-Options Resilience**: Graceful fallback detection when third-party sites restrict iframe embedding. Never shows a blank white screen.
-- **Raycast Spotlight Command Palette (`⌘K` / `Ctrl+K`)**: Instant fuzzy search across apps, system commands, and portfolio views.
-- **Interactive Developer Terminal**: Built-in CLI running commands (`help`, `skills`, `whoami`, `apps`, `launch <id>`, `clear`).
-- **Projects Showcase & About Me**: Bento-grid project cards, animated technical skill meters, and direct contact portal with confetti celebration.
-- **Responsive Architecture**: Desktop multi-window workspace, tablet adaptive grid, and mobile-first full-screen sheets with bottom tab navigation.
+- **Live GitHub REST API Synchronization**:
+  - Automatically fetches all public repositories for [`kamaleshshanmugam25-cyber`](https://github.com/kamaleshshanmugam25-cyber).
+  - Retrieves real stars, forks, primary languages, topics, and updated dates.
+  - Zero token exposure (safe public REST API).
+  - Rate-limit resilient with 1-hour `localStorage` caching and static snapshot fallback.
+- **Intelligent Category Classifier**:
+  - Automatically organizes repositories into 6 clean domains:
+    1. **Business Websites** (`RSK-Traders`, `TrichyPreneurs`)
+    2. **E-commerce** (`peru-covering`)
+    3. **Enterprise Applications** (`College-Erp`, `school-ERP`)
+    4. **SaaS Platforms** (`Food-billing-software`, `3D-WEBNIAR-LEAD`)
+    5. **Web Applications** (`Kavin-fotography`, `Littlelemon`, `django-react-auth-Login-Page-`)
+    6. **Personal Projects** (`django_basic`, `demo`, `kamalesh`)
+- **Interactive Project Details Window**:
+  - Full animated window displaying real GitHub metadata, language breakdown percentage bar, and on-demand **README.md viewer** decoded straight from GitHub.
+- **Desktop Operating System Experience**:
+  - Movable, resizable, minimizable, and maximizable windows with active z-index focus management.
+  - Prominent **Cancel** buttons on every window header and internal browser toolbar.
+- **macOS Floating Dock**:
+  - Magnification physics on cursor proximity, running indicator lights, and tooltips.
+- **Internal Browser Engine**:
+  - In-window address bar, security SSL lock, reload, copy URL, and external tab link.
+  - Graceful fallback detection when third-party sites restrict iframe embedding (`X-Frame-Options`).
+- **Raycast Spotlight Command Palette (`⌘K` / `Ctrl+K`)**:
+  - Instant fuzzy search across apps, GitHub repositories, system commands, and portfolio views.
+- **Interactive Developer Terminal**:
+  - Built-in CLI running commands (`help`, `repos`, `whoami`, `skills`, `apps`, `launch <id>`, `clear`).
+
+---
+
+## ⚙️ Centralized Configuration
+
+All repository overrides, live deployment URLs, and featured flags are managed in one file:
+👉 [`src/config/projects.js`](file:///e:/Website/cetralized%20hub/src/config/projects.js)
+
+```javascript
+export const REPO_OVERRIDES = {
+  'RSK-Traders': {
+    displayName: 'RSK TRADERS',
+    category: 'Business Websites',
+    liveUrl: 'https://rsktraders.co.in',
+    featured: true
+  },
+  'Kavin-fotography': {
+    displayName: 'Kavin Photography',
+    category: 'Web Applications',
+    liveUrl: 'https://kavinphotography.vercel.app',
+    featured: true
+  },
+  ...
+};
+```
 
 ---
 
 ## 🚀 Quick Start
 
-### 1. Install Dependencies
 ```bash
+# 1. Install Dependencies
 npm install
-```
 
-### 2. Run Local Development Server
-```bash
+# 2. Run Local Development Server
 npm run dev
-```
 
-### 3. Build for Production
-```bash
+# 3. Build for Production
 npm run build
 ```
-
-### 4. Preview Production Build
-```bash
-npm run preview
-```
-
----
-
-## ⚙️ Adding & Updating Website URLs
-
-All application data is centralized in one file:
-👉 `src/config/applications.js`
-
-To update a website URL or set a live production domain:
-```javascript
-{
-  id: 'photography',
-  name: 'PHOTOGRAPHY WEBSITE',
-  shortName: 'Photography',
-  category: 'Photography & Creative Services',
-  url: 'https://your-photography-site.com', // Enter URL here
-  status: 'live', // Change status to 'live'
-  ...
-}
-```
-Any change here automatically updates the desktop icons, dock, search launcher, internal browser, and project showcase.
-
----
-
-## ⌨️ Keyboard Shortcuts
-
-| Shortcut | Action |
-|---|---|
-| `⌘K` / `Ctrl+K` | Open Raycast Command Palette |
-| `Escape` | Dismiss modal dialogs / command palette |
-| `Double Click` on Desktop Icon | Launch application in window |
-
----
-
-## 🌐 Deploy to Vercel
-
-This project is fully configured for zero-configuration Vercel deployment:
-1. Push this repository to GitHub/GitLab.
-2. Import the project in Vercel.
-3. Vercel will automatically detect `Vite`, run `npm run build`, and serve `dist` with `vercel.json` rewrite routing.
