@@ -27,7 +27,7 @@ export const WindowHeader = ({
             onClose();
           }}
           className="w-3 h-3 rounded-full bg-[#FF5F56] border border-[#E0443E] flex items-center justify-center transition-transform hover:scale-110"
-          title="Close Window"
+          title="Close Window (Cancel)"
         >
           {isTrafficHovered && <X className="w-2 h-2 text-black/70 stroke-[3]" />}
         </button>
@@ -77,21 +77,34 @@ export const WindowHeader = ({
         </div>
       </div>
 
-      {/* Right: Quick Maximize / Status indicator */}
-      <div className="flex items-center space-x-1 shrink-0">
+      {/* Right: Window Controls & Prominent Cancel Button */}
+      <div className="flex items-center space-x-2 shrink-0">
         <button
           onClick={(e) => {
             e.stopPropagation();
             onMaximize();
           }}
-          className="p-1 rounded text-workspace-muted hover:text-white hover:bg-white/[0.08] transition-colors"
+          className="p-1.5 rounded-lg text-workspace-muted hover:text-white hover:bg-white/[0.08] transition-colors"
           title={isMaximized ? "Restore Window" : "Maximize Window"}
         >
           {isMaximized ? (
-            <Minimize2 className="w-3 h-3" />
+            <Minimize2 className="w-3.5 h-3.5" />
           ) : (
-            <Maximize2 className="w-3 h-3" />
+            <Maximize2 className="w-3.5 h-3.5" />
           )}
+        </button>
+
+        {/* Dedicated Cancel Button */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }}
+          className="flex items-center space-x-1.5 px-3 py-1 rounded-lg bg-red-500/15 hover:bg-red-500/30 border border-red-500/30 hover:border-red-500/50 text-red-300 hover:text-white text-xs font-medium transition-all shadow-sm group active:scale-95"
+          title="Cancel and close window"
+        >
+          <X className="w-3.5 h-3.5 group-hover:rotate-90 transition-transform duration-200" />
+          <span className="text-[11px] font-semibold tracking-wide">Cancel</span>
         </button>
       </div>
     </div>

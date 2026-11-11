@@ -5,20 +5,20 @@ import { AboutMeModal } from '../Views/AboutMeModal';
 import { ContactModal } from '../Views/ContactModal';
 import { DeveloperTerminal } from '../Views/DeveloperTerminal';
 
-export const WindowBody = ({ windowItem }) => {
+export const WindowBody = ({ windowItem, onClose }) => {
   const { type, metadata } = windowItem;
 
   switch (type) {
     case 'projects':
-      return <ProjectsShowcase />;
+      return <ProjectsShowcase onClose={onClose} />;
     case 'about':
-      return <AboutMeModal />;
+      return <AboutMeModal onClose={onClose} />;
     case 'contact':
-      return <ContactModal />;
+      return <ContactModal onClose={onClose} />;
     case 'terminal':
-      return <DeveloperTerminal />;
+      return <DeveloperTerminal onClose={onClose} />;
     case 'app':
     default:
-      return <InternalBrowser app={metadata} />;
+      return <InternalBrowser app={metadata} onClose={onClose} />;
   }
 };

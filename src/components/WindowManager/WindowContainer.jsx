@@ -94,7 +94,10 @@ const SingleWindow = ({ windowItem }) => {
 
       {/* Window Body Container */}
       <div className="flex-1 w-full h-[calc(100%-2.25rem)] overflow-hidden relative bg-workspace-bg">
-        <WindowBody windowItem={windowItem} />
+        <WindowBody 
+          windowItem={windowItem} 
+          onClose={() => closeWindow(windowItem.id)} 
+        />
       </div>
     </motion.div>
   );

@@ -19,6 +19,8 @@ import {
 export const TopStatusBar = () => {
   const { formattedTime, formattedDate, fullDate } = useDateTime();
   const { 
+    windows,
+    minimizeWindow,
     setIsCommandPaletteOpen, 
     setIsLauncherOpen, 
     openWindow, 
@@ -36,7 +38,10 @@ export const TopStatusBar = () => {
 
   const handleNavClick = (tab) => {
     setActiveNavTab(tab);
-    if (tab === 'projects') {
+    if (tab === 'desktop') {
+      // Minimize all active windows to reveal desktop canvas
+      Object.keys(windows).forEach((id) => minimizeWindow(id));
+    } else if (tab === 'projects') {
       openWindow('projects-window', { title: 'Projects Showcase', type: 'projects' });
     } else if (tab === 'about') {
       openWindow('about-window', { title: 'About Kamalesh', type: 'about' });
