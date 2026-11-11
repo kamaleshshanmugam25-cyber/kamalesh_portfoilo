@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { APPLICATIONS } from '../../config/applications';
+import { GITHUB_USERNAME } from '../../config/projects';
 import { useWindowManager } from '../../context/WindowContext';
 import { DesktopIcon } from './DesktopIcon';
 import { 
@@ -11,11 +12,18 @@ import {
   Mail, 
   FolderGit2, 
   Command,
-  ArrowRight
+  ArrowRight,
+  Code2
 } from 'lucide-react';
 
 export const DesktopCanvas = () => {
-  const { openWindow, setIsCommandPaletteOpen, setIsLauncherOpen, setActiveNavTab } = useWindowManager();
+  const { 
+    openWindow, 
+    setIsCommandPaletteOpen, 
+    setIsLauncherOpen, 
+    setActiveNavTab,
+    gitHubProjects 
+  } = useWindowManager();
   const [selectedAppId, setSelectedAppId] = useState(null);
 
   const handleCanvasClick = (e) => {
@@ -41,7 +49,7 @@ export const DesktopCanvas = () => {
         <div className="flex flex-col space-y-4">
           <div className="flex items-center space-x-2 px-2">
             <span className="text-[11px] font-mono tracking-widest uppercase text-workspace-muted">
-              // INSTALLED ECOSYSTEM APPLICATIONS
+              // FEATURED ECOSYSTEM APPLICATIONS
             </span>
           </div>
 
@@ -81,7 +89,7 @@ export const DesktopCanvas = () => {
               </span>
               <span className="text-xs font-mono text-emerald-400 flex items-center space-x-1">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>v2.6.0 Live</span>
+                <span>{gitHubProjects.length || 13} GitHub Repos Synced</span>
               </span>
             </div>
 
@@ -89,16 +97,16 @@ export const DesktopCanvas = () => {
               Kamalesh Digital Ecosystem
             </h2>
             <p className="text-xs text-workspace-muted leading-relaxed mb-4">
-              Explore 6 independent web products unified under one interactive operating system. Multi-window navigation, simulated browser chrome, and direct launch features.
+              Real-time synchronization with GitHub profile <span className="text-workspace-teal font-mono">@{GITHUB_USERNAME}</span>. Explore public repositories, interactive browser windows, and full README documentation.
             </p>
 
             <div className="flex items-center space-x-2 pt-2 border-t border-white/[0.08]">
               <button
-                onClick={() => openWindow('projects-window', { title: 'Projects Showcase', type: 'projects' })}
+                onClick={() => openWindow('projects-window', { title: 'Projects Explorer', type: 'projects' })}
                 className="flex-1 py-2 px-3 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-white text-xs font-medium flex items-center justify-center space-x-1.5 transition-all"
               >
                 <Layers className="w-3.5 h-3.5 text-workspace-teal" />
-                <span>Showcase</span>
+                <span>Projects ({gitHubProjects.length || 13})</span>
               </button>
               <button
                 onClick={() => openWindow('about-window', { title: 'About Kamalesh', type: 'about' })}
@@ -126,10 +134,10 @@ export const DesktopCanvas = () => {
               <span className="text-[10px] text-white/50">Click to open</span>
             </div>
             <div className="space-y-1 text-white/80 text-[11px]">
-              <p><span className="text-workspace-teal">kamalesh@workspace</span>:<span className="text-workspace-accent">~</span>$ whoami</p>
-              <p className="text-workspace-muted font-sans text-xs">UI/UX Designer &amp; Frontend Architect (8+ Years)</p>
+              <p><span className="text-workspace-teal">kamalesh@workspace</span>:<span className="text-workspace-accent">~</span>$ gh repo list</p>
+              <p className="text-workspace-muted font-sans text-xs">{gitHubProjects.length || 13} public repositories live from GitHub</p>
               <p><span className="text-workspace-teal">kamalesh@workspace</span>:<span className="text-workspace-accent">~</span>$ echo $STACK</p>
-              <p className="text-workspace-muted font-sans text-xs">React • Tailwind • Python • Django • PostgreSQL</p>
+              <p className="text-workspace-muted font-sans text-xs">React • Tailwind • Python • Django • TypeScript</p>
             </div>
           </motion.div>
         </div>

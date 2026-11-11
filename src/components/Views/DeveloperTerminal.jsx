@@ -2,12 +2,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Terminal, Send, CornerDownLeft, Sparkles } from 'lucide-react';
 import { PROFILE } from '../../config/profile';
 import { APPLICATIONS } from '../../config/applications';
+import { GITHUB_USERNAME } from '../../config/projects';
 import { useWindowManager } from '../../context/WindowContext';
 
 export const DeveloperTerminal = () => {
-  const { openWindow } = useWindowManager();
+  const { openWindow, openProjectDetails, gitHubProjects } = useWindowManager();
   const [history, setHistory] = useState([
     { type: 'system', text: 'Kamalesh OS v2.6.0 [Interactive Terminal Engine]' },
+    { type: 'system', text: `Connected to GitHub Profile: @${GITHUB_USERNAME}` },
     { type: 'system', text: 'Type "help" to view available ecosystem commands.' }
   ]);
   const [inputVal, setInputVal] = useState('');
@@ -32,11 +34,23 @@ export const DeveloperTerminal = () => {
   help       - Show this command reference
   whoami     - Display Kamalesh's profile and background
   skills     - List full technical engineering & design stack
-  apps       - Display the 6 integrated applications
+  repos      - List all public GitHub repositories (${gitHubProjects.length} synced)
+  apps       - Display the 6 integrated flagship applications
   launch <id>- Launch an app window (e.g. "launch rsk-traders")
   contact    - Open direct contact portal
   experience - View 8+ years career highlights
   clear      - Clear the terminal screen`
+        });
+        break;
+
+      case 'repos':
+      case 'github':
+        const reposList = gitHubProjects
+          .map(r => `• ${r.name.padEnd(26)} [${(r.language || 'Code').padEnd(10)}] (${r.category})`)
+          .join('\n');
+        newHistory.push({
+          type: 'response',
+          text: `PUBLIC GITHUB REPOSITORIES (@${GITHUB_USERNAME}):\n${reposList}\n\nType "launch <name>" to explore or run any project.`
         });
         break;
 
@@ -80,7 +94,7 @@ Experience: ${PROFILE.experienceYears} | Status: ${PROFILE.availability}`
           text: `CAREER & ENGINEERING HIGHLIGHTS:
 • 8+ years designing and engineering high-impact digital products
 • Architected scalable web apps across React, Tailwind, Python & Django
-• Built and launched 6 multi-category enterprise & commercial platforms
+• Built and launched multi-category enterprise & commercial platforms
 • Specialization in micro-interactions, design systems & performance`
         });
         break;
@@ -93,15 +107,24 @@ Experience: ${PROFILE.experienceYears} | Status: ${PROFILE.availability}`
       default:
         if (cmd.startsWith('launch ')) {
           const targetId = cmd.replace('launch ', '').trim();
+          
+          // Check flagship apps first
           const targetApp = APPLICATIONS.find(a => a.id === targetId || a.shortName.toLowerCase() === targetId);
           if (targetApp) {
             openWindow(targetApp.id);
             newHistory.push({ type: 'response', text: `Launching ${targetApp.name}...` });
           } else {
-            newHistory.push({ 
-              type: 'error', 
-              text: `Application "${targetId}" not found. Valid IDs: ${APPLICATIONS.map(a => a.id).join(', ')}` 
-            });
+            // Check GitHub projects
+            const targetRepo = gitHubProjects.find(r => r.name.toLowerCase() === targetId || (r.displayName && r.displayName.toLowerCase() === targetId));
+            if (targetRepo) {
+              openProjectDetails(targetRepo);
+              newHistory.push({ type: 'response', text: `Opening project details for ${targetRepo.displayName || targetRepo.name}...` });
+            } else {
+              newHistory.push({ 
+                type: 'error', 
+                text: `Target "${targetId}" not found. Type "apps" or "repos" to see valid identifiers.` 
+              });
+            }
           }
         } else {
           newHistory.push({
@@ -143,7 +166,7 @@ Experience: ${PROFILE.experienceYears} | Status: ${PROFILE.availability}`
           type="text"
           value={inputVal}
           onChange={(e) => setInputVal(e.target.value)}
-          placeholder="type 'help' or 'launch rsk-traders'..."
+          placeholder="type 'help', 'repos', or 'launch rsk-traders'..."
           className="flex-1 bg-transparent text-white focus:outline-none font-mono text-xs caret-workspace-teal"
           autoFocus
         />

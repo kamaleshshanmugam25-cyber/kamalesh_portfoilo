@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { APPLICATIONS } from '../config/applications';
+import { fetchAllRepositories } from '../services/githubService';
 
 const WindowContext = createContext(null);
 
@@ -21,6 +22,37 @@ export const WindowProvider = ({ children }) => {
   const [recentAppIds, setRecentAppIds] = useState(['rsk-traders']);
   const [favoriteAppIds, setFavoriteAppIds] = useState(['rsk-traders', 'jobsphere']);
   const [soundEnabled, setSoundEnabled] = useState(false);
+
+  // GitHub Live State
+  const [gitHubProjects, setGitHubProjects] = useState([]);
+  const [isLoadingProjects, setIsLoadingProjects] = useState(true);
+  const [gitHubSyncInfo, setGitHubSyncInfo] = useState({
+    isFromCache: false,
+    isFallback: false,
+    lastUpdated: 'Initializing...'
+  });
+
+  // Load GitHub public repositories on mount
+  const loadGitHubRepos = useCallback(async (forceRefresh = false) => {
+    setIsLoadingProjects(true);
+    try {
+      const result = await fetchAllRepositories(forceRefresh);
+      setGitHubProjects(result.repositories || []);
+      setGitHubSyncInfo({
+        isFromCache: result.isFromCache,
+        isFallback: result.isFallback || false,
+        lastUpdated: result.lastUpdated
+      });
+    } catch (e) {
+      console.error('Failed to load GitHub repositories:', e);
+    } finally {
+      setIsLoadingProjects(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadGitHubRepos(false);
+  }, [loadGitHubRepos]);
 
   // Bring window to front
   const focusWindow = useCallback((id) => {
@@ -85,7 +117,7 @@ export const WindowProvider = ({ children }) => {
         size: { width: initialWidth, height: initialHeight },
         zIndex: topZIndex + 1,
         type: options.type || (appMeta ? 'app' : 'custom'),
-        metadata: appMeta || options.metadata || {}
+        metadata: options.metadata || appMeta || {}
       };
 
       return {
@@ -99,6 +131,16 @@ export const WindowProvider = ({ children }) => {
     // Close launcher modal if open
     setIsLauncherOpen(false);
   }, [topZIndex]);
+
+  // Open detailed Project window
+  const openProjectDetails = useCallback((project) => {
+    const windowId = `details-${project.id || project.name}`;
+    openWindow(windowId, {
+      title: `${project.displayName || project.name} — Project Details`,
+      type: 'project-details',
+      metadata: project
+    });
+  }, [openWindow]);
 
   // Close window
   const closeWindow = useCallback((appId) => {
@@ -210,6 +252,7 @@ export const WindowProvider = ({ children }) => {
     windows,
     activeWindowId,
     openWindow,
+    openProjectDetails,
     closeWindow,
     minimizeWindow,
     toggleMaximizeWindow,
@@ -226,7 +269,11 @@ export const WindowProvider = ({ children }) => {
     favoriteAppIds,
     toggleFavorite,
     soundEnabled,
-    setSoundEnabled
+    setSoundEnabled,
+    gitHubProjects,
+    isLoadingProjects,
+    gitHubSyncInfo,
+    refreshGitHubProjects: () => loadGitHubRepos(true)
   };
 
   return (

@@ -4,18 +4,15 @@ import {
   Search, 
   Sparkles, 
   Globe2, 
-  Camera, 
-  Gem, 
-  UtensilsCrossed, 
-  Briefcase, 
-  GraduationCap, 
   Layers, 
   User, 
   Terminal, 
   Mail, 
   Volume2, 
   MinusSquare,
-  ArrowRight
+  ArrowRight,
+  Code2,
+  BookOpen
 } from 'lucide-react';
 import { useWindowManager } from '../../context/WindowContext';
 import { APPLICATIONS } from '../../config/applications';
@@ -25,6 +22,8 @@ export const CommandPalette = () => {
     isCommandPaletteOpen, 
     setIsCommandPaletteOpen, 
     openWindow, 
+    openProjectDetails,
+    gitHubProjects,
     windows, 
     minimizeWindow, 
     soundEnabled, 
@@ -45,20 +44,30 @@ export const CommandPalette = () => {
 
   if (!isCommandPaletteOpen) return null;
 
-  // Build commands list
+  // Build commands list including all GitHub public repositories
   const commands = [
+    // Core ecosystem web apps
     ...APPLICATIONS.map((app) => ({
       id: `app-${app.id}`,
       title: `Launch ${app.name}`,
       subtitle: `${app.category} • ${app.status.toUpperCase()}`,
-      category: 'Applications',
+      category: 'Flagship Apps',
       icon: <Globe2 className="w-4 h-4 text-workspace-accent" />,
       action: () => openWindow(app.id)
     })),
+    // Live GitHub Repositories
+    ...gitHubProjects.map((project) => ({
+      id: `gh-${project.name}`,
+      title: `Explore ${project.displayName || project.name}`,
+      subtitle: `${project.category} • ${project.language || 'Code'} • ${project.stars}★`,
+      category: 'GitHub Repositories',
+      icon: <Code2 className="w-4 h-4 text-workspace-teal" />,
+      action: () => openProjectDetails(project)
+    })),
     {
       id: 'cmd-projects',
-      title: 'Open Projects Showcase',
-      subtitle: 'Explore bento-grid case studies & tech stack',
+      title: 'Open Projects Explorer',
+      subtitle: 'Browse all GitHub repositories & bento grid',
       category: 'Navigation',
       icon: <Layers className="w-4 h-4 text-workspace-teal" />,
       action: () => openWindow('projects-window', { title: 'Projects Showcase', type: 'projects' })
@@ -165,7 +174,7 @@ export const CommandPalette = () => {
                 setSelectedIndex(0);
               }}
               onKeyDown={handleKeyDown}
-              placeholder="Type a command or search websites..."
+              placeholder="Search apps, repositories, or commands..."
               className="w-full bg-transparent text-sm text-white focus:outline-none placeholder-white/40"
             />
             <kbd className="px-1.5 py-0.5 rounded bg-white/[0.08] text-[10px] text-white/50 font-mono">
@@ -177,7 +186,7 @@ export const CommandPalette = () => {
           <div className="max-h-80 overflow-y-auto p-2 space-y-1">
             {filteredCommands.length === 0 ? (
               <div className="p-8 text-center text-xs text-workspace-muted">
-                No commands matching "{query}"
+                No commands or repositories matching "{query}"
               </div>
             ) : (
               filteredCommands.map((cmd, idx) => {
@@ -223,7 +232,7 @@ export const CommandPalette = () => {
               <span><kbd className="px-1 bg-white/[0.08] rounded">↑</kbd> <kbd className="px-1 bg-white/[0.08] rounded">↓</kbd> navigate</span>
               <span><kbd className="px-1 bg-white/[0.08] rounded">↵</kbd> select</span>
             </div>
-            <span>Raycast Spotlight</span>
+            <span>Spotlight • GitHub Synced</span>
           </div>
         </motion.div>
 

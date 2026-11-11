@@ -9,7 +9,7 @@ export const PROFILE = {
   location: 'India',
   availability: 'Available for Select Projects & Architecture Consulting',
   email: 'kamalesh.workspace@gmail.com',
-  github: 'https://github.com',
+  github: 'https://github.com/kamaleshshanmugam25-cyber',
   linkedin: 'https://linkedin.com',
   twitter: 'https://twitter.com',
   
@@ -20,7 +20,7 @@ export const PROFILE = {
   terminalIntro: [
     'kamalesh --version 2.6.0 [production]',
     'Architecting high-frequency digital workspaces & multi-platform ecosystems.',
-    'System status: 100% operational | 6 Flagship platforms integrated.'
+    'System status: 100% operational | 13 GitHub platforms synced.'
   ],
 
   skillCategories: [
@@ -58,7 +58,7 @@ export const PROFILE = {
   ],
 
   stats: [
-    { label: 'Integrated Ecosystems', value: '6 Platforms' },
+    { label: 'Public Repositories', value: '13 Projects' },
     { label: 'Industry Experience', value: '8+ Years' },
     { label: 'Product Satisfaction', value: '99.4%' },
     { label: 'Code Quality Benchmark', value: 'Grade A+' }

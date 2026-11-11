@@ -4,6 +4,7 @@ import { ProjectsShowcase } from '../Views/ProjectsShowcase';
 import { AboutMeModal } from '../Views/AboutMeModal';
 import { ContactModal } from '../Views/ContactModal';
 import { DeveloperTerminal } from '../Views/DeveloperTerminal';
+import { ProjectDetailsModal } from '../Views/ProjectDetailsModal';
 
 export const WindowBody = ({ windowItem, onClose }) => {
   const { type, metadata } = windowItem;
@@ -17,6 +18,8 @@ export const WindowBody = ({ windowItem, onClose }) => {
       return <ContactModal onClose={onClose} />;
     case 'terminal':
       return <DeveloperTerminal onClose={onClose} />;
+    case 'project-details':
+      return <ProjectDetailsModal project={metadata} onClose={onClose} />;
     case 'app':
     default:
       return <InternalBrowser app={metadata} onClose={onClose} />;
