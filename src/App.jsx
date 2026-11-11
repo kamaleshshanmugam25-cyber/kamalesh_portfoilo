@@ -4,7 +4,6 @@ import { AmbientGlow } from './components/UI/AmbientGlow';
 import { TopStatusBar } from './components/Desktop/TopStatusBar';
 import { DesktopCanvas } from './components/Desktop/DesktopCanvas';
 import { MacDock } from './components/Dock/MacDock';
-import { MobileBottomNav } from './components/Mobile/MobileBottomNav';
 import { WindowContainer } from './components/WindowManager/WindowContainer';
 import { AppLauncherModal } from './components/Launcher/AppLauncherModal';
 import { CommandPalette } from './components/Launcher/CommandPalette';
@@ -35,13 +34,10 @@ function WorkspaceLayout() {
       {/* Movable & Maximized Desktop Window Manager */}
       <WindowContainer />
 
-      {/* Floating macOS-Style Dock (Desktop & Tablet) */}
-      <div className={`hidden md:block transition-all duration-150 ${isDockVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16 pointer-events-none'}`}>
+      {/* Floating macOS-Style Neo-Brutalist Dock (Desktop, Tablet & Mobile) */}
+      <div className={`transition-all duration-150 ${isDockVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16 pointer-events-none'}`}>
         <MacDock />
       </div>
-
-      {/* Mobile-First Bottom Navigation (Phones) */}
-      <MobileBottomNav />
 
       {/* App Launcher Search & Catalog Modal */}
       <AppLauncherModal />

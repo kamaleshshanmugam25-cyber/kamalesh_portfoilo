@@ -36,7 +36,7 @@ export const MacDock = () => {
   const getAppIcon = (id) => {
     switch (id) {
       case 'rsk-traders':
-        return <Globe2 className="w-5 h-5 text-[#151515]" strokeWidth={2.2} />;
+        return <Globe2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#151515]" strokeWidth={2.2} />;
       default:
         return null;
     }
@@ -52,16 +52,24 @@ export const MacDock = () => {
   };
 
   return (
-    <div className="fixed bottom-3 left-0 right-0 z-40 flex justify-center pointer-events-none">
+    <div className="fixed bottom-2 sm:bottom-3 left-0 right-0 z-40 flex justify-center pointer-events-none px-2">
       <div
-        onMouseMove={(e) => mouseX.set(e.pageX)}
+        onMouseMove={(e) => mouseX.set(e.clientX)}
         onMouseLeave={() => mouseX.set(Infinity)}
-        className="pointer-events-auto flex items-end gap-1.5 md:gap-2 px-3 py-2 rounded-2xl bg-white border-3 border-[#151515] shadow-brutal-md transition-all duration-100"
+        onTouchStart={(e) => {
+          if (e.touches && e.touches[0]) mouseX.set(e.touches[0].clientX);
+        }}
+        onTouchMove={(e) => {
+          if (e.touches && e.touches[0]) mouseX.set(e.touches[0].clientX);
+        }}
+        onTouchEnd={() => setTimeout(() => mouseX.set(Infinity), 200)}
+        onTouchCancel={() => mouseX.set(Infinity)}
+        className="pointer-events-auto flex items-end gap-1 sm:gap-1.5 md:gap-2 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-2xl bg-white border-3 border-[#151515] shadow-brutal-md max-w-[calc(100vw-0.75rem)] overflow-x-visible select-none touch-none transition-transform duration-100"
       >
         {/* Launcher icon */}
         <DockItem
           mouseX={mouseX}
-          icon={<Grid className="w-5 h-5 text-[#151515]" strokeWidth={2.4} />}
+          icon={<Grid className="w-4 h-4 sm:w-5 sm:h-5 text-[#151515]" strokeWidth={2.4} />}
           label="App Launcher"
           onClick={() => setIsLauncherOpen(true)}
           isOpen={false}
@@ -70,7 +78,7 @@ export const MacDock = () => {
         />
 
         {/* Solid Neo-Brutalist Separator */}
-        <div className="w-[2px] h-8 bg-[#151515] my-auto mx-1 shrink-0" />
+        <div className="w-[1.5px] sm:w-[2px] h-6 sm:h-8 bg-[#151515] my-auto mx-0.5 sm:mx-1 shrink-0" />
 
         {/* Flagship Live Website (RSK Traders) */}
         {APPLICATIONS.filter(app => app.id === 'rsk-traders').map((app) => {
@@ -93,12 +101,12 @@ export const MacDock = () => {
         })}
 
         {/* Solid Neo-Brutalist Separator */}
-        <div className="w-[2px] h-8 bg-[#151515] my-auto mx-1 shrink-0" />
+        <div className="w-[1.5px] sm:w-[2px] h-6 sm:h-8 bg-[#151515] my-auto mx-0.5 sm:mx-1 shrink-0" />
 
         {/* Projects Showcase */}
         <DockItem
           mouseX={mouseX}
-          icon={<Layers className="w-5 h-5 text-white" strokeWidth={2.2} />}
+          icon={<Layers className="w-4 h-4 sm:w-5 sm:h-5 text-white" strokeWidth={2.2} />}
           label="Projects Explorer"
           onClick={() => openWindow('projects-window', { title: 'Projects Explorer', type: 'projects' })}
           isOpen={!!(windows['projects-window']?.isOpen && !windows['projects-window']?.isMinimized)}
@@ -109,7 +117,7 @@ export const MacDock = () => {
         {/* Live GitHub Activity Center */}
         <DockItem
           mouseX={mouseX}
-          icon={<Activity className="w-5 h-5 text-[#151515]" strokeWidth={2.4} />}
+          icon={<Activity className="w-4 h-4 sm:w-5 sm:h-5 text-[#151515]" strokeWidth={2.4} />}
           label="GitHub Activity"
           onClick={() => openWindow('activity-window', { title: 'Live GitHub Activity Center', type: 'github-activity' })}
           isOpen={!!(windows['activity-window']?.isOpen && !windows['activity-window']?.isMinimized)}
@@ -120,7 +128,7 @@ export const MacDock = () => {
         {/* About Me */}
         <DockItem
           mouseX={mouseX}
-          icon={<User className="w-5 h-5 text-white" strokeWidth={2.2} />}
+          icon={<User className="w-4 h-4 sm:w-5 sm:h-5 text-white" strokeWidth={2.2} />}
           label="About Kamalesh"
           onClick={() => openWindow('about-window', { title: 'About Kamalesh', type: 'about' })}
           isOpen={!!(windows['about-window']?.isOpen && !windows['about-window']?.isMinimized)}
@@ -131,7 +139,7 @@ export const MacDock = () => {
         {/* Terminal */}
         <DockItem
           mouseX={mouseX}
-          icon={<Terminal className="w-5 h-5 text-[#F5F04E]" strokeWidth={2.2} />}
+          icon={<Terminal className="w-4 h-4 sm:w-5 sm:h-5 text-[#F5F04E]" strokeWidth={2.2} />}
           label="Developer Terminal"
           onClick={() => openWindow('terminal-window', { title: 'Developer Terminal', type: 'terminal' })}
           isOpen={!!(windows['terminal-window']?.isOpen && !windows['terminal-window']?.isMinimized)}
@@ -142,7 +150,7 @@ export const MacDock = () => {
         {/* Contact */}
         <DockItem
           mouseX={mouseX}
-          icon={<Mail className="w-5 h-5 text-[#151515]" strokeWidth={2.2} />}
+          icon={<Mail className="w-4 h-4 sm:w-5 sm:h-5 text-[#151515]" strokeWidth={2.2} />}
           label="Contact & Hire"
           onClick={() => openWindow('contact-window', { title: 'Contact Kamalesh', type: 'contact' })}
           isOpen={!!(windows['contact-window']?.isOpen && !windows['contact-window']?.isMinimized)}

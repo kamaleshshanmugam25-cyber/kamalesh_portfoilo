@@ -42,7 +42,7 @@ export const DesktopCanvas = () => {
   return (
     <div 
       onClick={handleCanvasClick}
-      className="relative flex-1 w-full h-[calc(100vh-3rem)] overflow-y-auto lg:overflow-hidden flex flex-col justify-between p-3 sm:p-5 lg:p-6 xl:p-8"
+      className="relative flex-1 w-full h-[calc(100vh-3rem)] overflow-y-auto lg:overflow-hidden flex flex-col justify-between p-3 sm:p-5 lg:p-6 xl:p-8 pb-20 sm:pb-24 lg:pb-8"
     >
       {/* Desktop Main 3-Column Grid */}
       <div className="flex-1 flex flex-col lg:flex-row gap-5 lg:gap-6 xl:gap-8 items-center lg:items-start justify-between">
