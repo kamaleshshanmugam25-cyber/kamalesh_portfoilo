@@ -5,6 +5,7 @@ import { AboutMeModal } from '../Views/AboutMeModal';
 import { ContactModal } from '../Views/ContactModal';
 import { DeveloperTerminal } from '../Views/DeveloperTerminal';
 import { ProjectDetailsModal } from '../Views/ProjectDetailsModal';
+import { GitHubActivityDashboard } from '../GitHubActivity/GitHubActivityDashboard';
 
 export const WindowBody = ({ windowItem, onClose }) => {
   const { type, metadata } = windowItem;
@@ -12,6 +13,8 @@ export const WindowBody = ({ windowItem, onClose }) => {
   switch (type) {
     case 'projects':
       return <ProjectsShowcase onClose={onClose} />;
+    case 'github-activity':
+      return <GitHubActivityDashboard onClose={onClose} />;
     case 'about':
       return <AboutMeModal onClose={onClose} />;
     case 'contact':

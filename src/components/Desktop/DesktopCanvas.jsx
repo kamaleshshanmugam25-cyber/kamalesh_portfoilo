@@ -13,7 +13,8 @@ import {
   ArrowRight,
   Code2,
   FolderKanban,
-  Zap
+  Zap,
+  Activity
 } from 'lucide-react';
 
 export const DesktopCanvas = () => {
@@ -102,18 +103,27 @@ export const DesktopCanvas = () => {
             </p>
 
             {/* Electric Blue Action Buttons */}
-            <div className="flex items-center space-x-3 pt-2">
+            <div className="flex items-center space-x-2 pt-2">
               <button
                 onClick={() => openWindow('projects-window', { title: 'Projects Explorer', type: 'projects' })}
-                className="flex-1 py-2.5 px-4 brutal-btn-blue text-xs uppercase tracking-wider flex items-center justify-center space-x-2"
+                className="flex-1 py-2.5 px-3 brutal-btn-blue text-xs uppercase tracking-wider flex items-center justify-center space-x-1.5"
               >
                 <Layers className="w-4 h-4 stroke-[2.5]" />
                 <span>EXPLORE ALL ({gitHubProjects.length || 13})</span>
               </button>
 
               <button
+                onClick={() => openWindow('activity-window', { title: 'Live GitHub Activity Center', type: 'github-activity' })}
+                className="py-2.5 px-3 brutal-btn-yellow text-xs uppercase tracking-wider flex items-center justify-center space-x-1.5"
+                title="Live GitHub Activity Center"
+              >
+                <Activity className="w-4 h-4 stroke-[2.5]" />
+                <span>ACTIVITY</span>
+              </button>
+
+              <button
                 onClick={() => openWindow('about-window', { title: 'About Kamalesh', type: 'about' })}
-                className="py-2.5 px-4 brutal-btn-pink text-xs uppercase tracking-wider flex items-center justify-center space-x-1.5"
+                className="py-2.5 px-3 brutal-btn-pink text-xs uppercase tracking-wider flex items-center justify-center space-x-1.5"
               >
                 <User className="w-4 h-4 stroke-[2.5]" />
                 <span>BIO</span>

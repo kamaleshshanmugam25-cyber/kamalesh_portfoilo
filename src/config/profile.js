@@ -10,7 +10,7 @@ export const PROFILE = {
   availability: 'Available for Select Projects & Architecture Consulting',
   email: 'kamaleshshanmugam25@gmail.com',
   github: 'https://github.com/kamaleshshanmugam25-cyber',
-  linkedin: 'https://linkedin.com',
+  linkedin: 'https://www.linkedin.com/in/kamalesh-s-47554a2a7?utm_source=share_via&utm_content=profile&utm_medium=member_android',
   twitter: 'https://twitter.com',
   
   tagline: 'Transforming complex systems into intuitive, high-performance digital ecosystems.',

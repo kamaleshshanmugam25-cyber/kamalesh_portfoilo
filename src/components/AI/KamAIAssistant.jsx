@@ -2,35 +2,34 @@ import React, { useState, useCallback } from 'react';
 import { KamAITrigger } from './KamAITrigger';
 import { KamAIChatPanel } from './KamAIChatPanel';
 import { sendAIMessage } from '../../services/aiService';
-import { dispatchAIAction } from '../../services/aiActionDispatcher';
+import { executeWorkspaceActions } from '../../services/workspaceController';
 import { useWindowManager } from '../../context/WindowContext';
 
 const INITIAL_WELCOME_MESSAGE = {
   id: 'welcome',
   sender: 'ai',
   isWelcome: true,
-  text: `Hello! I am **KAM AI**, your digital guide in KAMVERSE. ⚡
+  text: `Hello! I am **KAM AI**, your Workspace Operator in KAMVERSE. ⚡
 
-I know everything about Kamalesh's portfolio, his 6 flagship web applications, and his public GitHub repositories. 
+I can navigate and control the entire workspace using natural-language commands:
+• *"Open RSK Traders and Photography side-by-side"*
+• *"Tile windows in a grid"* or *"Cascade all windows"*
+• *"Show only React projects"*
+• *"Switch to dark theme"* or *"Reset theme"*
+• *"Hide dock"* or *"Show dock"*
+• *"Close all windows"*
 
-I can also **navigate the workspace** for you! Try asking:
-• *"Open RSK Traders"*
-• *"Show me all Python projects"*
-• *"Who is Kamalesh?"*
-• *"Show all projects"*
-• *"Take me to GitHub"*
-
-How can I help you explore today?`,
-  action: null
+How can I configure your workspace today?`,
+  actions: []
 };
 
 const DEFAULT_SUGGESTIONS = [
+  'Open RSK Traders and Photography side-by-side',
+  'Show React projects',
+  'Tile windows in grid',
+  'Enable dark mode',
   'Who is Kamalesh?',
-  'Open RSK Traders',
-  'Show all projects',
-  'Show Python projects',
-  'What technologies does he use?',
-  'Take me to GitHub'
+  'Close all windows'
 ];
 
 export const KamAIAssistant = () => {
@@ -40,11 +39,27 @@ export const KamAIAssistant = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([INITIAL_WELCOME_MESSAGE]);
   const [isTyping, setIsTyping] = useState(false);
+  const [isExecutingAction, setIsExecutingAction] = useState(false);
+  const [actionStatus, setActionStatus] = useState('');
   const [suggestedQuestions, setSuggestedQuestions] = useState(DEFAULT_SUGGESTIONS);
 
-  const handleExecuteAction = useCallback((action) => {
-    if (!action) return;
-    dispatchAIAction(action, windowManager);
+  const handleExecuteActions = useCallback(async (actions) => {
+    if (!actions || (Array.isArray(actions) && actions.length === 0)) return null;
+    const actionList = Array.isArray(actions) ? actions : [actions];
+
+    setIsExecutingAction(true);
+    setActionStatus(`Executing ${actionList.length} workspace ${actionList.length > 1 ? 'actions' : 'action'}...`);
+
+    try {
+      const execResult = await executeWorkspaceActions(actionList, windowManager);
+      return execResult;
+    } catch (err) {
+      console.error('Failed to execute workspace actions:', err);
+      return { success: false, summary: 'Action execution failed.' };
+    } finally {
+      setIsExecutingAction(false);
+      setActionStatus('');
+    }
   }, [windowManager]);
 
   const handleSendMessage = useCallback(async (text) => {
@@ -63,18 +78,26 @@ export const KamAIAssistant = () => {
     // 2. Fetch response from AI Service (Backend with automatic local fallback)
     try {
       const result = await sendAIMessage(text, gitHubProjects);
+      const actions = result.actions || (result.action ? [result.action] : []);
 
-      // 3. Dispatch safe frontend action if returned
-      if (result.action) {
-        handleExecuteAction(result.action);
+      // 3. Execution-first: Dispatch approved workspace actions through Controller
+      let executionReport = null;
+      if (actions.length > 0) {
+        setIsExecutingAction(true);
+        setActionStatus(`Executing ${actions.length > 1 ? `${actions.length} workspace commands` : 'workspace command'}...`);
+        executionReport = await executeWorkspaceActions(actions, windowManager);
+        setIsExecutingAction(false);
+        setActionStatus('');
       }
 
-      // 4. Append AI response
+      // 4. Formulate clean user-facing response with action execution tags
       const aiMsg = {
         id: 'ai_' + Date.now(),
         sender: 'ai',
         text: result.response,
-        action: result.action
+        actions: actions,
+        action: actions[0] || null,
+        executionReport
       };
 
       setMessages((prev) => [...prev, aiMsg]);
@@ -88,13 +111,15 @@ export const KamAIAssistant = () => {
         {
           id: 'error_' + Date.now(),
           sender: 'ai',
-          text: "I encountered a minor issue processing that question. Please try asking again or select one of the suggested prompts below."
+          text: "I encountered a minor issue processing that workspace command. Please try again or select one of the suggested prompts below."
         }
       ]);
     } finally {
       setIsTyping(false);
+      setIsExecutingAction(false);
+      setActionStatus('');
     }
-  }, [gitHubProjects, handleExecuteAction]);
+  }, [gitHubProjects, windowManager]);
 
   const handleClearHistory = useCallback(() => {
     setMessages([INITIAL_WELCOME_MESSAGE]);
@@ -117,9 +142,11 @@ export const KamAIAssistant = () => {
         messages={messages}
         onSendMessage={handleSendMessage}
         isTyping={isTyping}
+        isExecutingAction={isExecutingAction}
+        actionStatus={actionStatus}
         suggestedQuestions={suggestedQuestions}
         onClearHistory={handleClearHistory}
-        onExecuteAction={handleExecuteAction}
+        onExecuteAction={handleExecuteActions}
       />
     </>
   );

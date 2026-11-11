@@ -6,7 +6,8 @@ import {
   Layers, 
   User, 
   Terminal, 
-  Mail
+  Mail,
+  Activity
 } from 'lucide-react';
 import { APPLICATIONS } from '../../config/applications';
 import { useWindowManager } from '../../context/WindowContext';
@@ -103,6 +104,17 @@ export const MacDock = () => {
           isOpen={!!(windows['projects-window']?.isOpen && !windows['projects-window']?.isMinimized)}
           isActive={activeWindowId === 'projects-window'}
           colorClass="bg-[#3155FF] hover:bg-[#2042eb]"
+        />
+
+        {/* Live GitHub Activity Center */}
+        <DockItem
+          mouseX={mouseX}
+          icon={<Activity className="w-5 h-5 text-[#151515]" strokeWidth={2.4} />}
+          label="GitHub Activity"
+          onClick={() => openWindow('activity-window', { title: 'Live GitHub Activity Center', type: 'github-activity' })}
+          isOpen={!!(windows['activity-window']?.isOpen && !windows['activity-window']?.isMinimized)}
+          isActive={activeWindowId === 'activity-window'}
+          colorClass="bg-[#F5F04E] hover:bg-[#ece736]"
         />
 
         {/* About Me */}

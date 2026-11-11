@@ -10,9 +10,19 @@ import {
   Mail, 
   Volume2, 
   MinusSquare,
+  XSquare,
   ArrowRight,
   Code2,
-  BookOpen
+  BookOpen,
+  LayoutGrid,
+  Columns,
+  Palette,
+  Sun,
+  Moon,
+  Eye,
+  EyeOff,
+  Activity,
+  GitCommit
 } from 'lucide-react';
 import { useWindowManager } from '../../context/WindowContext';
 import { APPLICATIONS } from '../../config/applications';
@@ -26,6 +36,13 @@ export const CommandPalette = () => {
     gitHubProjects,
     windows, 
     minimizeWindow, 
+    closeAllWindows,
+    minimizeAllWindows,
+    arrangeWindows,
+    isDockVisible,
+    toggleDock,
+    theme,
+    setTheme,
     soundEnabled, 
     setSoundEnabled 
   } = useWindowManager();
@@ -65,6 +82,22 @@ export const CommandPalette = () => {
       action: () => openProjectDetails(project)
     })),
     {
+      id: 'cmd-activity',
+      title: 'Open Live GitHub Activity Center',
+      subtitle: 'Real-time commits, contribution heatmap, and repository metrics',
+      category: 'GitHub Activity',
+      icon: <Activity className="w-4 h-4 text-[#3155FF]" />,
+      action: () => openWindow('activity-window', { title: 'Live GitHub Activity Center', type: 'github-activity' })
+    },
+    {
+      id: 'cmd-latest-commits',
+      title: 'View Latest GitHub Commits',
+      subtitle: 'Recent public commit stream, short SHAs, and change history',
+      category: 'GitHub Activity',
+      icon: <GitCommit className="w-4 h-4 text-[#FF5C8A]" />,
+      action: () => openWindow('activity-window', { title: 'Live GitHub Activity Center', type: 'github-activity' })
+    },
+    {
       id: 'cmd-projects',
       title: 'Open Projects Explorer',
       subtitle: 'Browse all GitHub repositories & bento grid',
@@ -97,14 +130,76 @@ export const CommandPalette = () => {
       action: () => openWindow('contact-window', { title: 'Contact Kamalesh', type: 'contact' })
     },
     {
+      id: 'cmd-arrange-side-by-side',
+      title: 'Arrange Windows Side-by-Side',
+      subtitle: 'Tile active windows in horizontal split columns',
+      category: 'Window Control',
+      icon: <Columns className="w-4 h-4 text-[#3155FF]" />,
+      action: () => arrangeWindows('side-by-side')
+    },
+    {
+      id: 'cmd-arrange-cascade',
+      title: 'Cascade All Windows',
+      subtitle: 'Stack open windows diagonally with cascading offsets',
+      category: 'Window Control',
+      icon: <Layers className="w-4 h-4 text-[#FF5C8A]" />,
+      action: () => arrangeWindows('cascade')
+    },
+    {
+      id: 'cmd-arrange-tile',
+      title: 'Tile Windows in Grid',
+      subtitle: 'Distribute windows equally across the desktop grid',
+      category: 'Window Control',
+      icon: <LayoutGrid className="w-4 h-4 text-[#10B981]" />,
+      action: () => arrangeWindows('tile')
+    },
+    {
+      id: 'cmd-close-all',
+      title: 'Close All Active Windows',
+      subtitle: 'Close and unmount every open window',
+      category: 'Window Control',
+      icon: <XSquare className="w-4 h-4 text-red-500" />,
+      action: () => closeAllWindows()
+    },
+    {
       id: 'cmd-minimize-all',
-      title: 'Minimize All Active Windows',
+      title: 'Minimize All Windows (Show Desktop)',
       subtitle: 'Clear screen down to the desktop canvas',
       category: 'Window Control',
-      icon: <MinusSquare className="w-4 h-4 text-workspace-muted" />,
-      action: () => {
-        Object.keys(windows).forEach((id) => minimizeWindow(id));
-      }
+      icon: <MinusSquare className="w-4 h-4 text-[#151515]" />,
+      action: () => minimizeAllWindows()
+    },
+    {
+      id: 'cmd-toggle-dock',
+      title: isDockVisible ? 'Hide Bottom macOS Dock' : 'Show Bottom macOS Dock',
+      subtitle: 'Toggle visibility of the quick application dock',
+      category: 'Workspace',
+      icon: isDockVisible ? <EyeOff className="w-4 h-4 text-[#151515]" /> : <Eye className="w-4 h-4 text-[#10B981]" />,
+      action: () => toggleDock()
+    },
+    {
+      id: 'cmd-theme-yellow',
+      title: 'Enable Theme: Neo-Brutalist Yellow',
+      subtitle: 'Signature energetic yellow canvas (#F5F04E)',
+      category: 'Theme',
+      icon: <Palette className="w-4 h-4 text-[#F5F04E]" />,
+      action: () => setTheme('yellow')
+    },
+    {
+      id: 'cmd-theme-dark',
+      title: 'Enable Theme: Midnight Aurora Dark',
+      subtitle: 'Deep charcoal futuristic night theme (#151515)',
+      category: 'Theme',
+      icon: <Moon className="w-4 h-4 text-purple-400" />,
+      action: () => setTheme('dark')
+    },
+    {
+      id: 'cmd-theme-light',
+      title: 'Enable Theme: Clean Minimal Light',
+      subtitle: 'High clarity off-white paper theme (#F5F5F0)',
+      category: 'Theme',
+      icon: <Sun className="w-4 h-4 text-amber-500" />,
+      action: () => setTheme('light')
     },
     {
       id: 'cmd-sound',

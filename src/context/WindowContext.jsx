@@ -22,33 +22,32 @@ export const WindowProvider = ({ children }) => {
   const [recentAppIds, setRecentAppIds] = useState(['rsk-traders']);
   const [favoriteAppIds, setFavoriteAppIds] = useState(['rsk-traders', 'jobsphere']);
   const [soundEnabled, setSoundEnabled] = useState(false);
+  const [isDockVisible, setIsDockVisible] = useState(true);
 
-  // Theme Management (Midnight Aurora Dark vs Pearlescent Light)
+  // Theme Management (Neo-Brutalist Yellow vs Dark vs Light)
   const [theme, setTheme] = useState(() => {
     try {
-      return localStorage.getItem('kamverse_theme') || 'dark';
+      return localStorage.getItem('kamverse_theme') || 'yellow';
     } catch (_) {
-      return 'dark';
+      return 'yellow';
     }
   });
 
   useEffect(() => {
     const root = document.documentElement;
-    if (theme === 'light') {
-      root.classList.remove('dark');
-      root.classList.add('light');
-    } else {
-      root.classList.remove('light');
-      root.classList.add('dark');
-    }
+    root.classList.remove('light', 'dark', 'yellow');
+    root.classList.add(theme);
     try {
       localStorage.setItem('kamverse_theme', theme);
     } catch (_) {}
   }, [theme]);
 
   const toggleTheme = useCallback(() => {
-    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+    setTheme((prev) => (prev === 'light' ? 'dark' : prev === 'dark' ? 'yellow' : 'light'));
   }, []);
+
+  const toggleDock = useCallback(() => setIsDockVisible(prev => !prev), []);
+  const setDockVisibility = useCallback((visible) => setIsDockVisible(Boolean(visible)), []);
 
   // GitHub Live State
   const [gitHubProjects, setGitHubProjects] = useState([]);
@@ -192,7 +191,125 @@ export const WindowProvider = ({ children }) => {
     });
   }, [windows]);
 
-  // Minimize window
+  // Close all windows
+  const closeAllWindows = useCallback(() => {
+    setWindows({});
+    setActiveWindowId(null);
+  }, []);
+
+  // Minimize all windows
+  const minimizeAllWindows = useCallback(() => {
+    setWindows((curr) => {
+      const next = {};
+      Object.keys(curr).forEach((id) => {
+        next[id] = { ...curr[id], isMinimized: true };
+      });
+      return next;
+    });
+    setActiveWindowId(null);
+  }, []);
+
+  // Explicitly maximize window
+  const maximizeWindow = useCallback((appId) => {
+    setWindows((curr) => {
+      if (!curr[appId]) return curr;
+      return {
+        ...curr,
+        [appId]: {
+          ...curr[appId],
+          isMaximized: true,
+          isMinimized: false
+        }
+      };
+    });
+    focusWindow(appId);
+  }, [focusWindow]);
+
+  // Arrange windows: side-by-side, cascade, tile/grid, vertical
+  const arrangeWindows = useCallback((mode = 'side-by-side') => {
+    setWindows((curr) => {
+      const openKeys = Object.keys(curr).filter(id => curr[id].isOpen && !curr[id].isMinimized);
+      if (openKeys.length === 0) return curr;
+
+      const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
+      const screenHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
+      const topOffset = 48; // status bar height
+      const bottomOffset = 64; // dock height
+      const availableHeight = Math.max(300, screenHeight - topOffset - bottomOffset);
+      const count = openKeys.length;
+
+      const updated = { ...curr };
+
+      if (mode === 'side-by-side' || mode === 'horizontal' || mode === 'split') {
+        const itemWidth = Math.floor(screenWidth / count);
+        openKeys.forEach((id, index) => {
+          updated[id] = {
+            ...updated[id],
+            isMaximized: false,
+            position: { x: index * itemWidth, y: topOffset },
+            size: { width: itemWidth, height: availableHeight }
+          };
+        });
+      } else if (mode === 'vertical') {
+        const itemHeight = Math.floor(availableHeight / count);
+        openKeys.forEach((id, index) => {
+          updated[id] = {
+            ...updated[id],
+            isMaximized: false,
+            position: { x: 0, y: topOffset + index * itemHeight },
+            size: { width: screenWidth, height: itemHeight }
+          };
+        });
+      } else if (mode === 'cascade') {
+        const standardWidth = Math.min(880, screenWidth - 100);
+        const standardHeight = Math.min(580, availableHeight - 60);
+        openKeys.forEach((id, index) => {
+          const offset = (index % 6) * 36;
+          updated[id] = {
+            ...updated[id],
+            isMaximized: false,
+            position: { x: 30 + offset, y: topOffset + 15 + offset },
+            size: { width: standardWidth, height: standardHeight }
+          };
+        });
+      } else if (mode === 'tile' || mode === 'grid') {
+        if (count === 1) {
+          updated[openKeys[0]] = {
+            ...updated[openKeys[0]],
+            isMaximized: false,
+            position: { x: 20, y: topOffset + 10 },
+            size: { width: screenWidth - 40, height: availableHeight - 20 }
+          };
+        } else if (count === 2) {
+          const halfWidth = Math.floor(screenWidth / 2);
+          openKeys.forEach((id, index) => {
+            updated[id] = {
+              ...updated[id],
+              isMaximized: false,
+              position: { x: index * halfWidth, y: topOffset },
+              size: { width: halfWidth, height: availableHeight }
+            };
+          });
+        } else {
+          const cols = 2;
+          const rows = Math.ceil(count / cols);
+          const colWidth = Math.floor(screenWidth / cols);
+          const rowHeight = Math.floor(availableHeight / rows);
+          openKeys.forEach((id, index) => {
+            const col = index % cols;
+            const row = Math.floor(index / cols);
+            updated[id] = {
+              ...updated[id],
+              isMaximized: false,
+              position: { x: col * colWidth, y: topOffset + row * rowHeight },
+              size: { width: colWidth, height: rowHeight }
+            };
+          });
+        }
+      }
+      return updated;
+    });
+  }, []);
   const minimizeWindow = useCallback((appId) => {
     setWindows((curr) => {
       if (!curr[appId]) return curr;
@@ -277,14 +394,22 @@ export const WindowProvider = ({ children }) => {
 
   const value = {
     theme,
+    setTheme,
     toggleTheme,
+    isDockVisible,
+    toggleDock,
+    setDockVisibility,
     windows,
     activeWindowId,
     openWindow,
     openProjectDetails,
     closeWindow,
+    closeAllWindows,
     minimizeWindow,
+    minimizeAllWindows,
+    maximizeWindow,
     toggleMaximizeWindow,
+    arrangeWindows,
     focusWindow,
     updatePosition,
     updateSize,

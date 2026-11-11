@@ -61,9 +61,11 @@ export const sendAIMessage = async (message, gitHubProjects = []) => {
 
     if (response.ok) {
       const data = await response.json();
+      const actions = data.actions || (data.action ? [data.action] : []);
       return {
         response: data.response || data.text || 'I processed your request.',
-        action: data.action || null,
+        actions,
+        action: actions[0] || null,
         suggestions: data.suggestions || [
           'Show all projects',
           'Open RSK Traders',
@@ -78,9 +80,11 @@ export const sendAIMessage = async (message, gitHubProjects = []) => {
 
   // Resilient fallback using the comprehensive Knowledge & Intent Engine
   const localResult = queryKnowledgeEngine(message, gitHubProjects);
+  const actions = localResult.actions || (localResult.action ? [localResult.action] : []);
   return {
     response: localResult.text,
-    action: localResult.action,
+    actions,
+    action: localResult.action || actions[0] || null,
     suggestions: localResult.suggestions
   };
 };

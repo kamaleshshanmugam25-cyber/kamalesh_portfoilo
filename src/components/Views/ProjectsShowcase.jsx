@@ -14,7 +14,8 @@ import {
   Play, 
   BookOpen, 
   Filter,
-  CheckCircle2
+  CheckCircle2,
+  Activity
 } from 'lucide-react';
 import { PROJECT_CATEGORIES, GITHUB_USERNAME } from '../../config/projects';
 import { useWindowManager } from '../../context/WindowContext';
@@ -145,8 +146,17 @@ export const ProjectsShowcase = ({ onClose }) => {
             </p>
           </div>
 
-          {/* Quick Refresh Button */}
+          {/* Quick Refresh & Activity Center Buttons */}
           <div className="flex items-center space-x-2 shrink-0">
+            <button
+              onClick={() => openWindow('activity-window', { title: 'Live GitHub Activity Center', type: 'github-activity' })}
+              className="brutal-btn-blue px-3.5 py-2 rounded-xl text-xs flex items-center space-x-1.5"
+              title="Open Live GitHub Activity Center"
+            >
+              <Activity className="w-3.5 h-3.5" strokeWidth={2.5} />
+              <span>Activity Center</span>
+            </button>
+
             <button
               onClick={handleRefresh}
               disabled={isRefreshing || isLoadingProjects}
@@ -154,7 +164,7 @@ export const ProjectsShowcase = ({ onClose }) => {
               title="Refresh GitHub Data"
             >
               <RotateCw className={`w-3.5 h-3.5 ${isRefreshing || isLoadingProjects ? 'animate-spin' : ''}`} strokeWidth={2.5} />
-              <span>{isRefreshing ? 'Syncing...' : 'Sync GitHub'}</span>
+              <span>{isRefreshing ? 'Syncing...' : 'Sync'}</span>
             </button>
           </div>
         </div>

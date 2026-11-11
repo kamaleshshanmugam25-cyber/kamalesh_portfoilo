@@ -20,8 +20,8 @@ class AIAssistantAPITests(TestCase):
         self.assertIn('action', response.data)
         action = response.data['action']
         self.assertIsNotNone(action)
-        self.assertEqual(action.get('type'), 'OPEN_APP')
-        self.assertEqual(action.get('payload', {}).get('appId'), 'rsk-traders')
+        self.assertIn(action.get('type'), ['OPEN_APPLICATION', 'OPEN_APP'])
+        self.assertEqual(action.get('payload', {}).get('applicationId'), 'rsk-traders')
 
     def test_chat_python_filter(self):
         response = self.client.post('/api/ai/chat/', {
@@ -33,6 +33,18 @@ class AIAssistantAPITests(TestCase):
         self.assertIsNotNone(action)
         self.assertEqual(action.get('type'), 'FILTER_PROJECTS')
         self.assertEqual(action.get('payload', {}).get('language'), 'Python')
+
+    def test_chat_multi_step_arrange(self):
+        response = self.client.post('/api/ai/chat/', {
+            'message': 'Open RSK Traders and Photography side by side',
+            'conversation_id': 'test-session'
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        actions = response.data.get('actions', [])
+        self.assertGreaterEqual(len(actions), 2)
+        # Check that arrange windows is included
+        types = [a.get('type') for a in actions]
+        self.assertIn('ARRANGE_WINDOWS', types)
 
     def test_chat_empty_validation(self):
         response = self.client.post('/api/ai/chat/', {

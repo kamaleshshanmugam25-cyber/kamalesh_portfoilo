@@ -11,10 +11,16 @@ import { CommandPalette } from './components/Launcher/CommandPalette';
 import { KamAIAssistant } from './components/AI/KamAIAssistant';
 
 function WorkspaceLayout() {
-  const { theme } = useWindowManager();
+  const { theme, isDockVisible } = useWindowManager();
+
+  const themeBg = theme === 'dark' 
+    ? 'bg-[#151515] text-white' 
+    : theme === 'light' 
+    ? 'bg-[#F5F5F0] text-[#151515]' 
+    : 'bg-[#F5F04E] text-[#151515]';
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-[#F5F04E] text-[#151515] flex flex-col font-sans select-none">
+    <div className={`relative w-screen h-screen overflow-hidden ${themeBg} flex flex-col font-sans select-none transition-colors duration-150`}>
       {/* Dynamic Neo-Brutalist Matrix & Stamps Canvas */}
       <AmbientGlow />
 
@@ -30,7 +36,7 @@ function WorkspaceLayout() {
       <WindowContainer />
 
       {/* Floating macOS-Style Dock (Desktop & Tablet) */}
-      <div className="hidden md:block">
+      <div className={`hidden md:block transition-all duration-150 ${isDockVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16 pointer-events-none'}`}>
         <MacDock />
       </div>
 
@@ -43,7 +49,7 @@ function WorkspaceLayout() {
       {/* Raycast Spotlight Command Palette (⌘K) */}
       <CommandPalette />
 
-      {/* KAM AI - Intelligent Assistant & Digital Guide */}
+      {/* KAM AI - Intelligent Workspace Operator */}
       <KamAIAssistant />
     </div>
   );

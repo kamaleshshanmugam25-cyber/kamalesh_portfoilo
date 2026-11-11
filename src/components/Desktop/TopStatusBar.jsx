@@ -10,7 +10,8 @@ import {
   Layers, 
   Info, 
   Terminal, 
-  Grid
+  Grid,
+  Activity
 } from 'lucide-react';
 
 export const TopStatusBar = () => {
@@ -40,6 +41,8 @@ export const TopStatusBar = () => {
       Object.keys(windows).forEach((id) => minimizeWindow(id));
     } else if (tab === 'projects') {
       openWindow('projects-window', { title: 'Projects Explorer', type: 'projects' });
+    } else if (tab === 'activity') {
+      openWindow('activity-window', { title: 'Live GitHub Activity Center', type: 'github-activity' });
     } else if (tab === 'about') {
       openWindow('about-window', { title: 'About Kamalesh', type: 'about' });
     } else if (tab === 'contact') {
@@ -78,6 +81,13 @@ export const TopStatusBar = () => {
                 <p className="text-[10px] font-mono font-medium text-[#151515]/70">Neo-Brutalist Ecosystem</p>
               </div>
               <div className="py-1 space-y-1">
+                <button 
+                  onClick={() => openWindow('activity-window', { title: 'Live GitHub Activity Center', type: 'github-activity' })}
+                  className="w-full text-left px-3 py-2 font-bold hover:bg-[#3155FF] hover:text-white flex items-center space-x-2 transition-colors border border-transparent hover:border-[#151515]"
+                >
+                  <Activity className="w-4 h-4" />
+                  <span>GitHub Activity Center</span>
+                </button>
                 <button 
                   onClick={() => openWindow('about-window', { title: 'About Kamalesh', type: 'about' })}
                   className="w-full text-left px-3 py-2 font-bold hover:bg-[#3155FF] hover:text-white flex items-center space-x-2 transition-colors border border-transparent hover:border-[#151515]"
@@ -141,6 +151,17 @@ export const TopStatusBar = () => {
             }`}
           >
             Projects
+          </button>
+          <button
+            onClick={() => handleNavClick('activity')}
+            className={`px-3 py-1.5 border-2 border-[#151515] font-bold text-xs uppercase transition-all flex items-center space-x-1.5 ${
+              activeNavTab === 'activity' 
+                ? 'bg-[#3155FF] text-white shadow-brutal-sm' 
+                : 'bg-white text-[#151515] hover:bg-[#F5F04E]'
+            }`}
+          >
+            <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
+            <span>Activity</span>
           </button>
           <button
             onClick={() => handleNavClick('about')}
