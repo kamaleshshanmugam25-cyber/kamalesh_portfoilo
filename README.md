@@ -33,6 +33,46 @@ A luxury, futuristic digital workspace combining a developer portfolio, interact
   - Instant fuzzy search across apps, GitHub repositories, system commands, and portfolio views.
 - **Interactive Developer Terminal**:
   - Built-in CLI running commands (`help`, `repos`, `whoami`, `skills`, `apps`, `launch <id>`, `clear`).
+- **KAM AI — "Your Digital Guide"**:
+  - Intelligent AI assistant grounded in Kamalesh's portfolio, 6 flagship websites, and GitHub repositories.
+  - Safe frontend navigation action dispatcher: open apps, filter repositories, launch modals, and clear screen.
+  - Voice assistant: Web Speech API speech-to-text and text-to-speech with mute/stop controls.
+  - Dual architecture: Django REST Framework backend API (`POST /api/ai/chat/`) with automatic client-side knowledge engine fallback.
+  - Neo-Brutalist design language matching KAMVERSE.
+
+---
+
+## 🤖 KAM AI Assistant & Backend Architecture
+
+KAM AI provides both a Python / Django REST Framework API and a zero-latency client-side fallback engine:
+
+- **Endpoint**: `POST /api/ai/chat/`
+- **Health Check**: `GET /api/ai/health/`
+- **Request Format**:
+  ```json
+  {
+    "message": "Open RSK Traders",
+    "conversation_id": "session-123"
+  }
+  ```
+- **Response Format**:
+  ```json
+  {
+    "response": "RSK TRADERS is an international import & export platform. Opening the browser window right now!",
+    "action": {
+      "type": "OPEN_APP",
+      "payload": { "appId": "rsk-traders" }
+    },
+    "suggestions": ["Show all projects", "Open JobSphere", "Take me home"]
+  }
+  ```
+- **Safe Permitted Actions**:
+  - `OPEN_APP`: Opens any of the 6 flagship applications
+  - `OPEN_PROJECT`: Opens project details and README modal for a repository
+  - `NAVIGATE_VIEW`: Navigates to `projects`, `about`, `contact`, `terminal`, `launcher`, or `home`
+  - `FILTER_PROJECTS`: Filters projects by technology (e.g. Python, JavaScript) or category
+  - `OPEN_EXTERNAL`: Opens verified external destination safely (e.g. GitHub profile)
+  - `MINIMIZE_ALL`: Clears workspace down to the desktop canvas
 
 ---
 
@@ -63,13 +103,25 @@ export const REPO_OVERRIDES = {
 
 ## 🚀 Quick Start
 
+### 1. Frontend (React + Vite)
 ```bash
-# 1. Install Dependencies
+# Install frontend dependencies
 npm install
 
-# 2. Run Local Development Server
+# Start Vite development server
 npm run dev
 
-# 3. Build for Production
+# Build for production
 npm run build
 ```
+
+### 2. Backend (Django REST Framework)
+```bash
+# Run unit tests
+python backend/manage.py test ai_assistant
+
+# Start Django backend server (http://127.0.0.1:8000)
+npm run backend
+# or: python backend/manage.py runserver
+```
+

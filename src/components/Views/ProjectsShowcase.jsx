@@ -35,6 +35,19 @@ export const ProjectsShowcase = ({ onClose }) => {
   const [featuredOnly, setFeaturedOnly] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
+  // Listen for AI navigation filter events
+  React.useEffect(() => {
+    const handleAIFilter = (e) => {
+      if (e.detail) {
+        if (e.detail.category) setSelectedCategory(e.detail.category);
+        if (e.detail.language) setSelectedLanguage(e.detail.language);
+        if (e.detail.searchQuery) setSearchQuery(e.detail.searchQuery);
+      }
+    };
+    window.addEventListener('kamverse:filter-projects', handleAIFilter);
+    return () => window.removeEventListener('kamverse:filter-projects', handleAIFilter);
+  }, []);
+
   // Extract unique languages from repositories
   const allLanguages = ['All', ...new Set(
     gitHubProjects

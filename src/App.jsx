@@ -8,6 +8,7 @@ import { MobileBottomNav } from './components/Mobile/MobileBottomNav';
 import { WindowContainer } from './components/WindowManager/WindowContainer';
 import { AppLauncherModal } from './components/Launcher/AppLauncherModal';
 import { CommandPalette } from './components/Launcher/CommandPalette';
+import { KamAIAssistant } from './components/AI/KamAIAssistant';
 
 function WorkspaceLayout() {
   const { theme } = useWindowManager();
@@ -41,6 +42,9 @@ function WorkspaceLayout() {
 
       {/* Raycast Spotlight Command Palette (⌘K) */}
       <CommandPalette />
+
+      {/* KAM AI - Intelligent Assistant & Digital Guide */}
+      <KamAIAssistant />
     </div>
   );
 }

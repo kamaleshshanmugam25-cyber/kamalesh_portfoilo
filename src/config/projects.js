@@ -8,6 +8,7 @@
  */
 
 export const GITHUB_USERNAME = 'kamaleshshanmugam25-cyber';
+export const GITHUB_PROFILE_URL = 'https://github.com/kamaleshshanmugam25-cyber';
 
 export const PROJECT_CATEGORIES = [
   'All',
