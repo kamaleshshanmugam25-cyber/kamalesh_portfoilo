@@ -8,7 +8,10 @@ import {
   Sparkles,
   MessageSquare,
   Clock,
-  ArrowRight
+  ArrowRight,
+  ExternalLink,
+  AlertCircle,
+  RotateCw
 } from 'lucide-react';
 import { PROFILE } from '../../config/profile';
 
@@ -41,6 +44,8 @@ export const ContactModal = () => {
   const [isCopied, setIsCopied] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('');
+  const [errorNotice, setErrorNotice] = useState('');
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(PROFILE.email);
@@ -48,26 +53,78 @@ export const ContactModal = () => {
     setTimeout(() => setIsCopied(false), 2500);
   };
 
-  const handleSubmit = (e) => {
+  const handleSendViaMailClient = () => {
+    const subject = encodeURIComponent(formData.subject || `Inquiry from ${formData.name || 'KAMVERSE Visitor'}`);
+    const body = encodeURIComponent(
+      `Hello Kamalesh,\n\nName: ${formData.name}\nEmail: ${formData.email}\nSubject: ${formData.subject}\n\nMessage:\n${formData.message}\n\n---\nSent via KAMVERSE Portfolio`
+    );
+    window.location.href = `mailto:${PROFILE.email}?subject=${subject}&body=${body}`;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setErrorNotice('');
 
-    // Simulate instant secure submission
-    setTimeout(() => {
-      setIsSubmitting(false);
+    const payload = {
+      name: formData.name,
+      email: formData.email,
+      subject: formData.subject || `Inquiry from ${formData.name}`,
+      message: formData.message,
+      _subject: `[KAMVERSE Inquiry] from ${formData.name}: ${formData.subject || 'Portfolio Contact'}`,
+      _template: 'table',
+      _captcha: 'false'
+    };
+
+    try {
+      // 1. Direct transmission to Kamalesh's email via FormSubmit AJAX endpoint
+      const response = await fetch(`https://formsubmit.co/ajax/${PROFILE.email}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const resData = await response.json().catch(() => ({}));
+
+      // 2. Also archive to local runtime service if available
+      try {
+        const localHost = typeof window !== 'undefined' && window.location.hostname ? window.location.hostname : '127.0.0.1';
+        fetch(`http://${localHost}:4170/api/contact`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }).catch(() => {});
+      } catch (_) {}
+
       setIsSubmitted(true);
+      if (resData.message && resData.message.includes('needs Activation')) {
+        setStatusMessage("Direct email transmitted! If this is the first submission, FormSubmit sent a quick one-click 'Activate' link to your Gmail inbox.");
+      } else {
+        setStatusMessage(`Your message has been directly dispatched to Kamalesh's email (${PROFILE.email}).`);
+      }
+
       // Fire confetti celebration
       try {
         confetti({
-          particleCount: 80,
+          particleCount: 90,
           spread: 70,
           origin: { y: 0.6 },
-          colors: ['#9B87FF', '#50DED0', '#FFFFFF']
+          colors: ['#F5F04E', '#3155FF', '#10B981', '#FF5C8A']
         });
-      } catch (err) {
-        console.error(err);
-      }
-    }, 600);
+      } catch (err) {}
+
+    } catch (err) {
+      console.warn('Direct FormSubmit attempt failed, launching mail client:', err);
+      // Fallback: Trigger prefilled mailto immediately
+      handleSendViaMailClient();
+      setIsSubmitted(true);
+      setStatusMessage(`Your email client was opened to send directly to ${PROFILE.email}.`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -78,65 +135,91 @@ export const ContactModal = () => {
         <div className="text-center space-y-2 pb-2">
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-lg bg-[#F5F04E] border-2 border-[#151515] shadow-[2px_2px_0px_#151515] text-[#151515] text-[11px] font-extrabold font-heading tracking-wider uppercase">
             <Sparkles className="w-3.5 h-3.5 text-[#151515]" strokeWidth={2.5} />
-            <span>Direct Inquiries</span>
+            <span>Direct Email Delivery</span>
           </div>
           <h1 className="text-2xl md:text-4xl font-extrabold font-display text-[#151515] tracking-tight">
             Connect With Kamalesh
           </h1>
           <p className="text-xs md:text-sm text-[#151515]/80 font-medium max-w-md mx-auto">
-            Have a project in mind, an inquiry about any of the platforms, or looking for high-end design &amp; frontend engineering?
+            Messages submitted here dispatch directly to <span className="font-mono font-bold text-[#3155FF]">{PROFILE.email}</span>.
           </p>
         </div>
 
         {/* Quick Email Copy Bar */}
-        <div className="brutal-card rounded-2xl p-4 flex items-center justify-between">
+        <div className="brutal-card rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 rounded-xl bg-[#3155FF] text-white border-2 border-[#151515]">
+            <div className="p-2.5 rounded-xl bg-[#3155FF] text-white border-2 border-[#151515] shadow-brutal-sm">
               <Mail className="w-4 h-4" strokeWidth={2.5} />
             </div>
             <div>
-              <p className="text-[10px] uppercase font-mono font-bold text-[#151515]/60 tracking-wider">Direct Email</p>
-              <p className="text-xs sm:text-sm font-extrabold text-[#151515] font-mono">{PROFILE.email}</p>
+              <p className="text-[10px] uppercase font-mono font-bold text-[#151515]/60 tracking-wider">Direct Recipient</p>
+              <a 
+                href={`mailto:${PROFILE.email}`}
+                className="text-xs sm:text-sm font-extrabold text-[#151515] font-mono hover:text-[#3155FF] hover:underline"
+                title="Click to open default mail client"
+              >
+                {PROFILE.email}
+              </a>
             </div>
           </div>
-          <button
-            onClick={handleCopyEmail}
-            className="brutal-btn-yellow px-4 py-2 rounded-xl text-xs flex items-center space-x-1.5"
-          >
-            {isCopied ? (
-              <>
-                <Check className="w-3.5 h-3.5 text-[#151515]" strokeWidth={3} />
-                <span>Copied!</span>
-              </>
-            ) : (
-              <>
-                <Copy className="w-3.5 h-3.5 text-[#151515]" strokeWidth={2.5} />
-                <span>Copy</span>
-              </>
-            )}
-          </button>
+          <div className="flex items-center space-x-2 self-end sm:self-auto">
+            <a
+              href={`mailto:${PROFILE.email}`}
+              className="px-3 py-1.5 rounded-xl bg-white hover:bg-gray-100 text-[#151515] border-2 border-[#151515] shadow-brutal-sm text-xs font-bold font-mono flex items-center space-x-1"
+              title="Open Mail App"
+            >
+              <ExternalLink className="w-3 h-3" />
+              <span>Mail Client</span>
+            </a>
+            <button
+              onClick={handleCopyEmail}
+              className="brutal-btn-yellow px-4 py-1.5 rounded-xl text-xs flex items-center space-x-1.5"
+            >
+              {isCopied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-[#151515]" strokeWidth={3} />
+                  <span>Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5 text-[#151515]" strokeWidth={2.5} />
+                  <span>Copy</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Main Contact Form or Success State */}
-        <div className="brutal-card rounded-2xl p-6 md:p-8">
+        <div className="brutal-card rounded-2xl p-6 md:p-8 bg-white">
           {isSubmitted ? (
             <div className="py-8 text-center space-y-4">
               <div className="w-16 h-16 rounded-2xl bg-[#10B981] border-3 border-[#151515] shadow-brutal flex items-center justify-center mx-auto text-white">
                 <Check className="w-8 h-8" strokeWidth={3} />
               </div>
-              <h3 className="text-xl md:text-2xl font-extrabold font-display text-[#151515]">Message Transmitted</h3>
-              <p className="text-xs md:text-sm text-[#151515]/80 font-medium max-w-sm mx-auto">
-                Thank you for reaching out. Your message has been received, and I will respond to your email promptly.
+              <h3 className="text-xl md:text-2xl font-extrabold font-display text-[#151515]">Message Dispatched</h3>
+              <p className="text-xs md:text-sm text-[#151515]/90 font-sans leading-relaxed max-w-md mx-auto">
+                {statusMessage}
               </p>
-              <button
-                onClick={() => {
-                  setIsSubmitted(false);
-                  setFormData({ name: '', email: '', subject: '', message: '' });
-                }}
-                className="mt-4 brutal-btn-blue px-5 py-2.5 rounded-xl text-xs"
-              >
-                Send Another Message
-              </button>
+              <div className="pt-2 flex flex-wrap items-center justify-center gap-2">
+                <button
+                  onClick={() => {
+                    setIsSubmitted(false);
+                    setStatusMessage('');
+                    setFormData({ name: '', email: '', subject: '', message: '' });
+                  }}
+                  className="brutal-btn-yellow px-4 py-2 rounded-xl text-xs font-bold"
+                >
+                  Send Another Message
+                </button>
+                <button
+                  onClick={handleSendViaMailClient}
+                  className="brutal-btn-blue px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  <span>Open in Mail App</span>
+                </button>
+              </div>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -153,7 +236,7 @@ export const ContactModal = () => {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-extrabold font-heading text-[#151515]">Email Address</label>
+                  <label className="text-xs font-extrabold font-heading text-[#151515]">Your Email Address</label>
                   <input
                     type="email"
                     required
@@ -166,12 +249,12 @@ export const ContactModal = () => {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-extrabold font-heading text-[#151515]">Project or Platform of Interest</label>
+                <label className="text-xs font-extrabold font-heading text-[#151515]">Subject / Topic</label>
                 <input
                   type="text"
                   value={formData.subject}
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                  placeholder="e.g. RSK Traders, Platform Architecture, UI/UX"
+                  placeholder="e.g. Hiring, Python Project, Collaboration"
                   className="w-full px-3.5 py-2.5 rounded-xl bg-white border-2 border-[#151515] shadow-[2px_2px_0px_#151515] focus:outline-none focus:ring-2 focus:ring-[#3155FF] text-xs font-bold text-[#151515] placeholder-[#151515]/40 transition-all"
                 />
               </div>
@@ -183,25 +266,52 @@ export const ContactModal = () => {
                   required
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  placeholder="Tell me about your goals, timelines, or collaboration ideas..."
+                  placeholder="Write your message here. It will be sent straight to Kamalesh's inbox..."
                   className="w-full px-3.5 py-2.5 rounded-xl bg-white border-2 border-[#151515] shadow-[2px_2px_0px_#151515] focus:outline-none focus:ring-2 focus:ring-[#3155FF] text-xs font-bold text-[#151515] placeholder-[#151515]/40 transition-all resize-none"
                 />
               </div>
 
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full brutal-btn-blue py-3 rounded-xl text-xs flex items-center justify-center space-x-2 disabled:opacity-50"
-              >
-                {isSubmitting ? (
-                  <span>Sending Message...</span>
-                ) : (
-                  <>
-                    <span>Send Workspace Message</span>
-                    <Send className="w-3.5 h-3.5" strokeWidth={2.5} />
-                  </>
-                )}
-              </button>
+              {errorNotice && (
+                <div className="p-3 bg-red-100 border-2 border-red-500 text-red-900 rounded-xl text-xs font-mono flex items-center space-x-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                  <span>{errorNotice}</span>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="flex-1 brutal-btn-blue py-3 rounded-xl text-xs flex items-center justify-center space-x-2 disabled:opacity-50"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <RotateCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Sending Directly to Gmail...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Send Directly to Email</span>
+                      <Send className="w-3.5 h-3.5" strokeWidth={2.5} />
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleSendViaMailClient}
+                  className="py-3 px-4 bg-[#F5F04E] hover:bg-yellow-300 text-[#151515] border-2 border-[#151515] shadow-brutal-sm rounded-xl text-xs font-heading font-black uppercase flex items-center justify-center space-x-1.5 active:translate-y-0.5"
+                  title="Open in your default Mail app"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  <span>Mail App</span>
+                </button>
+              </div>
+
+              <p className="text-[10px] font-mono text-center text-[#151515]/60 pt-1">
+                Direct endpoint: <span className="font-bold">{PROFILE.email}</span> • Instant transmission
+              </p>
             </form>
           )}
         </div>

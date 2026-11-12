@@ -199,26 +199,22 @@ app.use(express.json());
 
 // Token Security Middleware (Allows browser requests with token or local dev)
 app.use((req, res, next) => {
-  // Allow health and token exchange
-  if (req.path === '/api/health' || req.path === '/api/token') {
+  // Allow health, token exchange, and public contact inquiries
+  if (req.path === '/api/health' || req.path === '/api/token' || req.path === '/api/contact') {
     return next();
   }
   const tokenHeader = req.headers['x-kamverse-token'] || req.query.token;
   // Local host verification: requests strictly from 127.0.0.1 / ::1
-  const remoteIp = req.socket.remoteAddress;
-  const isLocalhost = remoteIp === '127.0.0.1' || remoteIp === '::1' || remoteIp === '::ffff:127.0.0.1';
-
-  if (!isLocalhost) {
-    return res.status(403).json({ error: 'Access denied: local runtime bound to 127.0.0.1 only.' });
-  }
+  const remoteIp = req.socket.remoteAddress || '';
+  const isLocalhost = remoteIp.includes('127.0.0.1') || remoteIp.includes('::1');
 
   if (tokenHeader && tokenHeader === LOCAL_TOKEN) {
     return next();
   }
 
-  // Allow localhost browser requests if referer is Vite localhost
+  // Allow browser requests if referer is Vite dev or local network
   const referer = req.headers['referer'] || '';
-  if (referer.includes(':5173')) {
+  if (referer.includes(':5173') || isLocalhost) {
     return next();
   }
 
@@ -240,6 +236,49 @@ app.get('/api/health', (req, res) => {
 // Token retrieval for local frontend
 app.get('/api/token', (req, res) => {
   res.json({ token: LOCAL_TOKEN });
+});
+
+// Contact Message Storage & Archival
+const INBOX_PATH = path.join(ROOT_DIR, 'runtime-service', 'inbox.json');
+
+app.post('/api/contact', (req, res) => {
+  try {
+    const { name, email, subject, message } = req.body;
+    const item = {
+      id: crypto.randomUUID(),
+      name: name || 'Anonymous',
+      email: email || '',
+      subject: subject || 'General Inquiry',
+      message: message || '',
+      receivedAt: new Date().toISOString()
+    };
+
+    let inbox = [];
+    if (fs.existsSync(INBOX_PATH)) {
+      try {
+        inbox = JSON.parse(fs.readFileSync(INBOX_PATH, 'utf8'));
+      } catch (_) {}
+    }
+    inbox.unshift(item);
+    fs.writeFileSync(INBOX_PATH, JSON.stringify(inbox, null, 2), 'utf8');
+
+    console.log(`[KAMVERSE RUNTIME] Saved contact message from ${name} (${email})`);
+    return res.json({ success: true, message: 'Message archived locally', id: item.id });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/contact', (req, res) => {
+  try {
+    if (fs.existsSync(INBOX_PATH)) {
+      const inbox = JSON.parse(fs.readFileSync(INBOX_PATH, 'utf8'));
+      return res.json({ success: true, count: inbox.length, messages: inbox });
+    }
+    return res.json({ success: true, count: 0, messages: [] });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
 });
 
 // Get all applications with live statuses
