@@ -23,13 +23,13 @@ export const MacDock = () => {
     setIsLauncherOpen 
   } = useWindowManager();
 
-  const handleAppClick = (appId) => {
-    const win = windows[appId];
-    if (win && win.isOpen && !win.isMinimized && activeWindowId === appId) {
+  const handleToggleWindow = (windowId, options = {}) => {
+    const win = windows[windowId];
+    if (win && win.isOpen && !win.isMinimized && activeWindowId === windowId) {
       // Toggle minimize if already active front window
-      minimizeWindow(appId);
+      minimizeWindow(windowId);
     } else {
-      openWindow(appId);
+      openWindow(windowId, options);
     }
   };
 
@@ -62,7 +62,7 @@ export const MacDock = () => {
         onTouchMove={(e) => {
           if (e.touches && e.touches[0]) mouseX.set(e.touches[0].clientX);
         }}
-        onTouchEnd={() => setTimeout(() => mouseX.set(Infinity), 150)}
+        onTouchEnd={() => setTimeout(() => mouseX.set(Infinity), 200)}
         onTouchCancel={() => mouseX.set(Infinity)}
         className="pointer-events-auto flex items-end gap-1 sm:gap-1.5 md:gap-2 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-2xl bg-white border-3 border-[#151515] shadow-brutal-md max-w-[calc(100vw-0.5rem)] overflow-x-visible select-none touch-manipulation transition-transform duration-100"
       >
@@ -71,7 +71,7 @@ export const MacDock = () => {
           mouseX={mouseX}
           icon={<Grid className="w-4 h-4 sm:w-5 sm:h-5 text-[#151515]" strokeWidth={2.4} />}
           label="App Launcher"
-          onClick={() => setIsLauncherOpen(true)}
+          onClick={() => setIsLauncherOpen(prev => !prev)}
           isOpen={false}
           isActive={false}
           colorClass="bg-[#F5F04E] hover:bg-[#ece736]"
@@ -92,7 +92,7 @@ export const MacDock = () => {
               mouseX={mouseX}
               icon={getAppIcon(app.id)}
               label={app.shortName}
-              onClick={() => handleAppClick(app.id)}
+              onClick={() => handleToggleWindow(app.id, { title: app.name, type: 'app', metadata: app })}
               isOpen={isOpen}
               isActive={isActive}
               colorClass={getAppColor(app.id)}
@@ -108,7 +108,7 @@ export const MacDock = () => {
           mouseX={mouseX}
           icon={<Layers className="w-4 h-4 sm:w-5 sm:h-5 text-white" strokeWidth={2.2} />}
           label="Projects Explorer"
-          onClick={() => openWindow('projects-window', { title: 'Projects Explorer', type: 'projects' })}
+          onClick={() => handleToggleWindow('projects-window', { title: 'Projects Explorer', type: 'projects' })}
           isOpen={!!(windows['projects-window']?.isOpen && !windows['projects-window']?.isMinimized)}
           isActive={activeWindowId === 'projects-window'}
           colorClass="bg-[#3155FF] hover:bg-[#2042eb]"
@@ -119,7 +119,7 @@ export const MacDock = () => {
           mouseX={mouseX}
           icon={<Activity className="w-4 h-4 sm:w-5 sm:h-5 text-[#151515]" strokeWidth={2.4} />}
           label="GitHub Activity"
-          onClick={() => openWindow('activity-window', { title: 'Live GitHub Activity Center', type: 'github-activity' })}
+          onClick={() => handleToggleWindow('activity-window', { title: 'Live GitHub Activity Center', type: 'github-activity' })}
           isOpen={!!(windows['activity-window']?.isOpen && !windows['activity-window']?.isMinimized)}
           isActive={activeWindowId === 'activity-window'}
           colorClass="bg-[#F5F04E] hover:bg-[#ece736]"
@@ -130,7 +130,7 @@ export const MacDock = () => {
           mouseX={mouseX}
           icon={<User className="w-4 h-4 sm:w-5 sm:h-5 text-white" strokeWidth={2.2} />}
           label="About Kamalesh"
-          onClick={() => openWindow('about-window', { title: 'About Kamalesh', type: 'about' })}
+          onClick={() => handleToggleWindow('about-window', { title: 'About Kamalesh', type: 'about' })}
           isOpen={!!(windows['about-window']?.isOpen && !windows['about-window']?.isMinimized)}
           isActive={activeWindowId === 'about-window'}
           colorClass="bg-[#FF5C8A] hover:bg-[#ff3b71]"
@@ -141,7 +141,7 @@ export const MacDock = () => {
           mouseX={mouseX}
           icon={<Terminal className="w-4 h-4 sm:w-5 sm:h-5 text-[#F5F04E]" strokeWidth={2.2} />}
           label="Developer Terminal"
-          onClick={() => openWindow('terminal-window', { title: 'Developer Terminal', type: 'terminal' })}
+          onClick={() => handleToggleWindow('terminal-window', { title: 'Developer Terminal', type: 'terminal' })}
           isOpen={!!(windows['terminal-window']?.isOpen && !windows['terminal-window']?.isMinimized)}
           isActive={activeWindowId === 'terminal-window'}
           colorClass="bg-[#151515] hover:bg-[#2a2a2a]"
@@ -152,7 +152,7 @@ export const MacDock = () => {
           mouseX={mouseX}
           icon={<Mail className="w-4 h-4 sm:w-5 sm:h-5 text-[#151515]" strokeWidth={2.2} />}
           label="Contact & Hire"
-          onClick={() => openWindow('contact-window', { title: 'Contact Kamalesh', type: 'contact' })}
+          onClick={() => handleToggleWindow('contact-window', { title: 'Contact Kamalesh', type: 'contact' })}
           isOpen={!!(windows['contact-window']?.isOpen && !windows['contact-window']?.isMinimized)}
           isActive={activeWindowId === 'contact-window'}
           colorClass="bg-[#F5F04E] hover:bg-[#e7e237]"

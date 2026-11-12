@@ -13,7 +13,7 @@ export const DockItem = ({ mouseX, icon, label, onClick, isOpen, isActive, badge
   const ref = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
   const [screenTier, setScreenTier] = useState(getInitialScreenTier);
-  const touchStartRef = useRef({ time: 0, x: 0, y: 0 });
+  const touchStartPos = useRef({ x: 0, y: 0 });
   const lastActionTime = useRef(0);
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export const DockItem = ({ mouseX, icon, label, onClick, isOpen, isActive, badge
     return val - centerX;
   });
 
-  // Snappy bell-curve spring calculation (evaluates dynamically so it never gets stuck on stale static ranges)
+  // Smooth bell-curve magnification calculation
   const widthSync = useTransform(distance, (d) => {
     if (d === Infinity || d === -Infinity) return baseSize;
     const absD = Math.abs(d);
@@ -45,7 +45,7 @@ export const DockItem = ({ mouseX, icon, label, onClick, isOpen, isActive, badge
     const factor = (1 + Math.cos((absD / maxDistance) * Math.PI)) / 2;
     return baseSize + (targetSize - baseSize) * factor;
   });
-  const width = useSpring(widthSync, { mass: 0.04, stiffness: 520, damping: 26 });
+  const width = useSpring(widthSync, { mass: 0.04, stiffness: 500, damping: 28 });
 
   // Icon scale spring so the icon zooms proportionally with the button
   const iconScaleSync = useTransform(distance, (d) => {
@@ -53,17 +53,14 @@ export const DockItem = ({ mouseX, icon, label, onClick, isOpen, isActive, badge
     const absD = Math.abs(d);
     if (absD >= maxDistance) return 1;
     const factor = (1 + Math.cos((absD / maxDistance) * Math.PI)) / 2;
-    return 1 + 0.25 * factor;
+    return 1 + 0.22 * factor;
   });
-  const iconScale = useSpring(iconScaleSync, { mass: 0.04, stiffness: 520, damping: 26 });
+  const iconScale = useSpring(iconScaleSync, { mass: 0.04, stiffness: 500, damping: 28 });
 
-  // Guaranteed action trigger debounced against synthetic double-clicks
-  const triggerAction = (e) => {
-    if (e && e.cancelable && e.type !== 'click') {
-      e.preventDefault();
-    }
+  // Universal click/tap execution handler debounced to prevent duplicate fires
+  const executeAction = () => {
     const now = Date.now();
-    if (now - lastActionTime.current < 250) return;
+    if (now - lastActionTime.current < 260) return;
     lastActionTime.current = now;
     if (onClick) {
       onClick();
@@ -73,8 +70,7 @@ export const DockItem = ({ mouseX, icon, label, onClick, isOpen, isActive, badge
   const handleTouchStart = (e) => {
     setIsHovered(true);
     if (e.touches && e.touches[0]) {
-      touchStartRef.current = {
-        time: Date.now(),
+      touchStartPos.current = {
         x: e.touches[0].clientX,
         y: e.touches[0].clientY
       };
@@ -82,17 +78,14 @@ export const DockItem = ({ mouseX, icon, label, onClick, isOpen, isActive, badge
   };
 
   const handleTouchEnd = (e) => {
-    setTimeout(() => setIsHovered(false), 500);
-    const duration = Date.now() - touchStartRef.current.time;
-    let dist = 0;
+    setTimeout(() => setIsHovered(false), 400);
     if (e.changedTouches && e.changedTouches[0]) {
-      const dx = e.changedTouches[0].clientX - touchStartRef.current.x;
-      const dy = e.changedTouches[0].clientY - touchStartRef.current.y;
-      dist = Math.sqrt(dx * dx + dy * dy);
-    }
-    // On touch devices: clean tap (< 450ms and < 20px drift) executes action immediately
-    if (duration < 450 && dist < 20) {
-      triggerAction(e);
+      const dx = Math.abs(e.changedTouches[0].clientX - touchStartPos.current.x);
+      const dy = Math.abs(e.changedTouches[0].clientY - touchStartPos.current.y);
+      // Clean tap threshold: if finger did not slide across the screen, trigger immediately
+      if (dx < 30 && dy < 30) {
+        executeAction();
+      }
     }
   };
 
@@ -114,15 +107,15 @@ export const DockItem = ({ mouseX, icon, label, onClick, isOpen, isActive, badge
       {/* Dock Icon Button */}
       <motion.button
         ref={ref}
+        type="button"
         style={{ width, height: width }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
-        onClick={triggerAction}
-        onTap={triggerAction}
-        whileTap={{ scale: 0.9 }}
-        className={`relative rounded-xl flex items-center justify-center p-1.5 sm:p-2 border-2 border-[#151515] transition-[box-shadow,background-color] duration-100 select-none touch-manipulation ${
+        onClick={executeAction}
+        whileTap={{ scale: 0.92 }}
+        className={`relative rounded-xl flex items-center justify-center p-1.5 sm:p-2 border-2 border-[#151515] transition-[box-shadow,background-color] duration-100 select-none cursor-pointer touch-manipulation active:translate-y-0.5 ${
           colorClass || 'bg-white hover:bg-[#F5F04E]'
         } ${
           isActive 
@@ -145,7 +138,7 @@ export const DockItem = ({ mouseX, icon, label, onClick, isOpen, isActive, badge
       </motion.button>
 
       {/* Active Dot Indicator underneath */}
-      <div className="h-1.5 sm:h-2 mt-0.5 sm:mt-1 flex items-center justify-center">
+      <div className="h-1.5 sm:h-2 mt-0.5 sm:mt-1 flex items-center justify-center pointer-events-none">
         {isOpen && (
           <motion.div
             initial={{ scale: 0 }}

@@ -4,14 +4,13 @@
 
 export const PROFILE = {
   name: 'Kamalesh',
-  title: 'UI/UX Designer & Frontend Developer',
-  experienceYears: '8+',
-  location: 'India',
-  availability: 'Available for Select Projects & Architecture Consulting',
+  title: 'Full Stack Developer',
+  experienceYears: 'Fresher',
+  location: 'Trichy, Tamil Nadu, India',
+  availability: 'Available for freelance & full-time opportunities',
   email: 'kamaleshshanmugam25@gmail.com',
   github: 'https://github.com/kamaleshshanmugam25-cyber',
   linkedin: 'https://www.linkedin.com/in/kamalesh-s-47554a2a7?utm_source=share_via&utm_content=profile&utm_medium=member_android',
-  twitter: 'https://twitter.com',
   
   tagline: 'Transforming complex systems into intuitive, high-performance digital ecosystems.',
   
@@ -27,6 +26,7 @@ export const PROFILE = {
     {
       category: 'Frontend Engineering',
       skills: [
+        {name : 'Python',level: 60,highlight:true},
         { name: 'React', level: 96, highlight: true },
         { name: 'JavaScript (ESNext)', level: 94, highlight: true },
         { name: 'Tailwind CSS', level: 98, highlight: true },

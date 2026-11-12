@@ -75,7 +75,7 @@ const SingleWindow = ({ windowItem }) => {
         zIndex: Math.min(windowItem.zIndex, 45),
         position: 'fixed'
       }}
-      className={`overflow-hidden flex flex-col bg-white border-3 border-[#151515] transition-shadow duration-150 ${
+      className={`overflow-hidden flex flex-col bg-white border-3 border-[#151515] transition-shadow duration-150 pointer-events-auto ${
         isActive 
           ? 'shadow-brutal-xl' 
           : 'shadow-brutal-lg opacity-95'
@@ -112,9 +112,7 @@ export const WindowContainer = () => {
     <div className="fixed inset-0 pointer-events-none z-30">
       <AnimatePresence>
         {openWindows.map((win) => (
-          <div key={win.id} className="pointer-events-auto">
-            <SingleWindow windowItem={win} />
-          </div>
+          <SingleWindow key={win.id} windowItem={win} />
         ))}
       </AnimatePresence>
     </div>
