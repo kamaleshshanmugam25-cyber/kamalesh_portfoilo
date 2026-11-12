@@ -23,7 +23,8 @@ import {
   EyeOff,
   Activity,
   GitCommit,
-  Server
+  Server,
+  FileText
 } from 'lucide-react';
 import { useWindowManager } from '../../context/WindowContext';
 import { APPLICATIONS } from '../../config/applications';
@@ -82,6 +83,14 @@ export const CommandPalette = () => {
       icon: <Code2 className="w-4 h-4 text-workspace-teal" />,
       action: () => openProjectDetails(project)
     })),
+    {
+      id: 'cmd-resume',
+      title: 'Open Official Resume (Kamalesh S)',
+      subtitle: 'Python Developer • VDart Intern • Education, Projects & Skills',
+      category: 'Resume & Credentials',
+      icon: <FileText className="w-4 h-4 text-[#F5F04E]" />,
+      action: () => openWindow('resume-window', { title: 'Kamalesh S — Official Resume', type: 'resume' })
+    },
     {
       id: 'cmd-activity',
       title: 'Open Live GitHub Activity Center',

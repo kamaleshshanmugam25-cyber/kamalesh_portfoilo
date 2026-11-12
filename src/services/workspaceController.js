@@ -49,10 +49,7 @@ export const ACTION_REGISTRY = {
   OPEN_GITHUB: 'OPEN_GITHUB',
   OPEN_LIVE_WEBSITE: 'OPEN_LIVE_WEBSITE',
   OPEN_PROJECT_DETAILS: 'OPEN_PROJECT_DETAILS',
-  FOCUS_PLANET: 'FOCUS_PLANET',
-  HIGHLIGHT_TECH_PLANETS: 'HIGHLIGHT_TECH_PLANETS',
-  RESET_UNIVERSE: 'RESET_UNIVERSE',
-  SWITCH_VIEW_MODE: 'SWITCH_VIEW_MODE',
+  OPEN_RESUME: 'OPEN_RESUME',
   START_LOCAL_APPLICATION: 'START_LOCAL_APPLICATION',
   STOP_LOCAL_APPLICATION: 'STOP_LOCAL_APPLICATION',
   RESTART_LOCAL_APPLICATION: 'RESTART_LOCAL_APPLICATION',
@@ -305,57 +302,16 @@ export const executeSingleAction = async (action, wm) => {
       };
     }
 
-    // 3. 3D UNIVERSE COMMANDS
-    case 'FOCUS_PLANET': {
-      const targetQuery = directValue || payload.planetId || payload.target || '';
-      const app = resolveApplication(targetQuery);
-      if (setViewMode) setViewMode('universe');
-      if (app) {
-        if (setSelectedPlanetId) setSelectedPlanetId(app.id);
-        window.dispatchEvent(new CustomEvent('kamverse:focus-planet', { detail: { planetId: app.id } }));
-        if (payload.openWindow) {
-          openWindow(app.id);
-        }
-        return {
-          success: true,
-          message: `Navigating 3D camera to ${app.shortName} planet.`,
-          target: app.shortName
-        };
-      }
-      return { success: false, message: `Could not find a project planet matching "${targetQuery}".` };
-    }
-
-    case 'HIGHLIGHT_TECH_PLANETS': {
-      const tech = directValue || payload.tech || payload.technology || 'Python';
-      if (setViewMode) setViewMode('universe');
-      if (setTechFilter) setTechFilter(tech);
-      window.dispatchEvent(new CustomEvent('kamverse:highlight-tech', { detail: { tech } }));
+    // 3. RESUME COMMANDS
+    case 'OPEN_RESUME': {
+      openWindow('resume-window', {
+        title: 'Kamalesh S — Official Resume',
+        type: 'resume'
+      });
       return {
         success: true,
-        message: `Highlighting ${tech} project planets in the 3D Universe.`,
-        target: tech
-      };
-    }
-
-    case 'RESET_UNIVERSE': {
-      if (setViewMode) setViewMode('universe');
-      if (setSelectedPlanetId) setSelectedPlanetId(null);
-      if (setTechFilter) setTechFilter(null);
-      window.dispatchEvent(new CustomEvent('kamverse:reset-universe', { detail: {} }));
-      return {
-        success: true,
-        message: 'Reset 3D camera to cosmic orbital view.',
-        target: 'Universe Orbit'
-      };
-    }
-
-    case 'SWITCH_VIEW_MODE': {
-      const mode = (directValue || payload.mode || 'universe').toLowerCase();
-      if (setViewMode) setViewMode(mode === 'universe' ? 'universe' : 'desktop');
-      return {
-        success: true,
-        message: `Switched view mode to ${mode === 'universe' ? '3D Universe' : 'Desktop Canvas'}.`,
-        target: mode
+        message: "Opened Kamalesh's official resume window.",
+        target: 'Resume'
       };
     }
 
@@ -442,12 +398,11 @@ export const executeSingleAction = async (action, wm) => {
     case 'NAVIGATE': {
       const view = (directValue || payload.view || payload.target || '').toLowerCase().trim();
       if (view === 'desktop' || view === 'home') {
-        if (setViewMode) setViewMode('desktop');
         minimizeAllWindows();
         return { success: true, message: 'Returned to the KAMVERSE desktop canvas.', target: 'Desktop' };
-      } else if (view === 'universe' || view === '3d' || view === 'space') {
-        if (setViewMode) setViewMode('universe');
-        return { success: true, message: 'Entered 3D Project Universe.', target: '3D Universe' };
+      } else if (view === 'resume' || view === 'cv') {
+        openWindow('resume-window', { title: 'Kamalesh S — Official Resume', type: 'resume' });
+        return { success: true, message: "Opened Kamalesh's official resume.", target: 'Resume' };
       } else if (view === 'projects') {
         openWindow('projects-window', { title: 'Projects Explorer', type: 'projects' });
         return { success: true, message: 'Opened Projects Explorer.', target: 'Projects' };

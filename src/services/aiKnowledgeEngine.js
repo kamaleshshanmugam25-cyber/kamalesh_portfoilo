@@ -226,12 +226,13 @@ export const classifyIntent = (rawPrompt = '', history = []) => {
     return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'NAV_DESKTOP' };
   }
 
-  // 3D Universe
-  if (p.includes('reset the universe') || p.includes('reset universe')) {
-    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'RESET_UNIVERSE' };
+  // Resume & Credentials
+  if (p.includes('resume') || p.includes('cv') || p.includes('education') || p.includes('vdart') || p.includes('degree') || p.includes('cgpa') || p.includes('experience') || p.includes('qualifications')) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'OPEN_RESUME' };
   }
+
   if (p.includes('python projects') || p.includes('show python') || p.includes('show my python')) {
-    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'HIGHLIGHT_PYTHON' };
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'FILTER_PYTHON' };
   }
   if (p.includes('react projects') || p.includes('show react') || p.includes('filter by react')) {
     return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'FILTER_REACT' };
@@ -407,8 +408,9 @@ export const queryKnowledgeEngine = (prompt = '', gitHubProjects = [], history =
         message = "I'm KAM AI, your personal assistant and workspace operator inside KAMVERSE. I was created for Kamalesh to help visitors explore projects, discuss technologies, and control this interactive digital workspace using natural language.";
         suggestions = ['What can you do?', 'Show my projects', 'Who is Kamalesh?'];
       } else if (subIntent === 'ABOUT_KAMALESH') {
-        message = `Kamalesh is a Senior UI/UX Designer, Creative Frontend Architect and Full-Stack Developer with 8+ years of enterprise experience building modern digital ecosystems.`;
-        suggestions = ['What technologies does he use?', 'Show my projects', 'Contact Kamalesh'];
+        message = "Kamalesh S is a Python Developer and current intern at VDart, focused on Python, Flask, Node.js, Express, MySQL & REST APIs. He holds a B.Sc. in Computer Science from Bishop Heber College (CGPA 7.7) and built platforms including TrichyPreneurs and RescueRider.";
+        actions.push({ type: 'OPEN_RESUME' });
+        suggestions = ['View Resume', 'Contact Kamalesh', 'Show my projects'];
       }
       break;
     }
@@ -649,34 +651,14 @@ export const queryKnowledgeEngine = (prompt = '', gitHubProjects = [], history =
         });
         message = `Maximized ${targetName} window.`;
         suggestions = ['Restore window', 'Close window', 'Show desktop'];
-      } else if (subIntent === 'FOCUS_PLANET') {
-        const app = resolveApplication(lower);
-        const targetId = app ? app.id : 'jobsphere';
-        const targetName = app ? app.shortName : 'JobSphere';
-
+      } else if (subIntent === 'OPEN_RESUME') {
         actions.push({
-          type: 'FOCUS_PLANET',
-          value: targetId,
-          payload: { planetId: targetId }
-        });
-        message = `Navigating 3D camera to ${targetName} planet.`;
-        suggestions = ['Reset the universe', `Open ${targetName}`, 'Go back to desktop'];
-      } else if (subIntent === 'HIGHLIGHT_PYTHON') {
-        actions.push({
-          type: 'HIGHLIGHT_TECH_PLANETS',
-          value: 'Python',
-          payload: { tech: 'Python' }
-        });
-        message = 'Highlighting Python project planets in the 3D Universe.';
-        suggestions = ['Show JobSphere', 'Open College ERP', 'Reset the universe'];
-      } else if (subIntent === 'RESET_UNIVERSE') {
-        actions.push({
-          type: 'RESET_UNIVERSE',
-          value: 'reset',
+          type: 'OPEN_RESUME',
+          value: 'resume',
           payload: {}
         });
-        message = 'Reset 3D camera to cosmic orbital view.';
-        suggestions = ['Show JobSphere', 'Show RSK Traders', 'Go back to desktop'];
+        message = "Opening Kamalesh's official resume window. Kamalesh is a Python Developer and current intern at VDart with a B.Sc. in Computer Science (CGPA: 7.7).";
+        suggestions = ['Contact Kamalesh', 'Show my projects', 'Runtime Manager'];
       } else if (subIntent === 'NAV_DESKTOP') {
         actions.push({
           type: 'NAVIGATE',
@@ -684,7 +666,7 @@ export const queryKnowledgeEngine = (prompt = '', gitHubProjects = [], history =
           payload: { view: 'desktop' }
         });
         message = 'Returned to the KAMVERSE desktop canvas.';
-        suggestions = ['Open RSK Traders', 'Show my projects', '3D Universe'];
+        suggestions = ['Open Resume', 'Show my projects', 'Runtime Manager'];
       } else if (subIntent === 'OPEN_PROJECTS') {
         actions.push({
           type: 'NAVIGATE',

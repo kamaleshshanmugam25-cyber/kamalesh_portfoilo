@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react';
+import React from 'react';
 import { WindowProvider, useWindowManager } from './context/WindowContext';
 import { AmbientGlow } from './components/UI/AmbientGlow';
 import { TopStatusBar } from './components/Desktop/TopStatusBar';
@@ -9,11 +9,8 @@ import { AppLauncherModal } from './components/Launcher/AppLauncherModal';
 import { CommandPalette } from './components/Launcher/CommandPalette';
 import { KamAIAssistant } from './components/AI/KamAIAssistant';
 
-// Lazy-load 3D Universe experience to optimize initial load
-const UniverseScene = lazy(() => import('./components/Universe/UniverseScene').then(m => ({ default: m.UniverseScene })));
-
 function WorkspaceLayout() {
-  const { theme, viewMode } = useWindowManager();
+  const { theme } = useWindowManager();
 
   const themeBg = theme === 'dark' 
     ? 'bg-[#151515] text-white' 
@@ -29,20 +26,9 @@ function WorkspaceLayout() {
       {/* Top Status Bar with Archivo Stamp & Navigation */}
       <TopStatusBar />
 
-      {/* Main Interactive Desktop Work Area / 3D Spatial Universe */}
+      {/* Main Interactive Desktop Work Area */}
       <main className="relative flex-1 w-full h-[calc(100vh-3rem)] overflow-hidden flex flex-col z-10">
-        {viewMode === 'universe' ? (
-          <Suspense fallback={
-            <div className="w-full h-full bg-[#07070D] flex flex-col items-center justify-center space-y-3 font-mono text-white text-xs select-none">
-              <div className="w-6 h-6 border-3 border-[#F5F04E] border-t-transparent rounded-full animate-spin" />
-              <span className="tracking-widest font-black uppercase text-[#F5F04E]">INITIALIZING 3D UNIVERSE...</span>
-            </div>
-          }>
-            <UniverseScene />
-          </Suspense>
-        ) : (
-          <DesktopCanvas />
-        )}
+        <DesktopCanvas />
       </main>
 
       {/* Movable & Maximized Desktop Window Manager */}

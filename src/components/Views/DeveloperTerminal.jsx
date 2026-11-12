@@ -7,7 +7,7 @@ import { resolveApplication } from '../../config/applicationRegistry';
 import { useWindowManager } from '../../context/WindowContext';
 import { sendAIMessage } from '../../services/aiService';
 
-const QUICK_COMMANDS = ['help', 'ls', 'runtime', 'apps', 'repos', 'skills', '3d', 'theme', 'clear'];
+const QUICK_COMMANDS = ['help', 'resume', 'ls', 'runtime', 'apps', 'repos', 'skills', 'theme', 'clear'];
 
 export const DeveloperTerminal = ({ onClose }) => {
   const { 
@@ -62,13 +62,14 @@ export const DeveloperTerminal = ({ onClose }) => {
         type: 'response',
         text: `KAMVERSE DEVELOPER CLI REFERENCE:
 ================================================================
-WORKSPACE & APPLICATIONS:
+WORKPLACE & APPLICATIONS:
   ls / dir         - List all integrated applications, tools & files
-  apps             - View the 6 flagship applications & live statuses
-  open <app>       - Launch application by name or ID (e.g. "open rsk", "open jobsphere")
+  resume / cv      - Open official resume, credentials & achievements
+  apps             - View integrated fleet applications & live statuses
+  open <app>       - Launch application by name or ID (e.g. "open rsk", "open trichy")
+  runtime          - Open Local Application Runtime Engine (13 projects)
   repos / github   - List synced public GitHub repositories (${gitHubProjects.length || 13} synced)
-  3d / universe    - Enter 3D Interactive Project Universe
-  desktop          - Return to 2D Desktop canvas
+  desktop          - Minimize windows & return to 2D Desktop canvas
 
 ENGINEER PROFILE:
   whoami / bio     - Developer background, role & credentials
@@ -123,9 +124,8 @@ Tip: Type "open <name>" or "cat <file>" to explore any item.`
           newHistory.push({
             type: 'response',
             text: `# KAMVERSE DIGITAL WORKSPACE v3.0
-A high-frequency web desktop environment and 3D interactive universe architected by Kamalesh.
-Built with React 19, Three.js, React Three Fiber, Framer Motion, and Tailwind CSS.
-Features live GitHub analytics, dual 2D/3D workspace operating modes, and KAM AI Operator.`
+A high-frequency web desktop environment and local application runtime engine architected by Kamalesh S.
+Features Python backend integration, official resume viewer, live GitHub analytics, and KAM AI Operator.`
           });
           break;
         case 'bio.txt':
@@ -238,21 +238,27 @@ GITHUB:       ${GITHUB_PROFILE_URL}
       });
     }
 
-    // 8. 3D UNIVERSE MODE
-    else if (cmdLower === '3d' || cmdLower === 'universe' || cmdLower === '3d universe') {
-      setViewMode('universe');
+    // 8. RESUME / CV COMMAND
+    else if (cmdLower === 'resume' || cmdLower === 'cv') {
+      openWindow('resume-window', { title: 'Kamalesh S — Official Resume', type: 'resume' });
       newHistory.push({
         type: 'response',
-        text: 'Switching view mode to 3D Interactive Project Universe... 🪐'
+        text: `LAUNCHING OFFICIAL RESUME (Kamalesh S):
+----------------------------------------------------------------
+• Title:         ${PROFILE.title}
+• Role:          ${PROFILE.currentRole}
+• Education:     B.Sc. Computer Science @ Bishop Heber College (CGPA: 7.7)
+• Location:      ${PROFILE.location}
+• Phone / Email: ${PROFILE.phone} | ${PROFILE.email}
+• Full-featured printable & PDF-exportable resume window opened.`
       });
     }
 
     // 9. DESKTOP MODE
     else if (cmdLower === 'desktop' || cmdLower === '2d') {
-      setViewMode('desktop');
       newHistory.push({
         type: 'response',
-        text: 'Switching view mode to 2D Desktop Workspace... 💻'
+        text: 'Returned to 2D Desktop Workspace... 💻'
       });
     }
 
@@ -443,7 +449,7 @@ GITHUB:       ${GITHUB_PROFILE_URL}
       const val = inputVal.toLowerCase().trim();
       if (!val) return;
       const candidates = [
-        'help', 'ls', 'apps', 'repos', 'skills', 'experience', 'contact', '3d', 'theme', 'clear', 'whoami',
+        'help', 'resume', 'ls', 'runtime', 'apps', 'repos', 'skills', 'experience', 'contact', 'theme', 'clear', 'whoami',
         'rsk-traders', 'jobsphere', 'photography', 'jewellery', 'restaurant', 'college-erp'
       ];
       const match = candidates.find(c => c.startsWith(val));

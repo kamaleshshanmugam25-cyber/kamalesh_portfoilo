@@ -11,7 +11,8 @@ import {
   ArrowUpRight, 
   CheckCircle2, 
   Terminal,
-  FileText
+  FileText,
+  GraduationCap
 } from 'lucide-react';
 import { PROFILE } from '../../config/profile';
 import { useWindowManager } from '../../context/WindowContext';
@@ -59,21 +60,28 @@ export const AboutMeModal = () => {
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex items-center space-x-3 w-full md:w-auto">
+            <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+              <button
+                onClick={() => openWindow('resume-window', { title: 'Kamalesh S — Official Resume', type: 'resume' })}
+                className="brutal-btn-yellow flex-1 md:flex-none px-4 py-2.5 rounded-xl text-xs flex items-center justify-center space-x-2 font-black shadow-brutal-sm"
+              >
+                <FileText className="w-3.5 h-3.5 text-[#151515]" strokeWidth={2.5} />
+                <span>View Full Resume</span>
+              </button>
               <button
                 onClick={() => openWindow('contact-window', { title: 'Contact Kamalesh', type: 'contact' })}
-                className="brutal-btn-pink flex-1 md:flex-none px-5 py-2.5 rounded-xl text-xs flex items-center justify-center space-x-2"
+                className="brutal-btn-pink flex-1 md:flex-none px-4 py-2.5 rounded-xl text-xs flex items-center justify-center space-x-2 font-bold"
               >
                 <Mail className="w-3.5 h-3.5" strokeWidth={2.5} />
                 <span>Contact &amp; Hire</span>
               </button>
               <button
                 onClick={() => openWindow('terminal-window', { title: 'Developer Terminal', type: 'terminal' })}
-                className="brutal-btn-yellow px-4 py-2.5 rounded-xl text-xs flex items-center space-x-2"
+                className="px-3.5 py-2.5 bg-white hover:bg-gray-100 text-[#151515] border-2 border-[#151515] shadow-brutal-sm rounded-xl text-xs flex items-center space-x-1.5 font-bold"
                 title="Launch Terminal"
               >
                 <Terminal className="w-3.5 h-3.5 text-[#151515]" strokeWidth={2.5} />
-                <span>Terminal</span>
+                <span>CLI</span>
               </button>
             </div>
           </div>
@@ -147,6 +155,39 @@ export const AboutMeModal = () => {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Education & Academic Credentials */}
+        <div className="space-y-3">
+          <div className="flex items-center space-x-2">
+            <GraduationCap className="w-5 h-5 text-[#10B981]" strokeWidth={2.5} />
+            <h2 className="text-lg md:text-xl font-extrabold font-display text-[#151515] tracking-tight">
+              Education &amp; Academic Credentials
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {PROFILE.education.map((edu, idx) => (
+              <div key={idx} className="p-4 bg-white border-2 border-[#151515] shadow-brutal-sm rounded-xl space-y-2 flex flex-col justify-between">
+                <div>
+                  <span className="px-2 py-0.5 bg-[#F5F04E] text-[#151515] font-mono font-black text-[10px] border border-[#151515] uppercase inline-block mb-1">
+                    {edu.period}
+                  </span>
+                  <h3 className="font-heading font-black text-sm text-[#151515] uppercase">
+                    {edu.degree}
+                  </h3>
+                  <p className="text-xs text-[#151515]/75 font-mono font-semibold mt-0.5">
+                    {edu.institution}
+                  </p>
+                </div>
+                <div className="pt-2 border-t border-gray-200">
+                  <span className="px-2 py-0.5 bg-[#10B981] text-white font-mono font-black text-xs border border-[#151515]">
+                    {edu.score}
+                  </span>
                 </div>
               </div>
             ))}

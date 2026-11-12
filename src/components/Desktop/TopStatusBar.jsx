@@ -12,7 +12,8 @@ import {
   Terminal, 
   Grid,
   Activity,
-  Server
+  Server,
+  FileText
 } from 'lucide-react';
 
 export const TopStatusBar = () => {
@@ -26,9 +27,7 @@ export const TopStatusBar = () => {
     activeNavTab, 
     setActiveNavTab,
     soundEnabled,
-    setSoundEnabled,
-    viewMode,
-    setViewMode
+    setSoundEnabled
   } = useWindowManager();
 
   const [isSystemMenuOpen, setIsSystemMenuOpen] = useState(false);
@@ -42,6 +41,8 @@ export const TopStatusBar = () => {
     if (tab === 'desktop') {
       // Minimize all active windows to reveal desktop canvas
       Object.keys(windows).forEach((id) => minimizeWindow(id));
+    } else if (tab === 'resume') {
+      openWindow('resume-window', { title: 'Kamalesh S — Official Resume', type: 'resume' });
     } else if (tab === 'projects') {
       openWindow('projects-window', { title: 'Projects Explorer', type: 'projects' });
     } else if (tab === 'activity') {
@@ -82,10 +83,17 @@ export const TopStatusBar = () => {
               onClick={() => setIsSystemMenuOpen(false)}
             >
               <div className="px-3 py-2 border-b-2 border-[#151515] bg-[#F5F04E] font-bold">
-                <p className="font-display uppercase tracking-wide">KAMVERSE v2.6</p>
-                <p className="text-[10px] font-mono font-medium text-[#151515]/70">Neo-Brutalist Ecosystem</p>
+                <p className="font-display uppercase tracking-wide">KAMVERSE v3.0</p>
+                <p className="text-[10px] font-mono font-medium text-[#151515]/70">Python &amp; Backend Engineering OS</p>
               </div>
               <div className="py-1 space-y-1">
+                <button 
+                  onClick={() => openWindow('resume-window', { title: 'Kamalesh S — Official Resume', type: 'resume' })}
+                  className="w-full text-left px-3 py-2 font-bold bg-[#F5F04E] hover:bg-yellow-300 text-[#151515] flex items-center space-x-2 transition-colors border border-[#151515] shadow-xs"
+                >
+                  <FileText className="w-4 h-4 text-[#151515]" />
+                  <span className="font-black">VIEW OFFICIAL RESUME</span>
+                </button>
                 <button 
                   onClick={() => openWindow('activity-window', { title: 'Live GitHub Activity Center', type: 'github-activity' })}
                   className="w-full text-left px-3 py-2 font-bold hover:bg-[#3155FF] hover:text-white flex items-center space-x-2 transition-colors border border-transparent hover:border-[#151515]"
@@ -149,6 +157,18 @@ export const TopStatusBar = () => {
             Desktop
           </button>
           <button
+            onClick={() => handleNavClick('resume')}
+            className={`px-3 py-1.5 border-2 border-[#151515] font-bold text-xs uppercase transition-all flex items-center space-x-1.5 ${
+              activeNavTab === 'resume' 
+                ? 'bg-[#10B981] text-white shadow-brutal-sm' 
+                : 'bg-[#F5F04E] text-[#151515] hover:bg-yellow-300 shadow-[1px_1px_0_#151515]'
+            }`}
+            title="View Kamalesh's Official Resume"
+          >
+            <FileText className="w-3.5 h-3.5" />
+            <span className="font-black">RESUME</span>
+          </button>
+          <button
             onClick={() => setIsLauncherOpen(true)}
             className="px-3 py-1.5 border-2 border-[#151515] bg-white text-[#151515] hover:bg-[#FF5C8A] hover:text-white font-bold text-xs uppercase transition-all"
           >
@@ -165,6 +185,18 @@ export const TopStatusBar = () => {
             Projects
           </button>
           <button
+            onClick={() => handleNavClick('runtime')}
+            className={`px-3 py-1.5 border-2 border-[#151515] font-bold text-xs uppercase transition-all flex items-center space-x-1.5 ${
+              activeNavTab === 'runtime' 
+                ? 'bg-[#3155FF] text-white shadow-brutal-sm' 
+                : 'bg-white text-[#151515] hover:bg-[#F5F04E]'
+            }`}
+            title="Local Application Runtime Engine"
+          >
+            <Server className="w-3.5 h-3.5" />
+            <span>Runtime</span>
+          </button>
+          <button
             onClick={() => handleNavClick('activity')}
             className={`px-3 py-1.5 border-2 border-[#151515] font-bold text-xs uppercase transition-all flex items-center space-x-1.5 ${
               activeNavTab === 'activity' 
@@ -174,18 +206,6 @@ export const TopStatusBar = () => {
           >
             <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
             <span>Activity</span>
-          </button>
-          <button
-            onClick={() => handleNavClick('runtime')}
-            className={`px-3 py-1.5 border-2 border-[#151515] font-bold text-xs uppercase transition-all flex items-center space-x-1.5 ${
-              activeNavTab === 'runtime' 
-                ? 'bg-[#3155FF] text-white shadow-brutal-sm' 
-                : 'bg-[#F5F04E] text-[#151515] hover:bg-yellow-300'
-            }`}
-            title="Local Application Runtime Engine"
-          >
-            <Server className="w-3.5 h-3.5" />
-            <span>Runtime</span>
           </button>
           <button
             onClick={() => handleNavClick('about')}
@@ -200,48 +220,24 @@ export const TopStatusBar = () => {
         </nav>
       </div>
 
-      {/* Center: Mode Switcher & Search Bar */}
+      {/* Center: Command Palette Search */}
       <div className="flex items-center space-x-2 sm:space-x-3">
-        {/* Experience Switcher: DESKTOP MODE | 3D UNIVERSE */}
-        <div className="flex items-center bg-[#F5F5F0] border-2 border-[#151515] p-0.5 shadow-brutal-sm">
-          <button
-            onClick={() => setViewMode('desktop')}
-            className={`px-2 sm:px-2.5 py-1 text-[10px] sm:text-[11px] font-mono font-black uppercase tracking-wider transition-all ${
-              viewMode === 'desktop'
-                ? 'bg-[#3155FF] text-white shadow-[1px_1px_0px_#151515]'
-                : 'text-[#151515] hover:bg-white'
-            }`}
-          >
-            DESKTOP MODE
-          </button>
-          <div className="w-[1.5px] h-3.5 bg-[#151515]/30 mx-0.5" />
-          <button
-            onClick={() => setViewMode('universe')}
-            className={`px-2 sm:px-2.5 py-1 text-[10px] sm:text-[11px] font-mono font-black uppercase tracking-wider transition-all flex items-center space-x-1 ${
-              viewMode === 'universe'
-                ? 'bg-[#3155FF] text-white shadow-[1px_1px_0px_#151515]'
-                : 'text-[#151515] hover:bg-white'
-            }`}
-          >
-            <Sparkles className="w-3 h-3 text-[#F5F04E]" />
-            <span>3D UNIVERSE</span>
-          </button>
-        </div>
-
         <button
           onClick={() => setIsCommandPaletteOpen(true)}
-          className="flex items-center space-x-2 px-3 py-1.5 bg-[#F5F5F0] border-2 border-[#151515] shadow-brutal-sm hover:bg-white hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-brutal transition-all text-[#151515]"
+          className="flex items-center space-x-2 px-3.5 py-1.5 bg-[#F5F5F0] border-2 border-[#151515] shadow-brutal-sm hover:bg-white hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-brutal transition-all text-[#151515] w-48 sm:w-64 md:w-80 justify-between"
         >
-          <Search className="w-3.5 h-3.5 stroke-[2.5]" />
-          <span className="text-xs font-bold hidden md:inline">Search apps, repos...</span>
-          <kbd className="hidden md:inline-flex items-center px-1.5 py-0.5 border border-[#151515] bg-white text-[10px] font-mono font-bold">
+          <span className="flex items-center space-x-2">
+            <Search className="w-3.5 h-3.5 stroke-[2.5] text-gray-500" />
+            <span className="text-xs font-bold text-gray-700">Search resume, projects...</span>
+          </span>
+          <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 border border-[#151515] bg-white text-[10px] font-mono font-bold">
             ⌘K
           </kbd>
         </button>
       </div>
 
-      {/* Right: Audio, Date/Time & Contact */}
-      <div className="flex items-center space-x-2 md:space-x-3">
+      {/* Right: Audio, Date/Time & Resume + Contact CTAs */}
+      <div className="flex items-center space-x-2 md:space-x-2.5">
         {/* Audio Toggle */}
         <button
           onClick={toggleSound}
@@ -256,15 +252,25 @@ export const TopStatusBar = () => {
         </button>
 
         {/* Live Date & Time */}
-        <div className="hidden sm:flex items-center space-x-2 px-2.5 py-1 bg-white border-2 border-[#151515] text-[#151515] font-mono text-xs font-bold">
+        <div className="hidden lg:flex items-center space-x-2 px-2.5 py-1 bg-white border-2 border-[#151515] text-[#151515] font-mono text-xs font-bold">
           <span className="text-[#525252]">{formattedDate}</span>
           <span className="font-extrabold tracking-tight">{formattedTime}</span>
         </div>
 
+        {/* Official Resume Direct Action Button */}
+        <button
+          onClick={() => openWindow('resume-window', { title: 'Kamalesh S — Official Resume', type: 'resume' })}
+          className="flex items-center space-x-1.5 px-3 py-1.5 bg-[#F5F04E] text-[#151515] border-2 border-[#151515] shadow-brutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-brutal active:translate-x-[1px] active:translate-y-[1px] font-display uppercase tracking-wider text-xs font-black transition-all"
+          title="Open Kamalesh's Official Resume"
+        >
+          <FileText className="w-3.5 h-3.5 stroke-[2.5]" />
+          <span>RESUME</span>
+        </button>
+
         {/* Direct Contact Button */}
         <button
           onClick={() => openWindow('contact-window', { title: 'Contact Kamalesh', type: 'contact' })}
-          className="flex items-center space-x-1.5 px-3.5 py-1.5 bg-[#FF5C8A] text-white border-2 border-[#151515] shadow-brutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-brutal active:translate-x-[1px] active:translate-y-[1px] font-display uppercase tracking-wider text-xs transition-all"
+          className="flex items-center space-x-1.5 px-3 py-1.5 bg-[#FF5C8A] text-white border-2 border-[#151515] shadow-brutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-brutal active:translate-x-[1px] active:translate-y-[1px] font-display uppercase tracking-wider text-xs font-black transition-all"
         >
           <Mail className="w-3.5 h-3.5 stroke-[2.5]" />
           <span className="hidden xs:inline">HIRE ME</span>

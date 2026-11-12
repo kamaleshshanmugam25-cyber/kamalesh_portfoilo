@@ -49,36 +49,10 @@ export const WindowProvider = ({ children }) => {
   const toggleDock = useCallback(() => setIsDockVisible(prev => !prev), []);
   const setDockVisibility = useCallback((visible) => setIsDockVisible(Boolean(visible)), []);
 
-  // Dual Experience Mode: 'desktop' vs 'universe'
-  const [viewMode, setViewMode] = useState(() => {
-    try {
-      return localStorage.getItem('kamverse_view_mode') || 'desktop';
-    } catch (_) {
-      return 'desktop';
-    }
-  });
-
-  const toggleViewMode = useCallback(() => {
-    setViewMode((prev) => {
-      const next = prev === 'desktop' ? 'universe' : 'desktop';
-      try {
-        localStorage.setItem('kamverse_view_mode', next);
-      } catch (_) {}
-      return next;
-    });
-  }, []);
-
-  const setExplicitViewMode = useCallback((mode) => {
-    const validMode = mode === 'universe' ? 'universe' : 'desktop';
-    setViewMode(validMode);
-    try {
-      localStorage.setItem('kamverse_view_mode', validMode);
-    } catch (_) {}
-  }, []);
-
-  // 3D Universe Planet Selection & Highlighting
-  const [selectedPlanetId, setSelectedPlanetId] = useState(null);
-  const [techFilter, setTechFilter] = useState(null);
+  // Desktop Environment State
+  const [viewMode] = useState('desktop');
+  const setExplicitViewMode = useCallback(() => {}, []);
+  const toggleViewMode = useCallback(() => {}, []);
 
   // GitHub Live State
   const [gitHubProjects, setGitHubProjects] = useState([]);

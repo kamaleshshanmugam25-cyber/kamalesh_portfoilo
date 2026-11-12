@@ -8,11 +8,14 @@ import { ProjectDetailsModal } from '../Views/ProjectDetailsModal';
 import { GitHubActivityDashboard } from '../GitHubActivity/GitHubActivityDashboard';
 import { RuntimeDashboard } from '../Runtime/RuntimeDashboard';
 import { ApplicationLogsModal } from '../Runtime/ApplicationLogsModal';
+import { ResumeView } from '../Views/ResumeView';
 
 export const WindowBody = ({ windowItem, onClose }) => {
   const { type, metadata } = windowItem;
 
   switch (type) {
+    case 'resume':
+      return <ResumeView onClose={onClose} />;
     case 'runtime':
       return <RuntimeDashboard onClose={onClose} />;
     case 'logs':

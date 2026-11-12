@@ -11,7 +11,8 @@ import {
   Sparkles,
   Server,
   Camera,
-  Box
+  Box,
+  FileText
 } from 'lucide-react';
 import { APPLICATIONS } from '../../config/applications';
 import { useWindowManager } from '../../context/WindowContext';
@@ -46,6 +47,8 @@ export const MacDock = () => {
 
     if (appId === 'launcher') {
       setIsLauncherOpen(prev => !prev);
+    } else if (appId === 'resume-window') {
+      handleToggleWindow('resume-window', { title: 'Kamalesh S — Official Resume', type: 'resume' });
     } else if (appId === 'runtime-window') {
       handleToggleWindow('runtime-window', { title: 'Local Application Runtime Engine', type: 'runtime' });
     } else if (appId === 'projects-window') {
@@ -152,6 +155,18 @@ export const MacDock = () => {
           isOpen={false}
           isActive={false}
           colorClass="bg-[#F5F04E] hover:bg-[#ece736]"
+        />
+
+        {/* Official Resume */}
+        <DockItem
+          appId="resume-window"
+          mouseX={mouseX}
+          icon={<FileText className="w-4 h-4 sm:w-5 sm:h-5 text-[#151515]" strokeWidth={2.4} />}
+          label="Resume (Kamalesh S)"
+          onClick={() => triggerDockApp('resume-window')}
+          isOpen={!!(windows['resume-window']?.isOpen && !windows['resume-window']?.isMinimized)}
+          isActive={activeWindowId === 'resume-window'}
+          colorClass="bg-[#F5F04E] hover:bg-yellow-300"
         />
 
         {/* Solid Neo-Brutalist Separator */}
