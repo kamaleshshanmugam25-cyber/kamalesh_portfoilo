@@ -18,8 +18,7 @@ import {
   CheckCircle2, 
   Sparkles,
   Download,
-  Share2,
-  X
+  Share2
 } from 'lucide-react';
 import { PROFILE } from '../../config/profile';
 import { useWindowManager } from '../../context/WindowContext';
@@ -165,16 +164,6 @@ Teamwork • Communication • Leadership • Time Management • Conflict Resol
             <Globe className="w-3.5 h-3.5" />
             <span>TrichyPreneurs</span>
           </a>
-
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="p-1.5 bg-white hover:bg-gray-200 border-2 border-[#151515] text-[#151515] rounded active:translate-y-0.5 ml-1"
-              title="Close Resume"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
         </div>
       </div>
 

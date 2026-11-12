@@ -9,8 +9,7 @@ import {
   Check, 
   Layers, 
   Globe,
-  Maximize2,
-  X
+  Maximize2
 } from 'lucide-react';
 import { IframeHandler } from './IframeHandler';
 import { FallbackScreen } from './FallbackScreen';
@@ -129,18 +128,6 @@ export const InternalBrowser = ({ app, onClose }) => {
               title="Open Official Website in New Browser Tab"
             >
               <ExternalLink className="w-3.5 h-3.5" strokeWidth={2.2} />
-            </button>
-          )}
-
-          {/* Cancel / Close Button in Browser Toolbar */}
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-[#FF5C8A] hover:bg-[#ff3b71] border-2 border-[#151515] text-white text-xs font-bold font-heading shadow-[2px_2px_0px_#151515] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all group ml-1"
-              title="Cancel and close website"
-            >
-              <X className="w-3.5 h-3.5 group-hover:rotate-90 transition-transform duration-200" strokeWidth={2.5} />
-              <span className="text-[11px] tracking-wider uppercase">Cancel</span>
             </button>
           )}
         </div>
