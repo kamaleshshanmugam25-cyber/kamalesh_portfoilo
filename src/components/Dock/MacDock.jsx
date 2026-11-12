@@ -170,9 +170,9 @@ export const MacDock = () => {
         />
 
         {/* Solid Neo-Brutalist Separator */}
-        <div className="w-[1.5px] sm:w-[2px] h-6 sm:h-8 bg-[#151515] my-auto mx-0.5 sm:mx-1 shrink-0 pointer-events-none" />
+        <div className="hidden sm:block w-[1.5px] sm:w-[2px] h-6 sm:h-8 bg-[#151515] my-auto mx-0.5 sm:mx-1 shrink-0 pointer-events-none" />
 
-        {/* Flagship Live Websites (RSK Traders & TrichyPreneurs) */}
+        {/* Flagship Live Websites (3, 4, 5, 6: RSK Traders, TrichyPreneurs, Photography, 3D Webinar) - HIDDEN ON MOBILE VIEW */}
         {APPLICATIONS.filter(app => app.status === 'live').map((app) => {
           const win = windows[app.id];
           const isOpen = !!(win && win.isOpen && !win.isMinimized);
@@ -182,6 +182,7 @@ export const MacDock = () => {
             <DockItem
               key={app.id}
               appId={app.id}
+              className="hidden sm:flex"
               mouseX={mouseX}
               icon={getAppIcon(app.id)}
               label={app.shortName}

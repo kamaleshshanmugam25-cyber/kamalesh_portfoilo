@@ -18,7 +18,8 @@ export const DockItem = ({
   isOpen, 
   isActive, 
   badge, 
-  colorClass 
+  colorClass,
+  className = ''
 }) => {
   const ref = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -72,7 +73,7 @@ export const DockItem = ({
   };
 
   return (
-    <div className="relative flex flex-col items-center shrink-0">
+    <div className={`relative flex flex-col items-center shrink-0 ${className}`}>
       {/* Tooltip on hover */}
       {isHovered && (
         <motion.div
