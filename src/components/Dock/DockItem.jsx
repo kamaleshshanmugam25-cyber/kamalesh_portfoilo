@@ -9,12 +9,20 @@ const getInitialScreenTier = () => {
   return 'desktop';
 };
 
-export const DockItem = ({ mouseX, icon, label, onClick, isOpen, isActive, badge, colorClass }) => {
+export const DockItem = ({ 
+  appId,
+  mouseX, 
+  icon, 
+  label, 
+  onClick, 
+  isOpen, 
+  isActive, 
+  badge, 
+  colorClass 
+}) => {
   const ref = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
   const [screenTier, setScreenTier] = useState(getInitialScreenTier);
-  const touchStartPos = useRef({ x: 0, y: 0 });
-  const lastActionTime = useRef(0);
 
   useEffect(() => {
     const handleResize = () => {
@@ -57,41 +65,15 @@ export const DockItem = ({ mouseX, icon, label, onClick, isOpen, isActive, badge
   });
   const iconScale = useSpring(iconScaleSync, { mass: 0.04, stiffness: 500, damping: 28 });
 
-  // Universal click/tap execution handler debounced to prevent duplicate fires
-  const executeAction = () => {
-    const now = Date.now();
-    if (now - lastActionTime.current < 260) return;
-    lastActionTime.current = now;
+  const handleClick = (e) => {
     if (onClick) {
-      onClick();
-    }
-  };
-
-  const handleTouchStart = (e) => {
-    setIsHovered(true);
-    if (e.touches && e.touches[0]) {
-      touchStartPos.current = {
-        x: e.touches[0].clientX,
-        y: e.touches[0].clientY
-      };
-    }
-  };
-
-  const handleTouchEnd = (e) => {
-    setTimeout(() => setIsHovered(false), 400);
-    if (e.changedTouches && e.changedTouches[0]) {
-      const dx = Math.abs(e.changedTouches[0].clientX - touchStartPos.current.x);
-      const dy = Math.abs(e.changedTouches[0].clientY - touchStartPos.current.y);
-      // Clean tap threshold: if finger did not slide across the screen, trigger immediately
-      if (dx < 30 && dy < 30) {
-        executeAction();
-      }
+      onClick(e);
     }
   };
 
   return (
     <div className="relative flex flex-col items-center shrink-0">
-      {/* Tooltip on hover/touch */}
+      {/* Tooltip on hover */}
       {isHovered && (
         <motion.div
           initial={{ opacity: 0, y: 6, scale: 0.96 }}
@@ -108,14 +90,13 @@ export const DockItem = ({ mouseX, icon, label, onClick, isOpen, isActive, badge
       <motion.button
         ref={ref}
         type="button"
-        style={{ width, height: width }}
+        data-dock-app={appId}
+        style={{ width, height: width, touchAction: 'none' }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-        onClick={executeAction}
+        onClick={handleClick}
         whileTap={{ scale: 0.92 }}
-        className={`relative rounded-xl flex items-center justify-center p-1.5 sm:p-2 border-2 border-[#151515] transition-[box-shadow,background-color] duration-100 select-none cursor-pointer touch-manipulation active:translate-y-0.5 ${
+        className={`relative rounded-xl flex items-center justify-center p-1.5 sm:p-2 border-2 border-[#151515] transition-[box-shadow,background-color] duration-100 select-none cursor-pointer touch-none active:translate-y-0.5 ${
           colorClass || 'bg-white hover:bg-[#F5F04E]'
         } ${
           isActive 

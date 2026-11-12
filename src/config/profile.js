@@ -18,8 +18,7 @@ export const PROFILE = {
   
   terminalIntro: [
     'kamalesh --version 2.6.0 [production]',
-    'Architecting high-frequency digital workspaces & multi-platform ecosystems.',
-    'System status: 100% operational | 13 GitHub platforms synced.'
+   
   ],
 
   skillCategories: [
@@ -48,6 +47,7 @@ export const PROFILE = {
     {
       category: 'Design & Creative Direction',
       skills: [
+        {name : 'code',level: 90,highlight:true},
         { name: 'UI/UX Design', level: 97, highlight: true },
         { name: 'Responsive Web Design', level: 99, highlight: true },
         { name: 'Design Systems & Tokens', level: 94, highlight: false },
@@ -59,7 +59,7 @@ export const PROFILE = {
 
   stats: [
     { label: 'Public Repositories', value: '13 Projects' },
-    { label: 'Industry Experience', value: '8+ Years' },
+    { label: 'Industry Experience', value: 'Fresher' },
     { label: 'Product Satisfaction', value: '99.4%' },
     { label: 'Code Quality Benchmark', value: 'Grade A+' }
   ]

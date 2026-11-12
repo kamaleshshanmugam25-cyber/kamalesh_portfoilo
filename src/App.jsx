@@ -13,7 +13,7 @@ import { KamAIAssistant } from './components/AI/KamAIAssistant';
 const UniverseScene = lazy(() => import('./components/Universe/UniverseScene').then(m => ({ default: m.UniverseScene })));
 
 function WorkspaceLayout() {
-  const { theme, isDockVisible, viewMode } = useWindowManager();
+  const { theme, viewMode } = useWindowManager();
 
   const themeBg = theme === 'dark' 
     ? 'bg-[#151515] text-white' 
@@ -49,9 +49,7 @@ function WorkspaceLayout() {
       <WindowContainer />
 
       {/* Floating macOS-Style Neo-Brutalist Dock (Desktop, Tablet & Mobile) */}
-      <div className={`transition-all duration-150 ${isDockVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16 pointer-events-none'}`}>
-        <MacDock />
-      </div>
+      <MacDock />
 
       {/* App Launcher Search & Catalog Modal */}
       <AppLauncherModal />
