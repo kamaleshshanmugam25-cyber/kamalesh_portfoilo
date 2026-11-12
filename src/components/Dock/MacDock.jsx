@@ -8,7 +8,10 @@ import {
   Terminal, 
   Mail,
   Activity,
-  Sparkles
+  Sparkles,
+  Server,
+  Camera,
+  Box
 } from 'lucide-react';
 import { APPLICATIONS } from '../../config/applications';
 import { useWindowManager } from '../../context/WindowContext';
@@ -43,9 +46,8 @@ export const MacDock = () => {
 
     if (appId === 'launcher') {
       setIsLauncherOpen(prev => !prev);
-    } else if (appId === 'rsk-traders' || appId === 'trichy-preneurs') {
-      const app = APPLICATIONS.find(a => a.id === appId);
-      handleToggleWindow(appId, { title: app?.name || appId.toUpperCase(), type: 'app', metadata: app });
+    } else if (appId === 'runtime-window') {
+      handleToggleWindow('runtime-window', { title: 'Local Application Runtime Engine', type: 'runtime' });
     } else if (appId === 'projects-window') {
       handleToggleWindow('projects-window', { title: 'Projects Explorer', type: 'projects' });
     } else if (appId === 'activity-window') {
@@ -56,6 +58,11 @@ export const MacDock = () => {
       handleToggleWindow('terminal-window', { title: 'Developer Terminal', type: 'terminal' });
     } else if (appId === 'contact-window') {
       handleToggleWindow('contact-window', { title: 'Contact Kamalesh', type: 'contact' });
+    } else {
+      const app = APPLICATIONS.find(a => a.id === appId);
+      if (app) {
+        handleToggleWindow(appId, { title: app.name || appId.toUpperCase(), type: 'app', metadata: app });
+      }
     }
   };
 
@@ -95,8 +102,12 @@ export const MacDock = () => {
         return <Globe2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#151515]" strokeWidth={2.2} />;
       case 'trichy-preneurs':
         return <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" strokeWidth={2.2} />;
+      case 'kavin-fotography':
+        return <Camera className="w-4 h-4 sm:w-5 sm:h-5 text-white" strokeWidth={2.2} />;
+      case '3d-webniar-lead':
+        return <Box className="w-4 h-4 sm:w-5 sm:h-5 text-white" strokeWidth={2.2} />;
       default:
-        return null;
+        return <Globe2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#151515]" strokeWidth={2.2} />;
     }
   };
 
@@ -106,6 +117,10 @@ export const MacDock = () => {
         return 'bg-[#39D5C8] hover:bg-[#2bc4b8]';
       case 'trichy-preneurs':
         return 'bg-[#8B5CF6] hover:bg-[#7c4deb]';
+      case 'kavin-fotography':
+        return 'bg-[#FF5C8A] hover:bg-[#ff3b71]';
+      case '3d-webniar-lead':
+        return 'bg-[#EC4899] hover:bg-[#db2777]';
       default:
         return 'bg-white hover:bg-[#F5F04E]';
     }
@@ -188,6 +203,18 @@ export const MacDock = () => {
           isOpen={!!(windows['activity-window']?.isOpen && !windows['activity-window']?.isMinimized)}
           isActive={activeWindowId === 'activity-window'}
           colorClass="bg-[#F5F04E] hover:bg-[#ece736]"
+        />
+
+        {/* Runtime Fleet Engine */}
+        <DockItem
+          appId="runtime-window"
+          mouseX={mouseX}
+          icon={<Server className="w-4 h-4 sm:w-5 sm:h-5 text-white" strokeWidth={2.4} />}
+          label="Runtime Engine"
+          onClick={() => triggerDockApp('runtime-window')}
+          isOpen={!!(windows['runtime-window']?.isOpen && !windows['runtime-window']?.isMinimized)}
+          isActive={activeWindowId === 'runtime-window'}
+          colorClass="bg-[#10B981] hover:bg-[#059669]"
         />
 
         {/* About Me */}

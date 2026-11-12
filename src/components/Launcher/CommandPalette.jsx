@@ -22,7 +22,8 @@ import {
   Eye,
   EyeOff,
   Activity,
-  GitCommit
+  GitCommit,
+  Server
 } from 'lucide-react';
 import { useWindowManager } from '../../context/WindowContext';
 import { APPLICATIONS } from '../../config/applications';
@@ -88,6 +89,14 @@ export const CommandPalette = () => {
       category: 'GitHub Activity',
       icon: <Activity className="w-4 h-4 text-[#3155FF]" />,
       action: () => openWindow('activity-window', { title: 'Live GitHub Activity Center', type: 'github-activity' })
+    },
+    {
+      id: 'cmd-runtime',
+      title: 'Open Local Application Runtime Engine',
+      subtitle: 'Control local fleet processes, start/stop/restart all 13 apps & inspect logs',
+      category: 'Runtime Fleet',
+      icon: <Server className="w-4 h-4 text-[#F5F04E]" />,
+      action: () => openWindow('runtime-window', { title: 'Local Application Runtime Engine', type: 'runtime' })
     },
     {
       id: 'cmd-latest-commits',

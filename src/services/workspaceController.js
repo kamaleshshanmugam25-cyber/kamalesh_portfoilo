@@ -17,6 +17,13 @@
 import { APPLICATIONS } from '../config/applications';
 import { GITHUB_PROFILE_URL, GITHUB_USERNAME } from '../config/projects';
 import { resolveApplication, APPLICATION_REGISTRY } from '../config/applicationRegistry';
+import { 
+  startApplication, 
+  stopApplication, 
+  restartApplication, 
+  startAllApplications, 
+  stopAllApplications 
+} from './runtimeService';
 
 // Allowed Action Types Registry
 export const ACTION_REGISTRY = {
@@ -45,7 +52,14 @@ export const ACTION_REGISTRY = {
   FOCUS_PLANET: 'FOCUS_PLANET',
   HIGHLIGHT_TECH_PLANETS: 'HIGHLIGHT_TECH_PLANETS',
   RESET_UNIVERSE: 'RESET_UNIVERSE',
-  SWITCH_VIEW_MODE: 'SWITCH_VIEW_MODE'
+  SWITCH_VIEW_MODE: 'SWITCH_VIEW_MODE',
+  START_LOCAL_APPLICATION: 'START_LOCAL_APPLICATION',
+  STOP_LOCAL_APPLICATION: 'STOP_LOCAL_APPLICATION',
+  RESTART_LOCAL_APPLICATION: 'RESTART_LOCAL_APPLICATION',
+  START_ALL_APPLICATIONS: 'START_ALL_APPLICATIONS',
+  STOP_ALL_APPLICATIONS: 'STOP_ALL_APPLICATIONS',
+  SHOW_APPLICATION_LOGS: 'SHOW_APPLICATION_LOGS',
+  OPEN_RUNTIME_MANAGER: 'OPEN_RUNTIME_MANAGER'
 };
 
 export { resolveApplication };
@@ -55,9 +69,9 @@ export { resolveApplication };
  * 
  * @param {Object} action - { type, payload }
  * @param {Object} wm - useWindowManager() context
- * @returns {Object} { success: boolean, message: string, target?: string }
+ * @returns {Promise<Object>} { success: boolean, message: string, target?: string }
  */
-export const executeSingleAction = (action, wm) => {
+export const executeSingleAction = async (action, wm) => {
   if (!action || !action.type) {
     return { success: false, message: 'Invalid action: missing type.' };
   }
@@ -449,6 +463,9 @@ export const executeSingleAction = (action, wm) => {
       } else if (view === 'terminal' || view === 'cli') {
         openWindow('terminal-window', { title: 'Developer Terminal', type: 'terminal' });
         return { success: true, message: 'Opened Developer Terminal.', target: 'Terminal' };
+      } else if (view === 'runtime' || view === 'fleet' || view === 'engine') {
+        openWindow('runtime-window', { title: 'Local Application Runtime Engine', type: 'runtime' });
+        return { success: true, message: 'Opened Local Application Runtime Engine.', target: 'Runtime' };
       } else if (view === 'launcher') {
         setIsLauncherOpen(true);
         return { success: true, message: 'Opened Application Launcher.', target: 'Launcher' };
@@ -474,6 +491,95 @@ export const executeSingleAction = (action, wm) => {
         return { success: true, message: `Launched live website: ${app.name}.`, target: app.url };
       }
       return { success: false, message: 'Live website URL is not available for this project.' };
+    }
+
+    // 8. RUNTIME FLEET COMMANDS
+    case 'START_LOCAL_APPLICATION': {
+      const targetQuery = directValue || payload.applicationId || payload.appId || payload.target || '';
+      const app = resolveApplication(targetQuery);
+      if (app) {
+        try {
+          const res = await startApplication(app.id);
+          const targetUrl = res.healthUrl || `http://127.0.0.1:${res.port}` || app.url;
+          openWindow(app.id, {
+            title: `${app.name} [Port ${res.port || app.port}]`,
+            metadata: { ...app, url: targetUrl }
+          });
+          return { success: true, message: `Started ${app.shortName} on port ${res.port || app.port} and opened its window.`, target: app.shortName };
+        } catch (err) {
+          openWindow(app.id);
+          return { success: true, message: `Opened ${app.shortName} window (Engine note: ${err.message}).`, target: app.shortName };
+        }
+      }
+      return { success: false, message: `Application "${targetQuery}" not recognized.` };
+    }
+
+    case 'STOP_LOCAL_APPLICATION': {
+      const targetQuery = directValue || payload.applicationId || payload.appId || payload.target || '';
+      const app = resolveApplication(targetQuery);
+      if (app) {
+        try {
+          await stopApplication(app.id);
+          return { success: true, message: `Stopped managed process for ${app.shortName}.`, target: app.shortName };
+        } catch (err) {
+          return { success: false, message: `Failed to stop ${app.shortName}: ${err.message}` };
+        }
+      }
+      return { success: false, message: `Application "${targetQuery}" not recognized.` };
+    }
+
+    case 'RESTART_LOCAL_APPLICATION': {
+      const targetQuery = directValue || payload.applicationId || payload.appId || payload.target || '';
+      const app = resolveApplication(targetQuery);
+      if (app) {
+        try {
+          await restartApplication(app.id);
+          return { success: true, message: `Restarted process for ${app.shortName}.`, target: app.shortName };
+        } catch (err) {
+          return { success: false, message: `Failed to restart ${app.shortName}: ${err.message}` };
+        }
+      }
+      return { success: false, message: `Application "${targetQuery}" not recognized.` };
+    }
+
+    case 'START_ALL_APPLICATIONS': {
+      try {
+        const res = await startAllApplications();
+        return { success: true, message: `Started ${res.started ? res.started.length : 'all'} development applications.`, target: 'All Apps' };
+      } catch (err) {
+        return { success: false, message: `Failed to start all applications: ${err.message}` };
+      }
+    }
+
+    case 'STOP_ALL_APPLICATIONS': {
+      try {
+        const res = await stopAllApplications();
+        return { success: true, message: `Stopped ${res.stopped ? res.stopped.length : 'all'} managed applications.`, target: 'All Apps' };
+      } catch (err) {
+        return { success: false, message: `Failed to stop all applications: ${err.message}` };
+      }
+    }
+
+    case 'SHOW_APPLICATION_LOGS': {
+      const targetQuery = directValue || payload.applicationId || payload.appId || payload.target || '';
+      const app = resolveApplication(targetQuery);
+      if (app) {
+        openWindow(`logs-${app.id}`, {
+          title: `${app.name} — Execution Logs`,
+          type: 'logs',
+          metadata: { appId: app.id, name: app.name }
+        });
+        return { success: true, message: `Opened live execution logs for ${app.shortName}.`, target: app.shortName };
+      }
+      return { success: false, message: `Application "${targetQuery}" not found.` };
+    }
+
+    case 'OPEN_RUNTIME_MANAGER': {
+      openWindow('runtime-window', {
+        title: 'Local Application Runtime Engine',
+        type: 'runtime'
+      });
+      return { success: true, message: 'Opened Local Application Runtime Engine dashboard.', target: 'Runtime Manager' };
     }
 
     default:

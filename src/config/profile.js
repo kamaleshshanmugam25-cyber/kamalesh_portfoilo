@@ -18,7 +18,7 @@ export const PROFILE = {
   
   terminalIntro: [
     'kamalesh --version 2.6.0 [production]',
-   
+
   ],
 
   skillCategories: [

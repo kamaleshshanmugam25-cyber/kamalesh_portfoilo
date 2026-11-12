@@ -1,13 +1,12 @@
 /**
- * CENTRALIZED APPLICATIONS CONFIGURATION
+ * CENTRALIZED 13 APPLICATIONS CONFIGURATION
  * 
- * To add, edit, or remove website applications, modify the items in this array.
- * URLs can be updated here and will automatically propagate through:
- * - Desktop Icons
- * - Bottom Dock
- * - Application Launcher & Search
- * - Internal In-App Browser & Iframes
- * - Projects Showcase Bento Grid
+ * Defines all 13 development fleet applications managed by KAMVERSE.
+ * Propagates automatically through:
+ * - Desktop Canvas & 13 Icons
+ * - Mac Dock & App Launcher
+ * - Runtime Engine & Window Manager
+ * - 3D Universe Scene & Planet Orbitals
  */
 
 export const APPLICATIONS = [
@@ -15,242 +14,349 @@ export const APPLICATIONS = [
     id: 'rsk-traders',
     name: 'RSK TRADERS',
     shortName: 'RSK Traders',
-    category: 'Import & Export',
+    category: 'Business Websites',
     url: 'https://rsktraders.co.in',
+    localUrl: 'http://127.0.0.1:5174',
+    port: 5174,
     status: 'live',
     supportsIframe: true,
-    accentColor: '#39D5C8', // Cyan/Teal
+    accentColor: '#39D5C8',
     gradient: 'from-cyan-500/20 via-teal-500/10 to-transparent',
     iconGradient: 'from-emerald-400 to-teal-500',
     iconBg: '#092524',
     badge: 'LIVE PRODUCT',
     description: 'International global trade, logistics, and bulk commodity import-export platform.',
-    longDescription: 'RSK Traders is an established import and export enterprise platform designed to facilitate cross-border merchant trade, bulk procurement, and international logistics distribution. Featuring catalog browsing, quotation requests, and supply chain tracking.',
-    techStack: ['React', 'Tailwind CSS', 'Node.js', 'PostgreSQL', 'Cloudflare'],
+    longDescription: 'RSK Traders is an established import and export enterprise platform designed to facilitate cross-border merchant trade, bulk procurement, and international logistics distribution.',
+    techStack: ['HTML5', 'React', 'Node.js', 'PostgreSQL', 'Cloudflare'],
     features: [
       'International commodity catalog with real-time inquiries',
       'Dynamic RFQ (Request for Quotation) engine',
       'Global logistics and port customs documentation portal',
       'High-performance mobile-optimized interface'
     ],
-    metrics: [
-      { label: 'Global Trade', value: '15+ Nations' },
-      { label: 'Procurement', value: 'Bulk Supply' },
-      { label: 'Availability', value: '99.9% Uptime' }
-    ],
-    previewMockup: {
-      type: 'trade',
-      headline: 'Global Commodity & Merchant Trade Hub',
-      subheadline: 'Connecting global buyers and vetted bulk exporters with zero friction.'
-    }
+    githubUrl: 'https://github.com/kamaleshshanmugam25-cyber/RSK-Traders'
   },
   {
     id: 'trichy-preneurs',
     name: 'TRICHYPRENEURS',
     shortName: 'TrichyPreneurs',
-    category: 'Entrepreneur Community',
+    category: 'Business Websites',
     url: 'https://trichypreneurs.com/#home',
+    localUrl: 'http://127.0.0.1:5175',
+    port: 5175,
     status: 'live',
     supportsIframe: true,
-    accentColor: '#8B5CF6', // Vibrant Violet
+    accentColor: '#8B5CF6',
     gradient: 'from-violet-500/20 via-indigo-500/10 to-transparent',
     iconGradient: 'from-violet-400 to-indigo-600',
     iconBg: '#1B1438',
     badge: 'LIVE PRODUCT',
     description: 'Entrepreneurial community ecosystem connecting startup founders, builders, and local businesses in Trichy.',
-    longDescription: 'TrichyPreneurs is an active community platform crafted for entrepreneurs, creators, mentors, and local enterprises in Trichy. Features founder directories, startup networking meetups, community knowledge-sharing, and collaboration channels.',
-    techStack: ['React', 'JavaScript', 'Tailwind CSS', 'Vite', 'Cloudflare'],
+    longDescription: 'TrichyPreneurs is an active community platform crafted for entrepreneurs, creators, mentors, and local enterprises in Trichy.',
+    techStack: ['Node.js', 'Vite', 'React', 'Tailwind CSS', 'Cloudflare'],
     features: [
       'Comprehensive regional founder & startup directory',
       'Community event announcements, registrations & meetups',
       'Direct entrepreneur networking and mentor matchmaking',
       'High-performance mobile-first responsive platform'
     ],
-    metrics: [
-      { label: 'Community Hub', value: 'Trichy' },
-      { label: 'Network', value: 'Active Founders' },
-      { label: 'Availability', value: '100% Live' }
-    ],
-    previewMockup: {
-      type: 'community',
-      headline: 'Empowering Startup Founders & Creators in Trichy',
-      subheadline: 'Connecting local visionaries, innovators, and business leaders.'
-    }
+    githubUrl: 'https://github.com/kamaleshshanmugam25-cyber/TrichyPreneurs'
   },
   {
-    id: 'photography',
-    name: 'PHOTOGRAPHY WEBSITE',
+    id: 'food-billing-software',
+    name: 'Food Restaurant Billing OS',
+    shortName: 'Billing OS',
+    category: 'SaaS Platforms',
+    url: '',
+    localUrl: 'http://127.0.0.1:5176',
+    port: 5176,
+    status: 'dev',
+    supportsIframe: true,
+    accentColor: '#F43F5E',
+    gradient: 'from-rose-500/20 via-red-500/10 to-transparent',
+    iconGradient: 'from-rose-400 to-red-600',
+    iconBg: '#2A0C14',
+    badge: 'SAAS PLATFORM',
+    description: 'Point-of-sale restaurant billing software and table order management system with inventory tracking.',
+    longDescription: 'A comprehensive restaurant point-of-sale solution with instant receipt generation, table ordering, real-time kitchen display, and daily reconciliation.',
+    techStack: ['React', 'Vite', 'Tailwind CSS', 'Node.js'],
+    features: [
+      'Fast counter and table-side billing engine',
+      'Kitchen order ticket (KOT) automation',
+      'Item inventory & ingredient stock tracking',
+      'Daily profit and tax reconciliation'
+    ],
+    githubUrl: 'https://github.com/kamaleshshanmugam25-cyber/Food-billing-software'
+  },
+  {
+    id: 'college-erp',
+    name: 'College ERP Suite',
+    shortName: 'College ERP',
+    category: 'Enterprise Applications',
+    url: '',
+    localUrl: 'http://127.0.0.1:5177',
+    port: 5177,
+    status: 'dev',
+    supportsIframe: true,
+    accentColor: '#10B981',
+    gradient: 'from-emerald-500/20 via-teal-500/10 to-transparent',
+    iconGradient: 'from-emerald-400 to-green-600',
+    iconBg: '#092318',
+    badge: 'ENTERPRISE SYSTEM',
+    description: 'Comprehensive campus management suite for fee reconciliation, student records, and financial accounting.',
+    longDescription: 'An enterprise-grade institutional operating system managing the entire higher education lifecycle. Provides integrated portals for students, faculty, admissions, fee reconciliation, and attendance.',
+    techStack: ['React', 'Vite', 'Python', 'Django REST', 'PostgreSQL'],
+    features: [
+      'Role-based access control (Student, Faculty, Admin)',
+      'Automated attendance, biometric tracking & leave workflows',
+      'Online fee reconciliation, scholarship management & invoicing',
+      'Examination grading engine & transcript generation'
+    ],
+    githubUrl: 'https://github.com/kamaleshshanmugam25-cyber/College-Erp'
+  },
+  {
+    id: 'school-erp',
+    name: 'School & Campus ERP',
+    shortName: 'School ERP',
+    category: 'Enterprise Applications',
+    url: '',
+    localUrl: 'http://127.0.0.1:5178',
+    port: 5178,
+    status: 'dev',
+    supportsIframe: true,
+    accentColor: '#3B82F6',
+    gradient: 'from-blue-500/20 via-indigo-500/10 to-transparent',
+    iconGradient: 'from-blue-400 to-indigo-600',
+    iconBg: '#0C1C36',
+    badge: 'ENTERPRISE SYSTEM',
+    description: 'Multi-tenant educational ERP managing student admissions, academic grading, and faculty operations.',
+    longDescription: 'Unified school management platform offering class scheduling, report cards, parent-teacher communication, and student lifecycle management.',
+    techStack: ['React', 'TypeScript', 'Tailwind CSS', 'Vite'],
+    features: [
+      'Student admissions & enrollment registry',
+      'Timetable & class scheduling automation',
+      'Grading, report cards & academic evaluations',
+      'Parent portal with notifications'
+    ],
+    githubUrl: 'https://github.com/kamaleshshanmugam25-cyber/school-ERP'
+  },
+  {
+    id: 'kavin-fotography',
+    name: 'Kavin Photography Studio',
     shortName: 'Photography',
-    category: 'Photography & Creative Services',
-    url: '', // Add photography URL when available
-    status: 'coming-soon',
-    supportsIframe: false,
-    accentColor: '#8B7CFF', // Purple/Violet
+    category: 'Web Applications',
+    url: 'https://kavinphotography.vercel.app',
+    localUrl: 'http://127.0.0.1:5179',
+    port: 5179,
+    status: 'live',
+    supportsIframe: true,
+    accentColor: '#8B7CFF',
     gradient: 'from-purple-500/20 via-indigo-500/10 to-transparent',
     iconGradient: 'from-purple-400 to-indigo-600',
     iconBg: '#1C1535',
     badge: 'CREATIVE STUDIO',
-    description: 'High-end visual storytelling, editorial photography studio, and client booking suite.',
-    longDescription: 'An immersive digital portfolio and booking platform crafted for professional photographers and cinematic studios. Includes full-bleed gallery views, EXIF data inspection, and private client proofing galleries.',
-    techStack: ['Next.js', 'Framer Motion', 'Tailwind CSS', 'AWS S3', 'Stripe'],
+    description: 'High-end visual storytelling, editorial photography studio, and client proofing portfolio.',
+    longDescription: 'An immersive digital portfolio and booking platform crafted for professional photographers and cinematic studios. Includes full-bleed gallery views and private client proofing galleries.',
+    techStack: ['React', 'Vite', 'Tailwind CSS', 'Framer Motion'],
     features: [
       'High-resolution masonry galleries with virtualized scrolling',
       'Client proofing & private protected album delivery',
       'Automated session booking and deposit checkout system',
-      'Adaptive image compression and webp optimization pipeline'
+      'Adaptive image compression pipeline'
     ],
-    metrics: [
-      { label: 'Resolution', value: 'Ultra HD 4K' },
-      { label: 'Client Suites', value: 'Private & Secure' },
-      { label: 'Deliveries', value: 'Instant Access' }
-    ],
-    previewMockup: {
-      type: 'photography',
-      headline: 'Editorial & Cinematic Visual Studio',
-      subheadline: 'Crafting unforgettable frames, commercial campaigns, and intimate portraits.'
-    }
+    githubUrl: 'https://github.com/kamaleshshanmugam25-cyber/Kavin-fotography'
   },
   {
-    id: 'jewellery',
-    name: 'GOLD JEWELLERY WEBSITE',
+    id: 'peru-covering',
+    name: 'Peru Covering Gold Jewellery',
     shortName: 'Gold Jewellery',
-    category: 'Jewellery & E-commerce',
-    url: '', // Add jewellery URL when available
-    status: 'coming-soon',
-    supportsIframe: false,
-    accentColor: '#F59E0B', // Warm Gold
+    category: 'E-commerce',
+    url: '',
+    localUrl: 'http://127.0.0.1:5180',
+    port: 5180,
+    status: 'dev',
+    supportsIframe: true,
+    accentColor: '#F59E0B',
     gradient: 'from-amber-500/20 via-yellow-500/10 to-transparent',
     iconGradient: 'from-amber-300 via-yellow-500 to-amber-600',
     iconBg: '#271D07',
     badge: 'E-COMMERCE',
-    description: 'Bespoke fine jewellery e-commerce platform with real-time bullion rate integration.',
-    longDescription: 'A luxury digital boutique showcasing 22K and 18K handcrafted gold ornaments, certified diamond collections, and bridal jewellery. Features daily live market rate tickers, 3D ring visualizer, and custom wedding consultations.',
-    techStack: ['React', 'Django', 'PostgreSQL', 'Tailwind CSS', 'Razorpay'],
+    description: 'Bespoke fine jewellery e-commerce boutique showcasing traditional gold covering collections.',
+    longDescription: 'A digital boutique showcasing traditional gold covering collections, bridal sets, bangles, and bespoke craftsmanship.',
+    techStack: ['React', 'Vite', 'Tailwind CSS'],
     features: [
-      'Live daily gold & diamond market rate ticker',
-      'Interactive 360-degree jewellery viewing carousel',
-      'Hallmark certification and authenticity verification',
-      'Custom bespoke order builder & appointment scheduler'
+      'Interactive bridal jewellery catalog',
+      'High-detail image zoom and metal finishing details',
+      'WhatsApp direct inquiry & order dispatch',
+      'Fast responsive mobile checkout'
     ],
-    metrics: [
-      { label: 'Purity', value: '916 Hallmark' },
-      { label: 'Craftsmanship', value: 'Artisan Handcrafted' },
-      { label: 'Security', value: 'Vault Protected' }
-    ],
-    previewMockup: {
-      type: 'jewellery',
-      headline: 'Handcrafted Heritage & Contemporary Fine Gold',
-      subheadline: 'Timeless heirlooms meticulously forged by master artisans.'
-    }
+    githubUrl: 'https://github.com/kamaleshshanmugam25-cyber/peru-covering'
   },
   {
-    id: 'restaurant',
-    name: 'RESTAURANT WEBSITE',
-    shortName: 'Restaurant',
-    category: 'Restaurant & Food',
-    url: '', // Add restaurant URL when available
-    status: 'coming-soon',
-    supportsIframe: false,
-    accentColor: '#F43F5E', // Rose/Crimson
-    gradient: 'from-rose-500/20 via-red-500/10 to-transparent',
-    iconGradient: 'from-rose-400 to-red-600',
-    iconBg: '#2A0C14',
-    badge: 'CULINARY EXPERIENCE',
-    description: 'Gourmet dining portal featuring interactive digital menus, table reservations, and takeaway.',
-    longDescription: 'An atmospheric dining experience connecting discerning food connoisseurs with chef-curated tasting menus. Features real-time table reservation management, sensory food photography, and integrated sommelier wine pairings.',
-    techStack: ['React', 'Tailwind CSS', 'Node.js', 'MongoDB', 'Socket.io'],
+    id: '3d-webniar-lead',
+    name: '3D Webinar Lead Generator',
+    shortName: '3D Webinar',
+    category: 'SaaS Platforms',
+    url: 'https://webniarlead.vercel.app',
+    localUrl: 'http://127.0.0.1:5181',
+    port: 5181,
+    status: 'live',
+    supportsIframe: true,
+    accentColor: '#EC4899',
+    gradient: 'from-pink-500/20 via-rose-500/10 to-transparent',
+    iconGradient: 'from-pink-400 to-rose-600',
+    iconBg: '#2E0E1F',
+    badge: '3D EXPERIENCE',
+    description: 'Interactive 3D webinar registration and lead capture platform with high-converting visual UI.',
+    longDescription: 'A cutting-edge interactive registration experience featuring Three.js canvas visuals and high-converting marketing funnels.',
+    techStack: ['HTML5', 'Three.js', 'JavaScript', 'CSS3'],
     features: [
-      'Sensory seasonal menu with dietary filters & allergen guide',
-      'Live interactive table booking & seating floorplan selection',
-      'Chef special tasting menu previews with wine pairing notes',
-      'Seamless pickup order scheduling & contactless payment'
+      'Interactive 3D canvas rendering',
+      'Real-time webinar countdown timer',
+      'Lead capture form with validation',
+      'Instant calendar invite generator'
     ],
-    metrics: [
-      { label: 'Ambience', value: 'Fine Dining' },
-      { label: 'Cuisine', value: 'Chef Curated' },
-      { label: 'Reservations', value: 'Real-Time' }
-    ],
-    previewMockup: {
-      type: 'restaurant',
-      headline: 'Artisanal Culinary Arts & Dining Experience',
-      subheadline: 'Where culinary tradition meets contemporary gastronomical elegance.'
-    }
+    githubUrl: 'https://github.com/kamaleshshanmugam25-cyber/3D-WEBNIAR-LEAD'
   },
   {
     id: 'jobsphere',
-    name: 'JOBSPHERE',
+    name: 'JobSphere Platform',
     shortName: 'JobSphere',
     category: 'Job Aggregation Platform',
-    url: '', // Add jobsphere URL when available
-    status: 'coming-soon',
-    supportsIframe: false,
-    accentColor: '#3B82F6', // Blue
+    url: '',
+    localUrl: 'http://127.0.0.1:5182',
+    port: 5182,
+    status: 'dev',
+    supportsIframe: true,
+    accentColor: '#3B82F6',
     gradient: 'from-blue-500/20 via-sky-500/10 to-transparent',
     iconGradient: 'from-blue-400 to-cyan-500',
     iconBg: '#0B1C33',
     badge: 'PLATFORM',
     description: 'Next-generation tech job aggregation platform with AI candidate matching and salary insights.',
-    longDescription: 'JobSphere unifies verified job openings across leading tech companies, startups, and remote teams into a centralized intelligence stream. Features AI skill matching, transparent compensation benchmarks, and one-click applications.',
-    techStack: ['React', 'Python', 'Django REST', 'PostgreSQL', 'Tailwind CSS'],
+    longDescription: 'JobSphere unifies verified job openings across tech companies, startups, and remote teams into a centralized intelligence stream.',
+    techStack: ['React', 'Vite', 'Python', 'Django REST', 'PostgreSQL'],
     features: [
-      'Multi-board live job scraping and deduplication pipeline',
+      'Multi-board live job aggregation pipeline',
       'AI resume-to-job matching score and gap analysis',
-      'Verified compensation bands and remote workplace ratings',
-      'Instant application tracker with interview timeline kanban'
+      'Verified compensation bands and remote ratings',
+      'Instant application tracker'
     ],
-    metrics: [
-      { label: 'Listings', value: 'Verified Postings' },
-      { label: 'Matching', value: 'AI Powered' },
-      { label: 'Privacy', value: 'Candidate First' }
-    ],
-    previewMockup: {
-      type: 'jobsphere',
-      headline: 'Next-Gen Tech Career Discovery & Matching',
-      subheadline: 'Curating elite engineering, design, and product roles without the noise.'
-    }
+    githubUrl: 'https://github.com/kamaleshshanmugam25-cyber/jobseeker'
   },
   {
-    id: 'college-erp',
-    name: 'COLLEGE ERP',
-    shortName: 'College ERP',
-    category: 'Enterprise Management System',
-    url: '', // Add college erp URL when available
-    status: 'coming-soon',
-    supportsIframe: false,
-    accentColor: '#10B981', // Emerald
-    gradient: 'from-emerald-500/20 via-teal-500/10 to-transparent',
-    iconGradient: 'from-emerald-400 to-green-600',
-    iconBg: '#092318',
-    badge: 'ENTERPRISE SYSTEM',
-    description: 'Comprehensive campus management suite for academic records, fees, faculty, and examinations.',
-    longDescription: 'An enterprise-grade institutional operating system managing the entire higher education lifecycle. Provides integrated portals for students, faculty, admissions, fee reconciliation, attendance analytics, and automated examination scheduling.',
-    techStack: ['React', 'Python', 'Django', 'PostgreSQL', 'Bootstrap', 'Redis'],
+    id: 'littlelemon',
+    name: 'Little Lemon Dining',
+    shortName: 'Little Lemon',
+    category: 'Web Applications',
+    url: '',
+    localUrl: 'http://127.0.0.1:8004',
+    port: 8004,
+    status: 'dev',
+    supportsIframe: true,
+    accentColor: '#FBBF24',
+    gradient: 'from-yellow-500/20 via-amber-500/10 to-transparent',
+    iconGradient: 'from-yellow-300 to-amber-500',
+    iconBg: '#261F05',
+    badge: 'DINING EXPERIENCE',
+    description: 'Atmospheric Mediterranean dining portal featuring table reservations and curated menu preview.',
+    longDescription: 'A classic Mediterranean bistro digital presence featuring online table booking, chef specials, and dining reservations.',
+    techStack: ['HTML5', 'JavaScript', 'Django', 'CSS3'],
     features: [
-      'Role-based role access control (Student, Faculty, Dean, Admin)',
-      'Automated attendance, biometric tracking & leave workflows',
-      'Online fee reconciliation, scholarship management & invoicing',
-      'Examination grading engine, GPA analytics & transcript generation'
+      'Interactive table booking calendar',
+      'Chef tasting menu and dietary guides',
+      'Customer review showcase',
+      'Location and opening hours'
     ],
-    metrics: [
-      { label: 'Campus Scale', value: '10,000+ Students' },
-      { label: 'Architecture', value: 'Role-Based ERP' },
-      { label: 'Security', value: 'Enterprise Grade' }
+    githubUrl: 'https://github.com/kamaleshshanmugam25-cyber/Littlelemon'
+  },
+  {
+    id: 'django-react-auth',
+    name: 'Django React Authentication',
+    shortName: 'Django Auth',
+    category: 'Web Applications',
+    url: '',
+    localUrl: 'http://127.0.0.1:5184',
+    port: 5184,
+    status: 'dev',
+    supportsIframe: true,
+    accentColor: '#06B6D4',
+    gradient: 'from-cyan-500/20 via-sky-500/10 to-transparent',
+    iconGradient: 'from-cyan-400 to-blue-500',
+    iconBg: '#082229',
+    badge: 'IDENTITY PORTAL',
+    description: 'Full-stack authentication and user identity portal using Python Django REST API and React frontend.',
+    longDescription: 'Complete JWT token authentication sandbox featuring login, registration, password reset, and protected routes.',
+    techStack: ['Django REST', 'React', 'Vite', 'JWT'],
+    features: [
+      'JWT token authentication (Access & Refresh)',
+      'Secure password hashing with Django',
+      'Protected API routes and interceptors',
+      'Clean Neo-Brutalist authentication UI'
     ],
-    previewMockup: {
-      type: 'erp',
-      headline: 'Unified Campus Intelligence & Academic ERP',
-      subheadline: 'Empowering institutions with streamlined operations and real-time student analytics.'
-    }
+    githubUrl: 'https://github.com/kamaleshshanmugam25-cyber/django-react-auth-Login-Page-'
+  },
+  {
+    id: 'django-basic',
+    name: 'Django Architecture Lab',
+    shortName: 'Django Lab',
+    category: 'Personal Projects',
+    url: '',
+    localUrl: 'http://127.0.0.1:8005',
+    port: 8005,
+    status: 'dev',
+    supportsIframe: true,
+    accentColor: '#10B981',
+    gradient: 'from-emerald-500/20 via-green-500/10 to-transparent',
+    iconGradient: 'from-green-400 to-emerald-600',
+    iconBg: '#0A2518',
+    badge: 'BACKEND LAB',
+    description: 'Architectural exploration of Django models, views, templates, and RESTful routing patterns.',
+    longDescription: 'Comprehensive hands-on backend sandbox exploring Django ORM, migrations, serializers, and MVC patterns.',
+    techStack: ['Python', 'Django', 'SQLite', 'REST API'],
+    features: [
+      'Relational data modeling with Django ORM',
+      'Django Admin customization',
+      'Generic class-based views and viewsets',
+      'Unit testing suite'
+    ],
+    githubUrl: 'https://github.com/kamaleshshanmugam25-cyber/django_basic'
+  },
+  {
+    id: 'demo-workspace',
+    name: 'Experimental Demo Workspace',
+    shortName: 'Demo Workspace',
+    category: 'Personal Projects',
+    url: '',
+    localUrl: 'http://127.0.0.1:5185',
+    port: 5185,
+    status: 'dev',
+    supportsIframe: true,
+    accentColor: '#6B7280',
+    gradient: 'from-gray-500/20 via-slate-500/10 to-transparent',
+    iconGradient: 'from-gray-400 to-slate-600',
+    iconBg: '#181C24',
+    badge: 'SANDBOX',
+    description: 'Rapid prototyping and experimental codebase for testing emerging full-stack web capabilities.',
+    longDescription: 'Experimental playground testing cutting-edge web APIs, state machines, and micro-frontend integrations.',
+    techStack: ['React', 'JavaScript', 'Vite', 'Tailwind CSS'],
+    features: [
+      'Component laboratory and sandboxing',
+      'Performance profiling benchmarks',
+      'Experimental API integration prototypes',
+      'Lightweight build tooling'
+    ],
+    githubUrl: 'https://github.com/kamaleshshanmugam25-cyber/demo'
   }
 ];
 
 export const CATEGORIES = [
   'All',
-  'Import & Export',
-  'Entrepreneur Community',
-  'Photography & Creative Services',
-  'Jewellery & E-commerce',
-  'Restaurant & Food',
+  'Business Websites',
+  'SaaS Platforms',
+  'Enterprise Applications',
+  'Web Applications',
+  'E-commerce',
   'Job Aggregation Platform',
-  'Enterprise Management System'
+  'Personal Projects'
 ];

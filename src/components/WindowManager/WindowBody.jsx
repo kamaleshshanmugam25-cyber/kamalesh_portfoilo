@@ -6,11 +6,17 @@ import { ContactModal } from '../Views/ContactModal';
 import { DeveloperTerminal } from '../Views/DeveloperTerminal';
 import { ProjectDetailsModal } from '../Views/ProjectDetailsModal';
 import { GitHubActivityDashboard } from '../GitHubActivity/GitHubActivityDashboard';
+import { RuntimeDashboard } from '../Runtime/RuntimeDashboard';
+import { ApplicationLogsModal } from '../Runtime/ApplicationLogsModal';
 
 export const WindowBody = ({ windowItem, onClose }) => {
   const { type, metadata } = windowItem;
 
   switch (type) {
+    case 'runtime':
+      return <RuntimeDashboard onClose={onClose} />;
+    case 'logs':
+      return <ApplicationLogsModal appId={metadata?.appId || metadata?.id} appName={metadata?.name} onClose={onClose} />;
     case 'projects':
       return <ProjectsShowcase onClose={onClose} />;
     case 'github-activity':

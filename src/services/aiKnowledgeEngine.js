@@ -163,6 +163,44 @@ export const classifyIntent = (rawPrompt = '', history = []) => {
   }
 
   // 5. WORKSPACE COMMANDS
+  // Local Runtime Engine Fleet Commands
+  if (p.includes('start all') || p.includes('boot all') || p.includes('run all projects') || p.includes('launch all')) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'START_ALL_APPS' };
+  }
+  if (p.includes('stop all') || p.includes('kill all') || p.includes('shut down all')) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'STOP_ALL_APPS' };
+  }
+  if (p.includes('restart all') || p.includes('reboot all')) {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'RESTART_ALL_APPS' };
+  }
+  if (p.includes('runtime manager') || p.includes('running apps') || p.includes('which projects are running') || p.includes('show fleet') || p === 'runtime') {
+    return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'NAV_RUNTIME' };
+  }
+  if (p.startsWith('logs ') || p.includes('show logs') || p.includes('view logs')) {
+    const clean = p.replace('show logs for ', '').replace('show logs of ', '').replace('logs for ', '').replace('logs of ', '').replace('logs ', '').replace('view logs ', '');
+    if (resolveApplication(clean) || resolveApplication(p)) {
+      return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'SHOW_APP_LOGS' };
+    }
+  }
+  if (p.startsWith('start ') || p.startsWith('run ') || p.startsWith('boot ')) {
+    const clean = p.replace('start ', '').replace('run ', '').replace('boot ', '').replace(' project', '').replace(' app', '');
+    if (resolveApplication(clean)) {
+      return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'START_LOCAL_APP' };
+    }
+  }
+  if (p.startsWith('stop ') || p.startsWith('kill ') || p.startsWith('halt ')) {
+    const clean = p.replace('stop ', '').replace('kill ', '').replace('halt ', '').replace(' project', '').replace(' app', '');
+    if (resolveApplication(clean)) {
+      return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'STOP_LOCAL_APP' };
+    }
+  }
+  if (p.startsWith('restart ') || p.startsWith('reboot ')) {
+    const clean = p.replace('restart ', '').replace('reboot ', '').replace(' project', '').replace(' app', '');
+    if (resolveApplication(clean)) {
+      return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'RESTART_LOCAL_APP' };
+    }
+  }
+
   // Multi-step commands (open X and Y side by side)
   if ((p.includes('open') || p.includes('launch')) && (p.includes('side by side') || p.includes('side-by-side') || p.includes('and arrange') || p.includes('together') || (p.includes('and') && (p.includes('side') || p.includes('arrange'))))) {
     return { intent: INTENT_TYPES.WORKSPACE_COMMAND, subIntent: 'MULTI_OPEN_ARRANGE' };
@@ -451,7 +489,67 @@ export const queryKnowledgeEngine = (prompt = '', gitHubProjects = [], history =
     // 6. WORKSPACE COMMANDS
     // ============================================================
     case INTENT_TYPES.WORKSPACE_COMMAND: {
-      if (subIntent === 'MULTI_OPEN_ARRANGE') {
+      if (subIntent === 'START_ALL_APPS') {
+        actions.push({ type: 'START_ALL_APPLICATIONS' });
+        message = "Starting all enabled local applications sequentially...";
+        suggestions = ['Stop all projects', 'Runtime Manager', 'Which projects are running?'];
+      } else if (subIntent === 'STOP_ALL_APPS') {
+        actions.push({ type: 'STOP_ALL_APPLICATIONS' });
+        message = "Stopping all managed development applications...";
+        suggestions = ['Start all projects', 'Runtime Manager', 'Show my projects'];
+      } else if (subIntent === 'RESTART_ALL_APPS') {
+        actions.push({ type: 'RESTART_ALL_APPLICATIONS' });
+        message = "Restarting all managed development applications...";
+        suggestions = ['Runtime Manager', 'Close all windows'];
+      } else if (subIntent === 'NAV_RUNTIME') {
+        actions.push({ type: 'OPEN_RUNTIME_MANAGER' });
+        message = "Opening the Local Application Runtime Engine dashboard.";
+        suggestions = ['Start all projects', 'Stop all projects', 'Show my projects'];
+      } else if (subIntent === 'SHOW_APP_LOGS') {
+        const app = resolveApplication(lower);
+        const targetId = app ? app.id : 'rsk-traders';
+        const targetName = app ? app.shortName : 'RSK Traders';
+        actions.push({
+          type: 'SHOW_APPLICATION_LOGS',
+          value: targetId,
+          payload: { applicationId: targetId }
+        });
+        message = `Opening live execution logs for ${targetName}.`;
+        suggestions = [`Start ${targetName}`, `Stop ${targetName}`, 'Runtime Manager'];
+      } else if (subIntent === 'START_LOCAL_APP') {
+        const app = resolveApplication(lower);
+        const targetId = app ? app.id : 'rsk-traders';
+        const targetName = app ? app.shortName : 'RSK Traders';
+        actions.push({
+          type: 'START_LOCAL_APPLICATION',
+          value: targetId,
+          payload: { applicationId: targetId }
+        });
+        message = `Starting ${targetName} development server on port ${app ? app.port : 5174}...`;
+        suggestions = [`Show logs for ${targetName}`, `Stop ${targetName}`, 'Runtime Manager'];
+      } else if (subIntent === 'STOP_LOCAL_APP') {
+        const app = resolveApplication(lower);
+        const targetId = app ? app.id : 'rsk-traders';
+        const targetName = app ? app.shortName : 'RSK Traders';
+        actions.push({
+          type: 'STOP_LOCAL_APPLICATION',
+          value: targetId,
+          payload: { applicationId: targetId }
+        });
+        message = `Stopping managed process for ${targetName}.`;
+        suggestions = [`Start ${targetName}`, 'Runtime Manager', 'Show my projects'];
+      } else if (subIntent === 'RESTART_LOCAL_APP') {
+        const app = resolveApplication(lower);
+        const targetId = app ? app.id : 'rsk-traders';
+        const targetName = app ? app.shortName : 'RSK Traders';
+        actions.push({
+          type: 'RESTART_LOCAL_APPLICATION',
+          value: targetId,
+          payload: { applicationId: targetId }
+        });
+        message = `Restarting ${targetName} process...`;
+        suggestions = [`Show logs for ${targetName}`, 'Runtime Manager'];
+      } else if (subIntent === 'MULTI_OPEN_ARRANGE') {
         const appsToOpen = [];
         if (lower.includes('rsk') || lower.includes('trader')) appsToOpen.push({ id: 'rsk-traders', name: 'RSK Traders' });
         if (lower.includes('job') || lower.includes('sphere') || lower.includes('jobspeher') || lower.includes('jobspher') || lower.includes('jobshere')) appsToOpen.push({ id: 'jobsphere', name: 'JobSphere' });

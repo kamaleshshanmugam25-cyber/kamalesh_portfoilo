@@ -11,7 +11,8 @@ import {
   Info, 
   Terminal, 
   Grid,
-  Activity
+  Activity,
+  Server
 } from 'lucide-react';
 
 export const TopStatusBar = () => {
@@ -47,6 +48,8 @@ export const TopStatusBar = () => {
       openWindow('activity-window', { title: 'Live GitHub Activity Center', type: 'github-activity' });
     } else if (tab === 'about') {
       openWindow('about-window', { title: 'About Kamalesh', type: 'about' });
+    } else if (tab === 'runtime') {
+      openWindow('runtime-window', { title: 'Local Application Runtime Engine', type: 'runtime' });
     } else if (tab === 'contact') {
       openWindow('contact-window', { title: 'Contact & Hire', type: 'contact' });
     }
@@ -89,6 +92,13 @@ export const TopStatusBar = () => {
                 >
                   <Activity className="w-4 h-4" />
                   <span>GitHub Activity Center</span>
+                </button>
+                <button 
+                  onClick={() => openWindow('runtime-window', { title: 'Local Application Runtime Engine', type: 'runtime' })}
+                  className="w-full text-left px-3 py-2 font-bold hover:bg-[#F5F04E] hover:text-[#151515] flex items-center space-x-2 transition-colors border border-transparent hover:border-[#151515]"
+                >
+                  <Server className="w-4 h-4" />
+                  <span>Local Runtime Manager (13 Apps)</span>
                 </button>
                 <button 
                   onClick={() => openWindow('about-window', { title: 'About Kamalesh', type: 'about' })}
@@ -164,6 +174,18 @@ export const TopStatusBar = () => {
           >
             <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
             <span>Activity</span>
+          </button>
+          <button
+            onClick={() => handleNavClick('runtime')}
+            className={`px-3 py-1.5 border-2 border-[#151515] font-bold text-xs uppercase transition-all flex items-center space-x-1.5 ${
+              activeNavTab === 'runtime' 
+                ? 'bg-[#3155FF] text-white shadow-brutal-sm' 
+                : 'bg-[#F5F04E] text-[#151515] hover:bg-yellow-300'
+            }`}
+            title="Local Application Runtime Engine"
+          >
+            <Server className="w-3.5 h-3.5" />
+            <span>Runtime</span>
           </button>
           <button
             onClick={() => handleNavClick('about')}

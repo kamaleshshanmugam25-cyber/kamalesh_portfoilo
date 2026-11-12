@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { APPLICATIONS } from '../../config/applications';
 import { GITHUB_USERNAME } from '../../config/projects';
 import { useWindowManager } from '../../context/WindowContext';
+import { useRuntimeFleet, startApplication } from '../../services/runtimeService';
 import { DesktopIcon } from './DesktopIcon';
 import { 
   Sparkles, 
@@ -17,7 +18,8 @@ import {
   Activity,
   Mail,
   ExternalLink,
-  Award
+  Award,
+  Server
 } from 'lucide-react';
 
 export const DesktopCanvas = () => {
@@ -28,6 +30,9 @@ export const DesktopCanvas = () => {
     gitHubProjects 
   } = useWindowManager();
   const [selectedAppId, setSelectedAppId] = useState(null);
+  const [launchingAppId, setLaunchingAppId] = useState(null);
+
+  const { fleet, metrics, isOnline, refresh: refreshFleet } = useRuntimeFleet({ pollInterval: 3000 });
 
   const handleCanvasClick = (e) => {
     if (e.target === e.currentTarget) {
@@ -35,8 +40,58 @@ export const DesktopCanvas = () => {
     }
   };
 
-  const handleOpenApp = (appId) => {
-    openWindow(appId);
+  const handleOpenApp = async (appId) => {
+    setSelectedAppId(appId);
+    const appDef = APPLICATIONS.find(a => a.id === appId);
+    if (!appDef) {
+      openWindow(appId);
+      return;
+    }
+
+    const liveApp = fleet.find(f => f.id === appId);
+    const isRunning = liveApp && (liveApp.status === 'running' || liveApp.isPortListening);
+
+    if (isRunning) {
+      const targetUrl = liveApp.healthUrl || `http://127.0.0.1:${liveApp.port}` || appDef.url;
+      openWindow(appId, {
+        title: `${appDef.name} [Port ${liveApp.port || appDef.port}]`,
+        metadata: {
+          ...appDef,
+          url: targetUrl
+        }
+      });
+      return;
+    }
+
+    // If stopped, boot via runtime service if online
+    if (isOnline) {
+      setLaunchingAppId(appId);
+      try {
+        const res = await startApplication(appId);
+        await refreshFleet();
+        const targetUrl = res.healthUrl || `http://127.0.0.1:${res.port}` || appDef.url;
+        openWindow(appId, {
+          title: `${appDef.name} [Port ${res.port || appDef.port}]`,
+          metadata: {
+            ...appDef,
+            url: targetUrl
+          }
+        });
+        return;
+      } catch (err) {
+        console.warn(`Runtime auto-boot bypassed: ${err.message}`);
+      } finally {
+        setLaunchingAppId(null);
+      }
+    }
+
+    // Direct fallback open
+    openWindow(appId, {
+      metadata: {
+        ...appDef,
+        url: appDef.url || `http://127.0.0.1:${appDef.port}`
+      }
+    });
   };
 
   return (
@@ -48,22 +103,35 @@ export const DesktopCanvas = () => {
       <div className="flex-1 flex flex-col lg:flex-row gap-5 lg:gap-6 xl:gap-8 items-center lg:items-start justify-between">
         
         {/* Left Area: Applications Grid */}
-        <div className="flex flex-col space-y-3.5 w-full lg:w-[320px] xl:w-[360px] shrink-0">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 bg-white border-2 border-[#151515] shadow-brutal-sm self-start">
-            <span className="w-2 h-2 bg-[#FF5C8A] border border-[#151515]" />
-            <span className="text-xs font-mono font-black tracking-wider uppercase text-[#151515]">
-              FLAGSHIP APPLICATIONS [{APPLICATIONS.length}/{APPLICATIONS.length}]
-            </span>
-            <span className="text-[10px] font-mono font-extrabold px-1.5 py-0.2 bg-[#10B981] text-white border border-[#151515]">
-              {APPLICATIONS.filter(a => a.status === 'live').length} LIVE
-            </span>
+        <div className="flex flex-col space-y-3 w-full lg:w-[320px] xl:w-[360px] shrink-0">
+          <div className="flex items-center justify-between w-full">
+            <div className="inline-flex items-center space-x-2 px-2.5 py-1 bg-white border-2 border-[#151515] shadow-brutal-sm">
+              <span className="w-2 h-2 bg-[#FF5C8A] border border-[#151515]" />
+              <span className="text-xs font-mono font-black tracking-wider uppercase text-[#151515]">
+                FLEET [{APPLICATIONS.length}]
+              </span>
+              <span className="text-[10px] font-mono font-extrabold px-1.5 py-0.2 bg-[#10B981] text-white border border-[#151515]">
+                {metrics.running > 0 ? `${metrics.running} RUNNING` : `${APPLICATIONS.filter(a => a.status === 'live').length} LIVE`}
+              </span>
+            </div>
+
+            <button
+              onClick={() => openWindow('runtime-window', { title: 'Local Application Runtime Engine', type: 'runtime' })}
+              className="px-2 py-1 bg-[#F5F04E] hover:bg-yellow-300 text-[#151515] border-2 border-[#151515] shadow-brutal-sm font-mono font-black text-[10px] uppercase flex items-center space-x-1 active:translate-y-0.5"
+              title="Open Full 13-App Runtime Engine"
+            >
+              <Server className="w-3 h-3" />
+              <span>Fleet Manager</span>
+            </button>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-3 p-2 bg-white/70 border-3 border-[#151515] shadow-brutal-md">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2 p-2 bg-white/70 border-3 border-[#151515] shadow-brutal-md max-h-[calc(100vh-14rem)] overflow-y-auto pr-1">
             {APPLICATIONS.map((app) => (
               <DesktopIcon
                 key={app.id}
                 app={app}
+                liveApp={fleet.find(f => f.id === app.id)}
+                isLaunching={launchingAppId === app.id}
                 isSelected={selectedAppId === app.id}
                 onSelect={(id) => setSelectedAppId(id)}
                 onOpen={handleOpenApp}
@@ -72,9 +140,16 @@ export const DesktopCanvas = () => {
           </div>
 
           {/* Helper hint banner */}
-          <div className="flex items-center space-x-2 px-3 py-1.5 bg-white border-2 border-[#151515] shadow-brutal-sm text-[11px] font-mono font-bold text-[#151515]">
-            <span className="px-1.5 py-0.5 bg-[#3155FF] text-white text-[9px] uppercase">TIP</span>
-            <span>DOUBLE CLICK AN ICON TO LAUNCH WINDOW</span>
+          <div className="flex items-center justify-between px-2.5 py-1.5 bg-white border-2 border-[#151515] shadow-brutal-sm text-[10px] font-mono font-bold text-[#151515]">
+            <div className="flex items-center space-x-1.5">
+              <span className="px-1.5 py-0.2 bg-[#3155FF] text-white uppercase text-[8px]">ONE-CLICK</span>
+              <span>AUTO-BOOTS STOPPED APPS</span>
+            </div>
+            {isOnline ? (
+              <span className="text-green-700 font-extrabold">● ENGINE READY</span>
+            ) : (
+              <span className="text-gray-500">OFFLINE</span>
+            )}
           </div>
         </div>
 
@@ -91,7 +166,7 @@ export const DesktopCanvas = () => {
             <div className="flex items-center justify-between pb-2.5 mb-3 border-b-2 border-[#151515]">
               <span className="px-2.5 py-1 bg-[#F5F04E] text-[#151515] text-[10px] font-mono font-black uppercase tracking-wider border border-[#151515] flex items-center space-x-1.5">
                 <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
-                <span>ARCHITECT // CREATOR</span>
+                <span>Developer</span>
               </span>
               <span className="px-2 py-0.5 rounded bg-[#3155FF] text-white text-[9px] font-mono font-extrabold uppercase">
                 FOUNDER
@@ -112,11 +187,11 @@ export const DesktopCanvas = () => {
                     KAMALESH
                   </h3>
                   <p className="text-[9px] font-mono font-bold text-[#3155FF]">
-                    Frontend Architect &amp; UI/UX
+                    FULL STACK DEVELOPER & UI/UX DESIGNER
                   </p>
                 </div>
                 <span className="px-1.5 py-0.5 rounded bg-[#10B981] text-white text-[9px] font-mono font-extrabold">
-                  8+ YRS
+                  Fresher
                 </span>
               </div>
             </div>

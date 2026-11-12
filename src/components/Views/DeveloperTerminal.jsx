@@ -7,7 +7,7 @@ import { resolveApplication } from '../../config/applicationRegistry';
 import { useWindowManager } from '../../context/WindowContext';
 import { sendAIMessage } from '../../services/aiService';
 
-const QUICK_COMMANDS = ['help', 'ls', 'apps', 'repos', 'skills', '3d', 'theme', 'clear'];
+const QUICK_COMMANDS = ['help', 'ls', 'runtime', 'apps', 'repos', 'skills', '3d', 'theme', 'clear'];
 
 export const DeveloperTerminal = ({ onClose }) => {
   const { 
@@ -206,12 +206,21 @@ GITHUB:       ${GITHUB_PROFILE_URL}
     // 6. APPS DIRECTORY
     else if (cmdLower === 'apps' || cmdLower === 'applications') {
       const appLines = APPLICATIONS.map(a => 
-        `• [${a.id.padEnd(14)}] ${a.name.padEnd(22)} (${a.category}) - ${a.status.toUpperCase()}${a.url ? ` -> ${a.url}` : ''}`
+        `• [${a.id.padEnd(18)}] ${a.name.padEnd(28)} (Port ${a.port}) - ${a.status.toUpperCase()}${a.url ? ` -> ${a.url}` : ''}`
       ).join('\n');
 
       newHistory.push({
         type: 'response',
-        text: `INTEGRATED ECOSYSTEM APPLICATIONS (6/6):\n----------------------------------------------------------------\n${appLines}\n\nType "open <name>" to launch any application directly.`
+        text: `INTEGRATED FLEET APPLICATIONS (${APPLICATIONS.length}/${APPLICATIONS.length}):\n----------------------------------------------------------------\n${appLines}\n\nType "open <name>" or "runtime" to launch any application directly.`
+      });
+    }
+
+    // 6b. RUNTIME FLEET MANAGER
+    else if (cmdLower === 'runtime' || cmdLower === 'fleet' || cmdLower === 'engine') {
+      openWindow('runtime-window', { title: 'Local Application Runtime Engine', type: 'runtime' });
+      newHistory.push({
+        type: 'response',
+        text: `LAUNCHING RUNTIME FLEET ENGINE:\n----------------------------------------------------------------\n• Target: http://127.0.0.1:4170\n• Fleet Size: ${APPLICATIONS.length} Managed Applications\n• Autonomous PID Isolation & Health Checking Active`
       });
     }
 
