@@ -113,68 +113,17 @@ export const DesktopCanvas = () => {
   return (
     <div 
       onClick={handleCanvasClick}
-      className="relative flex-1 w-full h-[calc(100vh-3rem)] overflow-y-auto lg:overflow-hidden flex flex-col justify-between p-3 sm:p-5 lg:p-6 xl:p-8 pb-20 sm:pb-24 lg:pb-8"
+      className="relative flex-1 w-full h-[calc(100vh-3rem)] overflow-y-auto lg:overflow-hidden flex flex-col justify-between p-3 sm:p-5 lg:p-6 xl:p-8 pb-28 sm:pb-28 lg:pb-8"
     >
       {/* Desktop Main 3-Column Grid */}
       <div className="flex-1 flex flex-col lg:flex-row gap-5 lg:gap-6 xl:gap-8 items-center lg:items-start justify-between">
         
-        {/* Left Area: Applications Grid */}
-        <div className="flex flex-col space-y-3 w-full lg:w-[320px] xl:w-[360px] shrink-0">
-          <div className="flex items-center justify-between w-full">
-            <div className="inline-flex items-center space-x-2 px-2.5 py-1 bg-white border-2 border-[#151515] shadow-brutal-sm">
-              <span className="w-2 h-2 bg-[#FF5C8A] border border-[#151515]" />
-              <span className="text-xs font-mono font-black tracking-wider uppercase text-[#151515]">
-                FLEET [{APPLICATIONS.length}]
-              </span>
-              <span className="text-[10px] font-mono font-extrabold px-1.5 py-0.2 bg-[#10B981] text-white border border-[#151515]">
-                {metrics.running > 0 ? `${metrics.running} RUNNING` : `${APPLICATIONS.filter(a => a.status === 'live').length} LIVE`}
-              </span>
-            </div>
-
-            <button
-              onClick={() => openWindow('runtime-window', { title: 'Local Application Runtime Engine', type: 'runtime' })}
-              className="px-2 py-1 bg-[#F5F04E] hover:bg-yellow-300 text-[#151515] border-2 border-[#151515] shadow-brutal-sm font-mono font-black text-[10px] uppercase flex items-center space-x-1 active:translate-y-0.5"
-              title="Open Full 13-App Runtime Engine"
-            >
-              <Server className="w-3 h-3" />
-              <span>Fleet Manager</span>
-            </button>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2 p-2 bg-white/70 border-3 border-[#151515] shadow-brutal-md max-h-[calc(100vh-14rem)] overflow-y-auto pr-1">
-            {APPLICATIONS.map((app) => (
-              <DesktopIcon
-                key={app.id}
-                app={app}
-                liveApp={fleet.find(f => f.id === app.id)}
-                isLaunching={launchingAppId === app.id}
-                isSelected={selectedAppId === app.id}
-                onSelect={(id) => setSelectedAppId(id)}
-                onOpen={handleOpenApp}
-              />
-            ))}
-          </div>
-
-          {/* Helper hint banner */}
-          <div className="flex items-center justify-between px-2.5 py-1.5 bg-white border-2 border-[#151515] shadow-brutal-sm text-[10px] font-mono font-bold text-[#151515]">
-            <div className="flex items-center space-x-1.5">
-              <span className="px-1.5 py-0.2 bg-[#3155FF] text-white uppercase text-[8px]">ONE-CLICK</span>
-              <span>AUTO-BOOTS STOPPED APPS</span>
-            </div>
-            {isOnline ? (
-              <span className="text-green-700 font-extrabold">● ENGINE READY</span>
-            ) : (
-              <span className="text-gray-500">OFFLINE</span>
-            )}
-          </div>
-        </div>
-
-        {/* Center Area: Person Behind the Website (Kamalesh) */}
+        {/* Profile Card (Kamalesh): FIRST ON MOBILE (order-1), CENTER ON DESKTOP (lg:order-2) */}
         <motion.div
           initial={{ opacity: 0, scale: 0.96, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.18 }}
-          className="flex flex-col items-center justify-center w-full max-w-[340px] xl:max-w-[380px] shrink-0 my-2 lg:my-0 select-none"
+          className="order-1 lg:order-2 flex flex-col items-center justify-center w-full max-w-[380px] lg:max-w-[340px] xl:max-w-[380px] shrink-0 my-2 lg:my-0 select-none"
         >
           <div className="brutal-card p-4 bg-white w-full relative overflow-hidden group hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-brutal-xl transition-all">
             
@@ -250,8 +199,59 @@ export const DesktopCanvas = () => {
           </div>
         </motion.div>
 
+        {/* Fleet Applications Area: UNDER PROFILE ON MOBILE (order-2), LEFT ON DESKTOP (lg:order-1) */}
+        <div className="order-2 lg:order-1 flex flex-col space-y-3 w-full lg:w-[320px] xl:w-[360px] shrink-0">
+          <div className="flex items-center justify-between w-full">
+            <div className="inline-flex items-center space-x-2 px-2.5 py-1 bg-white border-2 border-[#151515] shadow-brutal-sm">
+              <span className="w-2 h-2 bg-[#FF5C8A] border border-[#151515]" />
+              <span className="text-xs font-mono font-black tracking-wider uppercase text-[#151515]">
+                FLEET [{APPLICATIONS.length}]
+              </span>
+              <span className="text-[10px] font-mono font-extrabold px-1.5 py-0.2 bg-[#10B981] text-white border border-[#151515]">
+                {metrics.running > 0 ? `${metrics.running} RUNNING` : `${APPLICATIONS.filter(a => a.status === 'live').length} LIVE`}
+              </span>
+            </div>
+
+            <button
+              onClick={() => openWindow('runtime-window', { title: 'Local Application Runtime Engine', type: 'runtime' })}
+              className="px-2 py-1 bg-[#F5F04E] hover:bg-yellow-300 text-[#151515] border-2 border-[#151515] shadow-brutal-sm font-mono font-black text-[10px] uppercase flex items-center space-x-1 active:translate-y-0.5"
+              title="Open Full 13-App Runtime Engine"
+            >
+              <Server className="w-3 h-3" />
+              <span>Fleet Manager</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5 p-2 sm:p-2.5 bg-white/70 border-3 border-[#151515] shadow-brutal-md lg:max-h-[calc(100vh-14rem)] lg:overflow-y-auto pr-1">
+            {APPLICATIONS.map((app) => (
+              <DesktopIcon
+                key={app.id}
+                app={app}
+                liveApp={fleet.find(f => f.id === app.id)}
+                isLaunching={launchingAppId === app.id}
+                isSelected={selectedAppId === app.id}
+                onSelect={(id) => setSelectedAppId(id)}
+                onOpen={handleOpenApp}
+              />
+            ))}
+          </div>
+
+          {/* Helper hint banner */}
+          <div className="flex items-center justify-between px-2.5 py-1.5 bg-white border-2 border-[#151515] shadow-brutal-sm text-[10px] font-mono font-bold text-[#151515]">
+            <div className="flex items-center space-x-1.5">
+              <span className="px-1.5 py-0.2 bg-[#3155FF] text-white uppercase text-[8px]">ONE-CLICK</span>
+              <span>AUTO-BOOTS STOPPED APPS</span>
+            </div>
+            {isOnline ? (
+              <span className="text-green-700 font-extrabold">● ENGINE READY</span>
+            ) : (
+              <span className="text-gray-500">OFFLINE</span>
+            )}
+          </div>
+        </div>
+
         {/* Right Area: Resume Highlights & Info Widgets */}
-        <div className="hidden lg:flex flex-col space-y-4 w-full lg:w-[320px] xl:w-[380px] shrink-0">
+        <div className="order-3 lg:order-3 hidden lg:flex flex-col space-y-4 w-full lg:w-[320px] xl:w-[380px] shrink-0">
           
           {/* Resume Spotlight Card */}
           <motion.div

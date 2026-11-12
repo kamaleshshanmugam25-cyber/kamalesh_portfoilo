@@ -221,14 +221,15 @@ export const TopStatusBar = () => {
       </div>
 
       {/* Center: Command Palette Search */}
-      <div className="flex items-center space-x-2 sm:space-x-3">
+      <div className="flex items-center space-x-1.5 sm:space-x-3">
         <button
           onClick={() => setIsCommandPaletteOpen(true)}
-          className="flex items-center space-x-2 px-3.5 py-1.5 bg-[#F5F5F0] border-2 border-[#151515] shadow-brutal-sm hover:bg-white hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-brutal transition-all text-[#151515] w-48 sm:w-64 md:w-80 justify-between"
+          className="flex items-center space-x-2 p-1.5 sm:px-3.5 sm:py-1.5 bg-[#F5F5F0] border-2 border-[#151515] shadow-brutal-sm hover:bg-white hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-brutal transition-all text-[#151515] sm:w-64 md:w-80 justify-between"
+          title="Search resume, projects... (⌘K)"
         >
           <span className="flex items-center space-x-2">
-            <Search className="w-3.5 h-3.5 stroke-[2.5] text-gray-500" />
-            <span className="text-xs font-bold text-gray-700">Search resume, projects...</span>
+            <Search className="w-3.5 h-3.5 stroke-[2.5] text-gray-700" />
+            <span className="hidden sm:inline text-xs font-bold text-gray-700">Search resume, projects...</span>
           </span>
           <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 border border-[#151515] bg-white text-[10px] font-mono font-bold">
             ⌘K
@@ -237,7 +238,7 @@ export const TopStatusBar = () => {
       </div>
 
       {/* Right: Audio, Date/Time & Resume + Contact CTAs */}
-      <div className="flex items-center space-x-2 md:space-x-2.5">
+      <div className="flex items-center space-x-1.5 sm:space-x-2.5">
         {/* Audio Toggle */}
         <button
           onClick={toggleSound}
@@ -260,7 +261,7 @@ export const TopStatusBar = () => {
         {/* Official Resume Direct Action Button */}
         <button
           onClick={() => openWindow('resume-window', { title: 'Kamalesh S — Official Resume', type: 'resume' })}
-          className="flex items-center space-x-1.5 px-3 py-1.5 bg-[#F5F04E] text-[#151515] border-2 border-[#151515] shadow-brutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-brutal active:translate-x-[1px] active:translate-y-[1px] font-display uppercase tracking-wider text-xs font-black transition-all"
+          className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 bg-[#F5F04E] text-[#151515] border-2 border-[#151515] shadow-brutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-brutal active:translate-x-[1px] active:translate-y-[1px] font-display uppercase tracking-wider text-xs font-black transition-all"
           title="Open Kamalesh's Official Resume"
         >
           <FileText className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -270,7 +271,7 @@ export const TopStatusBar = () => {
         {/* Direct Contact Button */}
         <button
           onClick={() => openWindow('contact-window', { title: 'Contact Kamalesh', type: 'contact' })}
-          className="flex items-center space-x-1.5 px-3 py-1.5 bg-[#FF5C8A] text-white border-2 border-[#151515] shadow-brutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-brutal active:translate-x-[1px] active:translate-y-[1px] font-display uppercase tracking-wider text-xs font-black transition-all"
+          className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 bg-[#FF5C8A] text-white border-2 border-[#151515] shadow-brutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-brutal active:translate-x-[1px] active:translate-y-[1px] font-display uppercase tracking-wider text-xs font-black transition-all"
         >
           <Mail className="w-3.5 h-3.5 stroke-[2.5]" />
           <span className="hidden xs:inline">HIRE ME</span>
