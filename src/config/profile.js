@@ -48,6 +48,12 @@ export const PROFILE = {
     coreConcepts: ['Object-Oriented Programming (OOP)']
   },
 
+  skills: [
+    'Python', 'Flask', 'MySQL', 'Node.js', 'Express', 'REST API Integration',
+    'JavaScript', 'SQL', 'HTML', 'CSS', 'Relational Database Design',
+    'Git', 'GitHub', 'Google Maps API', 'Responsive Design', 'OOP'
+  ],
+
   projects: [
     {
       title: 'TrichyPreneurs',

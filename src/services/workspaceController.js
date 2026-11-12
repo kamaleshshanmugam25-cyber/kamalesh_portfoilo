@@ -100,10 +100,6 @@ export const executeSingleAction = async (action, wm) => {
     setIsLauncherOpen,
     viewMode,
     setViewMode,
-    selectedPlanetId,
-    setSelectedPlanetId,
-    techFilter,
-    setTechFilter,
     gitHubProjects = [],
     windows = {}
   } = wm;

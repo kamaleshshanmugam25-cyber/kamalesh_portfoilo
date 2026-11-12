@@ -5,7 +5,9 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-const RUNTIME_BASE_URL = 'http://127.0.0.1:4170';
+const RUNTIME_BASE_URL = typeof window !== 'undefined' && window.location.hostname
+  ? `http://${window.location.hostname}:4170`
+  : 'http://127.0.0.1:4170';
 
 let cachedToken = null;
 

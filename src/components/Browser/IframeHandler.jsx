@@ -23,12 +23,11 @@ export const IframeHandler = ({ app, currentUrl, reloadKey }) => {
     }
 
     // Modern browsers silently block iframes with X-Frame-Options: SAMEORIGIN
-    // So if the iframe hasn't confirmed load after 8s, or if error triggers, we enable fallback option
+    // So if the iframe hasn't confirmed load after 4s, or if error triggers, we enable fallback option
     const timer = setTimeout(() => {
-      // If still loading after 8s, assume potential frame restriction or timeout
       setLoadTimedOut(true);
       setIsLoading(false);
-    }, 8500);
+    }, 4000);
 
     return () => clearTimeout(timer);
   }, [targetUrl, reloadKey, isUrlConfigured]);
@@ -57,8 +56,8 @@ export const IframeHandler = ({ app, currentUrl, reloadKey }) => {
     return <FallbackScreen app={app} reason="coming-soon" />;
   }
 
-  // If blocked by frame security or load failed
-  if (hasError || (loadTimedOut && hasError)) {
+  // If blocked by frame security or load failed/timed out
+  if (hasError || loadTimedOut) {
     return <FallbackScreen app={app} reason="security" onRetry={handleRetry} />;
   }
 
@@ -66,11 +65,29 @@ export const IframeHandler = ({ app, currentUrl, reloadKey }) => {
     <div className="relative w-full h-full bg-white flex flex-col">
       {/* Loading overlay spinner */}
       {isLoading && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[#F5F5F0]/95 select-none">
-          <div className="brutal-card p-6 rounded-2xl flex flex-col items-center space-y-3 shadow-brutal">
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[#F5F5F0]/95 select-none p-4">
+          <div className="brutal-card p-6 rounded-2xl flex flex-col items-center space-y-3 shadow-brutal max-w-sm w-full text-center">
             <Loader2 className="w-8 h-8 text-[#3155FF] animate-spin" strokeWidth={2.5} />
-            <p className="text-xs font-extrabold font-heading text-[#151515]">Connecting to {app.shortName}...</p>
-            <p className="text-[11px] text-[#151515]/70 font-mono font-bold bg-[#F5F04E] px-2 py-0.5 rounded border border-[#151515]">{targetUrl}</p>
+            <p className="text-xs font-extrabold font-heading text-[#151515]">Connecting to {app.shortName || app.name}...</p>
+            <p className="text-[11px] text-[#151515]/70 font-mono font-bold bg-[#F5F04E] px-2 py-0.5 rounded border border-[#151515] truncate max-w-full">{targetUrl}</p>
+            
+            <div className="flex items-center space-x-2 pt-2">
+              <a
+                href={targetUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-1.5 bg-[#3155FF] text-white border-2 border-[#151515] shadow-brutal-sm text-xs font-heading font-black uppercase flex items-center space-x-1"
+              >
+                <span>Open in Tab</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+              <button
+                onClick={() => setLoadTimedOut(true)}
+                className="px-3 py-1.5 bg-white text-[#151515] border-2 border-[#151515] shadow-brutal-sm text-xs font-heading font-black uppercase"
+              >
+                Overview
+              </button>
+            </div>
           </div>
         </div>
       )}

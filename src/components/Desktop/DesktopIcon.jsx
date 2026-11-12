@@ -119,6 +119,7 @@ export const DesktopIcon = ({ app, liveApp, isLaunching, onOpen, isSelected, onS
   const handleClick = (e) => {
     e.stopPropagation();
     onSelect(app.id);
+    onOpen(app.id);
   };
 
   const handleDoubleClick = (e) => {

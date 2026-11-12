@@ -53,6 +53,7 @@ export const DesktopCanvas = () => {
     const liveApp = fleet.find(f => f.id === appId);
     const isRunning = liveApp && (liveApp.status === 'running' || liveApp.isPortListening);
 
+    // If local process is running, connect to local port
     if (isRunning) {
       const targetUrl = liveApp.healthUrl || `http://127.0.0.1:${liveApp.port}` || appDef.url;
       openWindow(appId, {
@@ -65,7 +66,19 @@ export const DesktopCanvas = () => {
       return;
     }
 
-    // If stopped, boot via runtime service if online
+    // If the application has a configured live production URL, open it immediately
+    if (appDef.url && appDef.url.startsWith('http') && !appDef.url.includes('[ADD')) {
+      openWindow(appId, {
+        title: appDef.name,
+        metadata: {
+          ...appDef,
+          url: appDef.url
+        }
+      });
+      return;
+    }
+
+    // If stopped and runtime engine is online, attempt auto-boot
     if (isOnline) {
       setLaunchingAppId(appId);
       try {
@@ -87,11 +100,12 @@ export const DesktopCanvas = () => {
       }
     }
 
-    // Direct fallback open
+    // Direct fallback open (with pure appDef metadata, will show Overview if no live URL)
     openWindow(appId, {
+      title: appDef.name,
       metadata: {
         ...appDef,
-        url: appDef.url || `http://127.0.0.1:${appDef.port}`
+        url: appDef.url || ''
       }
     });
   };

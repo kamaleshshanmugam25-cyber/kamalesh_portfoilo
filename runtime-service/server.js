@@ -15,7 +15,7 @@ const CONFIG_PATH = path.join(ROOT_DIR, 'config', 'applications.json');
 const TOKEN_PATH = path.join(ROOT_DIR, '.runtime-token');
 
 const PORT = 4170;
-const HOST = '127.0.0.1';
+const HOST = '0.0.0.0';
 
 // 1. Generate or read local authentication token
 let LOCAL_TOKEN = '';
@@ -188,15 +188,9 @@ function killProcessTree(pid) {
 // 5. Express Application Setup
 const app = express();
 
-// Security: CORS configured for local dev origin
+// Security: CORS configured for local dev and LAN origins
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
-    'http://10.182.149.105:5173',
-    /^http:\/\/localhost:[0-9]+$/,
-    /^http:\/\/127\.0\.0\.1:[0-9]+$/
-  ],
+  origin: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-KAMVERSE-TOKEN']
 }));
