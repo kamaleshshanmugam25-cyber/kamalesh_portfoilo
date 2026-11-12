@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { WindowProvider, useWindowManager } from './context/WindowContext';
 import { AmbientGlow } from './components/UI/AmbientGlow';
 import { TopStatusBar } from './components/Desktop/TopStatusBar';
@@ -8,9 +8,29 @@ import { WindowContainer } from './components/WindowManager/WindowContainer';
 import { AppLauncherModal } from './components/Launcher/AppLauncherModal';
 import { CommandPalette } from './components/Launcher/CommandPalette';
 import { KamAIAssistant } from './components/AI/KamAIAssistant';
+import { playClickSound } from './services/soundEffects';
 
 function WorkspaceLayout() {
-  const { theme } = useWindowManager();
+  const { theme, soundEnabled } = useWindowManager();
+
+  // Global tactile click feedback for all interactive buttons, icons, links, and cards
+  useEffect(() => {
+    if (!soundEnabled) return;
+
+    const handlePointerDown = (e) => {
+      const target = e.target;
+      if (!target) return;
+      const interactive = target.closest('button, a, [role="button"], input, select, textarea, [data-dock-app], .cursor-pointer');
+      if (interactive) {
+        playClickSound();
+      }
+    };
+
+    window.addEventListener('pointerdown', handlePointerDown, { passive: true });
+    return () => {
+      window.removeEventListener('pointerdown', handlePointerDown);
+    };
+  }, [soundEnabled]);
 
   const themeBg = theme === 'dark' 
     ? 'bg-[#151515] text-white' 

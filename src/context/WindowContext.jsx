@@ -1,6 +1,11 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { APPLICATIONS } from '../config/applications';
 import { fetchAllRepositories } from '../services/githubService';
+import { 
+  playSound, 
+  playClickSound, 
+  setSoundEnabledState 
+} from '../services/soundEffects';
 
 const WindowContext = createContext(null);
 
@@ -21,8 +26,36 @@ export const WindowProvider = ({ children }) => {
   const [activeNavTab, setActiveNavTab] = useState('desktop'); // 'desktop', 'projects', 'about', 'contact'
   const [recentAppIds, setRecentAppIds] = useState(['rsk-traders']);
   const [favoriteAppIds, setFavoriteAppIds] = useState(['rsk-traders', 'jobsphere']);
-  const [soundEnabled, setSoundEnabled] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    try {
+      const stored = localStorage.getItem('kamverse_sound');
+      return stored === null ? true : stored === 'true';
+    } catch (_) {
+      return true;
+    }
+  });
   const [isDockVisible, setIsDockVisible] = useState(true);
+
+  useEffect(() => {
+    setSoundEnabledState(soundEnabled);
+    try {
+      localStorage.setItem('kamverse_sound', String(soundEnabled));
+    } catch (_) {}
+  }, [soundEnabled]);
+
+  const toggleSound = useCallback(() => {
+    setSoundEnabled((prev) => {
+      const next = !prev;
+      setSoundEnabledState(next);
+      try {
+        localStorage.setItem('kamverse_sound', String(next));
+      } catch (_) {}
+      if (next) {
+        playSound('toggle');
+      }
+      return next;
+    });
+  }, []);
 
   // Theme Management (Neo-Brutalist Yellow vs Dark vs Light)
   const [theme, setTheme] = useState(() => {
@@ -161,6 +194,7 @@ export const WindowProvider = ({ children }) => {
     setActiveWindowId(appId);
     // Close launcher modal if open
     setIsLauncherOpen(false);
+    playSound('open');
   }, [topZIndex]);
 
   // Open detailed Project window
@@ -175,6 +209,7 @@ export const WindowProvider = ({ children }) => {
 
   // Close window
   const closeWindow = useCallback((appId) => {
+    playSound('close');
     setWindows((curr) => {
       if (!curr[appId]) return curr;
       const next = { ...curr };
@@ -360,6 +395,7 @@ export const WindowProvider = ({ children }) => {
     });
   }, []);
   const minimizeWindow = useCallback((appId) => {
+    playSound('minimize');
     setWindows((curr) => {
       if (!curr[appId]) return curr;
       return {
@@ -377,6 +413,7 @@ export const WindowProvider = ({ children }) => {
 
   // Maximize / Restore window
   const toggleMaximizeWindow = useCallback((appId) => {
+    playSound('toggle');
     setWindows((curr) => {
       if (!curr[appId]) return curr;
       const isMax = !curr[appId].isMaximized;
@@ -478,6 +515,9 @@ export const WindowProvider = ({ children }) => {
     toggleFavorite,
     soundEnabled,
     setSoundEnabled,
+    toggleSound,
+    playSound,
+    playClickSound,
     gitHubProjects,
     isLoadingProjects,
     gitHubSyncInfo,

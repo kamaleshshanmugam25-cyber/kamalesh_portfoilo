@@ -27,14 +27,10 @@ export const TopStatusBar = () => {
     activeNavTab, 
     setActiveNavTab,
     soundEnabled,
-    setSoundEnabled
+    toggleSound
   } = useWindowManager();
 
   const [isSystemMenuOpen, setIsSystemMenuOpen] = useState(false);
-
-  const toggleSound = () => {
-    setSoundEnabled(!soundEnabled);
-  };
 
   const handleNavClick = (tab) => {
     setActiveNavTab(tab);
@@ -242,8 +238,12 @@ export const TopStatusBar = () => {
         {/* Audio Toggle */}
         <button
           onClick={toggleSound}
-          className="p-1.5 border-2 border-[#151515] bg-white hover:bg-[#F5F04E] text-[#151515] transition-colors"
-          title={soundEnabled ? 'Mute Audio' : 'Enable Audio'}
+          className={`p-1.5 border-2 border-[#151515] transition-all ${
+            soundEnabled 
+              ? 'bg-[#10B981] text-white shadow-xs' 
+              : 'bg-white hover:bg-[#F5F04E] text-[#151515]'
+          }`}
+          title={soundEnabled ? 'Click Sound: Enabled (Click to Mute)' : 'Click Sound: Muted (Click to Enable)'}
         >
           {soundEnabled ? (
             <Volume2 className="w-4 h-4 stroke-[2.5]" />
