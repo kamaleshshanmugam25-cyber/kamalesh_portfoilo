@@ -52,7 +52,10 @@ export const DesktopCanvas = () => {
           <div className="inline-flex items-center space-x-2 px-3 py-1 bg-white border-2 border-[#151515] shadow-brutal-sm self-start">
             <span className="w-2 h-2 bg-[#FF5C8A] border border-[#151515]" />
             <span className="text-xs font-mono font-black tracking-wider uppercase text-[#151515]">
-              FLAGSHIP APPLICATIONS [6/6]
+              FLAGSHIP APPLICATIONS [{APPLICATIONS.length}/{APPLICATIONS.length}]
+            </span>
+            <span className="text-[10px] font-mono font-extrabold px-1.5 py-0.2 bg-[#10B981] text-white border border-[#151515]">
+              {APPLICATIONS.filter(a => a.status === 'live').length} LIVE
             </span>
           </div>
 

@@ -312,6 +312,7 @@ def run_local_intent_engine(message: str, available_repos: list = None) -> dict:
             if any(k in p for k in ['jewel', 'gold']): apps.append(('jewellery', 'Gold Jewellery'))
             if any(k in p for k in ['restaurant', 'food']): apps.append(('restaurant', 'Restaurant'))
             if any(k in p for k in ['erp', 'college']): apps.append(('college-erp', 'College ERP'))
+            if any(k in p for k in ['trichy', 'preneur']): apps.append(('trichy-preneurs', 'TrichyPreneurs'))
 
             if len(apps) >= 2:
                 for app_id, _ in apps:

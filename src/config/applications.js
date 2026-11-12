@@ -45,6 +45,39 @@ export const APPLICATIONS = [
     }
   },
   {
+    id: 'trichy-preneurs',
+    name: 'TRICHYPRENEURS',
+    shortName: 'TrichyPreneurs',
+    category: 'Entrepreneur Community',
+    url: 'https://trichypreneurs.com/#home',
+    status: 'live',
+    supportsIframe: true,
+    accentColor: '#8B5CF6', // Vibrant Violet
+    gradient: 'from-violet-500/20 via-indigo-500/10 to-transparent',
+    iconGradient: 'from-violet-400 to-indigo-600',
+    iconBg: '#1B1438',
+    badge: 'LIVE PRODUCT',
+    description: 'Entrepreneurial community ecosystem connecting startup founders, builders, and local businesses in Trichy.',
+    longDescription: 'TrichyPreneurs is an active community platform crafted for entrepreneurs, creators, mentors, and local enterprises in Trichy. Features founder directories, startup networking meetups, community knowledge-sharing, and collaboration channels.',
+    techStack: ['React', 'JavaScript', 'Tailwind CSS', 'Vite', 'Cloudflare'],
+    features: [
+      'Comprehensive regional founder & startup directory',
+      'Community event announcements, registrations & meetups',
+      'Direct entrepreneur networking and mentor matchmaking',
+      'High-performance mobile-first responsive platform'
+    ],
+    metrics: [
+      { label: 'Community Hub', value: 'Trichy' },
+      { label: 'Network', value: 'Active Founders' },
+      { label: 'Availability', value: '100% Live' }
+    ],
+    previewMockup: {
+      type: 'community',
+      headline: 'Empowering Startup Founders & Creators in Trichy',
+      subheadline: 'Connecting local visionaries, innovators, and business leaders.'
+    }
+  },
+  {
     id: 'photography',
     name: 'PHOTOGRAPHY WEBSITE',
     shortName: 'Photography',
@@ -214,6 +247,7 @@ export const APPLICATIONS = [
 export const CATEGORIES = [
   'All',
   'Import & Export',
+  'Entrepreneur Community',
   'Photography & Creative Services',
   'Jewellery & E-commerce',
   'Restaurant & Food',

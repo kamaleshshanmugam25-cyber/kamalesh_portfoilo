@@ -7,7 +7,8 @@ import {
   User, 
   Terminal, 
   Mail,
-  Activity
+  Activity,
+  Sparkles
 } from 'lucide-react';
 import { APPLICATIONS } from '../../config/applications';
 import { useWindowManager } from '../../context/WindowContext';
@@ -42,9 +43,9 @@ export const MacDock = () => {
 
     if (appId === 'launcher') {
       setIsLauncherOpen(prev => !prev);
-    } else if (appId === 'rsk-traders') {
-      const app = APPLICATIONS.find(a => a.id === 'rsk-traders');
-      handleToggleWindow('rsk-traders', { title: app?.name || 'RSK TRADERS', type: 'app', metadata: app });
+    } else if (appId === 'rsk-traders' || appId === 'trichy-preneurs') {
+      const app = APPLICATIONS.find(a => a.id === appId);
+      handleToggleWindow(appId, { title: app?.name || appId.toUpperCase(), type: 'app', metadata: app });
     } else if (appId === 'projects-window') {
       handleToggleWindow('projects-window', { title: 'Projects Explorer', type: 'projects' });
     } else if (appId === 'activity-window') {
@@ -92,6 +93,8 @@ export const MacDock = () => {
     switch (id) {
       case 'rsk-traders':
         return <Globe2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#151515]" strokeWidth={2.2} />;
+      case 'trichy-preneurs':
+        return <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" strokeWidth={2.2} />;
       default:
         return null;
     }
@@ -101,6 +104,8 @@ export const MacDock = () => {
     switch (id) {
       case 'rsk-traders':
         return 'bg-[#39D5C8] hover:bg-[#2bc4b8]';
+      case 'trichy-preneurs':
+        return 'bg-[#8B5CF6] hover:bg-[#7c4deb]';
       default:
         return 'bg-white hover:bg-[#F5F04E]';
     }
@@ -137,8 +142,8 @@ export const MacDock = () => {
         {/* Solid Neo-Brutalist Separator */}
         <div className="w-[1.5px] sm:w-[2px] h-6 sm:h-8 bg-[#151515] my-auto mx-0.5 sm:mx-1 shrink-0 pointer-events-none" />
 
-        {/* Flagship Live Website (RSK Traders) */}
-        {APPLICATIONS.filter(app => app.id === 'rsk-traders').map((app) => {
+        {/* Flagship Live Websites (RSK Traders & TrichyPreneurs) */}
+        {APPLICATIONS.filter(app => app.status === 'live').map((app) => {
           const win = windows[app.id];
           const isOpen = !!(win && win.isOpen && !win.isMinimized);
           const isActive = activeWindowId === app.id;

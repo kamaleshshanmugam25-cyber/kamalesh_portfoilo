@@ -22,11 +22,12 @@ export const ProjectPlanet = ({
   // Orbit angle offset based on project index/id so planets are evenly distributed
   const angleOffset = useRef(
     app.id === 'rsk-traders' ? 0 :
-    app.id === 'photography' ? 1.05 :
-    app.id === 'jewellery' ? 2.1 :
-    app.id === 'restaurant' ? 3.14 :
-    app.id === 'jobsphere' ? 4.2 :
-    5.25
+    app.id === 'trichy-preneurs' ? 0.9 :
+    app.id === 'photography' ? 1.8 :
+    app.id === 'jewellery' ? 2.7 :
+    app.id === 'restaurant' ? 3.6 :
+    app.id === 'jobsphere' ? 4.5 :
+    5.4
   );
 
   useFrame(({ clock }) => {

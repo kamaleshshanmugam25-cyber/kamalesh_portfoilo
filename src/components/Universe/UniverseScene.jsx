@@ -164,11 +164,12 @@ export const UniverseScene = () => {
   // Planet parameters config
   const planetConfigs = [
     { id: 'rsk-traders', radius: 6.8, speed: 0.22, size: 1.15, ring: true },
-    { id: 'photography', radius: 9.8, speed: 0.18, size: 1.05, ring: false },
-    { id: 'jewellery', radius: 12.8, speed: 0.15, size: 1.1, ring: false },
-    { id: 'restaurant', radius: 15.8, speed: 0.12, size: 1.08, ring: false },
-    { id: 'jobsphere', radius: 18.8, speed: 0.10, size: 1.12, ring: true },
-    { id: 'college-erp', radius: 21.8, speed: 0.08, size: 1.2, ring: false }
+    { id: 'trichy-preneurs', radius: 9.8, speed: 0.19, size: 1.12, ring: true },
+    { id: 'photography', radius: 12.8, speed: 0.16, size: 1.05, ring: false },
+    { id: 'jewellery', radius: 15.8, speed: 0.14, size: 1.1, ring: false },
+    { id: 'restaurant', radius: 18.8, speed: 0.11, size: 1.08, ring: false },
+    { id: 'jobsphere', radius: 21.8, speed: 0.09, size: 1.12, ring: true },
+    { id: 'college-erp', radius: 24.8, speed: 0.07, size: 1.2, ring: false }
   ];
 
   return (

@@ -36,6 +36,31 @@ export const APPLICATION_REGISTRY = [
     ]
   },
   {
+    id: 'trichy-preneurs',
+    name: 'TRICHYPRENEURS',
+    shortName: 'TrichyPreneurs',
+    windowId: 'trichy-preneurs',
+    windowType: 'app',
+    url: 'https://trichypreneurs.com/#home',
+    isLive: true,
+    supportsIframe: true,
+    category: 'Entrepreneur Community',
+    accentColor: '#8B5CF6',
+    description: 'Entrepreneurial community ecosystem connecting startup founders, builders, and local businesses in Trichy.',
+    techStack: ['React', 'JavaScript', 'Tailwind CSS', 'Vite', 'Cloudflare'],
+    aliases: [
+      'trichypreneurs',
+      'trichy-preneurs',
+      'trichy',
+      'trichy preneurs',
+      'trichy community',
+      'entrepreneur',
+      'entrepreneur community',
+      'trichy website',
+      'trichypreneurs.com'
+    ]
+  },
+  {
     id: 'jobsphere',
     name: 'JOBSPHERE',
     shortName: 'JobSphere',

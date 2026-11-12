@@ -42,6 +42,22 @@ FLAGSHIP_APPLICATIONS = [
         ]
     },
     {
+        "id": "trichy-preneurs",
+        "name": "TRICHYPRENEURS",
+        "short_name": "TrichyPreneurs",
+        "category": "Entrepreneur Community",
+        "url": "https://trichypreneurs.com/#home",
+        "status": "live",
+        "is_live": True,
+        "description": "Entrepreneurial community ecosystem connecting startup founders, builders, and local businesses in Trichy.",
+        "tech_stack": ["React", "JavaScript", "Tailwind CSS", "Vite", "Cloudflare"],
+        "aliases": [
+            "trichypreneurs", "trichy-preneurs", "trichy", "trichy preneurs",
+            "trichy community", "entrepreneur", "entrepreneur community",
+            "trichy website", "trichypreneurs.com"
+        ]
+    },
+    {
         "id": "jobsphere",
         "name": "JOBSPHERE",
         "short_name": "JobSphere",

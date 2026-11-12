@@ -106,12 +106,12 @@ export const REPO_OVERRIDES = {
     id: 'trichy-preneurs',
     displayName: 'TrichyPreneurs Community',
     category: 'Business Websites',
-    liveUrl: '',
-    featured: false,
+    liveUrl: 'https://trichypreneurs.com/#home',
+    featured: true,
     accentColor: '#8B5CF6',
     gradient: 'from-violet-500/20 via-indigo-500/10 to-transparent',
     iconGradient: 'from-violet-400 to-indigo-600',
-    description: 'Entrepreneurial community ecosystem connecting founders, builders, and local business networks.'
+    description: 'Entrepreneurial community ecosystem connecting founders, builders, and local business networks in Trichy.'
   },
   'Littlelemon': {
     id: 'littlelemon',
@@ -306,9 +306,9 @@ export const STATIC_REPOS_SNAPSHOT = [
     name: 'TrichyPreneurs',
     full_name: 'kamaleshshanmugam25-cyber/TrichyPreneurs',
     html_url: 'https://github.com/kamaleshshanmugam25-cyber/TrichyPreneurs',
-    description: 'It is a Enterpernur community and they build a connection',
+    description: 'It is an Entrepreneur community connecting founders and builders across Trichy',
     language: 'JavaScript',
-    homepage: '',
+    homepage: 'https://trichypreneurs.com/#home',
     stargazers_count: 0,
     forks_count: 0,
     topics: ['community', 'entrepreneurship', 'networking'],
