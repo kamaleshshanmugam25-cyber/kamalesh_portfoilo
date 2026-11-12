@@ -53,7 +53,7 @@ export const TopStatusBar = () => {
   };
 
   return (
-    <header className="relative z-50 h-12 w-full bg-white border-b-3 border-[#151515] flex items-center justify-between px-3 md:px-5 text-xs font-heading font-bold select-none text-[#151515]">
+    <header className="relative z-50 h-12 w-full bg-white border-b-3 border-[#151515] flex items-center justify-between px-2.5 sm:px-3 md:px-5 text-xs font-heading font-bold select-none text-[#151515]">
       
       {/* Left: Brand & Navigation */}
       <div className="flex items-center space-x-2 md:space-x-4">
@@ -61,13 +61,13 @@ export const TopStatusBar = () => {
         <div className="relative">
           <button
             onClick={() => setIsSystemMenuOpen(!isSystemMenuOpen)}
-            className="flex items-center space-x-2 px-3 py-1.5 bg-[#F5F04E] text-[#151515] border-2 border-[#151515] shadow-brutal-sm hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-brutal active:translate-x-[1px] active:translate-y-[1px] transition-all"
+            className="h-8 flex items-center space-x-1.5 sm:space-x-2 px-2.5 sm:px-3 bg-[#F5F04E] text-[#151515] border-2 border-[#151515] shadow-brutal-sm hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-brutal active:translate-x-[1px] active:translate-y-[1px] transition-all"
             title="System Overview"
           >
-            <span className="w-5 h-5 bg-[#3155FF] text-white border border-[#151515] flex items-center justify-center font-black text-xs">
+            <span className="w-4 h-4 sm:w-5 sm:h-5 bg-[#3155FF] text-white border border-[#151515] flex items-center justify-center font-black text-[10px] sm:text-xs shrink-0">
               ★
             </span>
-            <span className="font-display tracking-wider text-sm font-black uppercase">
+            <span className="font-display tracking-wider text-xs sm:text-sm font-black uppercase">
               KAMVERSE
             </span>
           </button>
@@ -216,44 +216,53 @@ export const TopStatusBar = () => {
         </nav>
       </div>
 
-      {/* Center: Command Palette Search */}
-      <div className="flex items-center space-x-1.5 sm:space-x-3">
+      {/* Center: Command Palette Search (Desktop / Tablet) */}
+      <div className="hidden sm:flex items-center space-x-2 sm:space-x-3">
         <button
           onClick={() => setIsCommandPaletteOpen(true)}
-          className="flex items-center space-x-2 p-1.5 sm:px-3.5 sm:py-1.5 bg-[#F5F5F0] border-2 border-[#151515] shadow-brutal-sm hover:bg-white hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-brutal transition-all text-[#151515] sm:w-64 md:w-80 justify-between"
+          className="h-8 flex items-center space-x-2 px-3.5 bg-[#F5F5F0] border-2 border-[#151515] shadow-brutal-sm hover:bg-white hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-brutal transition-all text-[#151515] sm:w-56 md:w-72 lg:w-80 justify-between"
           title="Search resume, projects... (⌘K)"
         >
           <span className="flex items-center space-x-2">
             <Search className="w-3.5 h-3.5 stroke-[2.5] text-gray-700" />
-            <span className="hidden sm:inline text-xs font-bold text-gray-700">Search resume, projects...</span>
+            <span className="text-xs font-bold text-gray-700">Search resume, projects...</span>
           </span>
-          <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 border border-[#151515] bg-white text-[10px] font-mono font-bold">
+          <kbd className="inline-flex items-center px-1.5 py-0.5 border border-[#151515] bg-white text-[10px] font-mono font-bold">
             ⌘K
           </kbd>
         </button>
       </div>
 
       {/* Right: Audio, Date/Time & Resume + Contact CTAs */}
-      <div className="flex items-center space-x-1.5 sm:space-x-2.5">
+      <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
+        {/* Mobile Search Button (Compact) */}
+        <button
+          onClick={() => setIsCommandPaletteOpen(true)}
+          className="sm:hidden h-8 w-8 flex items-center justify-center bg-[#F5F5F0] hover:bg-white text-[#151515] border-2 border-[#151515] shadow-brutal-sm active:translate-y-0.5 transition-all"
+          title="Search resume, projects... (⌘K)"
+        >
+          <Search className="w-3.5 h-3.5 stroke-[2.5] text-gray-800" />
+        </button>
+
         {/* Audio Toggle */}
         <button
           onClick={toggleSound}
-          className={`p-1.5 border-2 border-[#151515] transition-all ${
+          className={`h-8 w-8 flex items-center justify-center border-2 border-[#151515] shadow-brutal-sm transition-all active:translate-y-0.5 ${
             soundEnabled 
-              ? 'bg-[#10B981] text-white shadow-xs' 
+              ? 'bg-[#10B981] text-white' 
               : 'bg-white hover:bg-[#F5F04E] text-[#151515]'
           }`}
           title={soundEnabled ? 'Click Sound: Enabled (Click to Mute)' : 'Click Sound: Muted (Click to Enable)'}
         >
           {soundEnabled ? (
-            <Volume2 className="w-4 h-4 stroke-[2.5]" />
+            <Volume2 className="w-3.5 h-3.5 stroke-[2.5]" />
           ) : (
-            <VolumeX className="w-4 h-4 stroke-[2.5]" />
+            <VolumeX className="w-3.5 h-3.5 stroke-[2.5]" />
           )}
         </button>
 
         {/* Live Date & Time */}
-        <div className="hidden lg:flex items-center space-x-2 px-2.5 py-1 bg-white border-2 border-[#151515] text-[#151515] font-mono text-xs font-bold">
+        <div className="hidden lg:flex items-center h-8 space-x-2 px-2.5 bg-white border-2 border-[#151515] shadow-brutal-sm text-[#151515] font-mono text-xs font-bold">
           <span className="text-[#525252]">{formattedDate}</span>
           <span className="font-extrabold tracking-tight">{formattedTime}</span>
         </div>
@@ -261,7 +270,7 @@ export const TopStatusBar = () => {
         {/* Official Resume Direct Action Button */}
         <button
           onClick={() => openWindow('resume-window', { title: 'Kamalesh S — Official Resume', type: 'resume' })}
-          className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 bg-[#F5F04E] text-[#151515] border-2 border-[#151515] shadow-brutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-brutal active:translate-x-[1px] active:translate-y-[1px] font-display uppercase tracking-wider text-xs font-black transition-all"
+          className="h-8 flex items-center space-x-1 sm:space-x-1.5 px-2.5 sm:px-3 bg-[#F5F04E] text-[#151515] border-2 border-[#151515] shadow-brutal-sm hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-brutal active:translate-y-0.5 font-display uppercase tracking-wider text-[11px] sm:text-xs font-black transition-all"
           title="Open Kamalesh's Official Resume"
         >
           <FileText className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -271,10 +280,11 @@ export const TopStatusBar = () => {
         {/* Direct Contact Button */}
         <button
           onClick={() => openWindow('contact-window', { title: 'Contact Kamalesh', type: 'contact' })}
-          className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 bg-[#FF5C8A] text-white border-2 border-[#151515] shadow-brutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-brutal active:translate-x-[1px] active:translate-y-[1px] font-display uppercase tracking-wider text-xs font-black transition-all"
+          className="h-8 w-8 sm:w-auto px-0 sm:px-3 flex items-center justify-center sm:space-x-1.5 bg-[#FF5C8A] text-white border-2 border-[#151515] shadow-brutal-sm hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-brutal active:translate-y-0.5 font-display uppercase tracking-wider text-[11px] sm:text-xs font-black transition-all"
+          title="Contact & Hire Kamalesh"
         >
           <Mail className="w-3.5 h-3.5 stroke-[2.5]" />
-          <span className="hidden xs:inline">HIRE ME</span>
+          <span className="hidden sm:inline">HIRE ME</span>
         </button>
       </div>
     </header>
