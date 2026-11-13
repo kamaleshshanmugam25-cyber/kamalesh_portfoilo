@@ -231,7 +231,7 @@ export const ContactModal = () => {
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="e.g. John Doe"
+                    placeholder="Enter Your Name"
                     className="w-full px-3.5 py-2.5 rounded-xl bg-white border-2 border-[#151515] shadow-[2px_2px_0px_#151515] focus:outline-none focus:ring-2 focus:ring-[#3155FF] text-xs font-bold text-[#151515] placeholder-[#151515]/40 transition-all"
                   />
                 </div>
@@ -242,7 +242,7 @@ export const ContactModal = () => {
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="john@company.com"
+                    placeholder="Enter Your Email Address"
                     className="w-full px-3.5 py-2.5 rounded-xl bg-white border-2 border-[#151515] shadow-[2px_2px_0px_#151515] focus:outline-none focus:ring-2 focus:ring-[#3155FF] text-xs font-bold text-[#151515] placeholder-[#151515]/40 transition-all"
                   />
                 </div>
@@ -254,7 +254,7 @@ export const ContactModal = () => {
                   type="text"
                   value={formData.subject}
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                  placeholder="e.g. Hiring, Python Project, Collaboration"
+                  placeholder="e.g. Hiring, Python Project, Collaboration,Website ENQ, etc."
                   className="w-full px-3.5 py-2.5 rounded-xl bg-white border-2 border-[#151515] shadow-[2px_2px_0px_#151515] focus:outline-none focus:ring-2 focus:ring-[#3155FF] text-xs font-bold text-[#151515] placeholder-[#151515]/40 transition-all"
                 />
               </div>
